@@ -4,7 +4,6 @@
 
 AI-powered resume builder with drag-and-drop editing, real-time AI optimization, and PDF export.
 
-![JadeAI Demo](./images/demo.png)
 
 ## Features
 

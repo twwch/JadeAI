@@ -4,7 +4,6 @@
 
 AI 驱动的智能简历生成器，支持拖拽编辑、实时 AI 优化和 PDF 导出。
 
-![JadeAI Demo](./images/demo.png)
 
 ## 功能特性
 
