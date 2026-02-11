@@ -1,0 +1,138 @@
+{
+  "common": {
+    "appName": "JadeAI",
+    "save": "保存",
+    "cancel": "取消",
+    "delete": "删除",
+    "edit": "编辑",
+    "create": "创建",
+    "duplicate": "复制",
+    "export": "导出",
+    "loading": "加载中...",
+    "confirm": "确认",
+    "back": "返回",
+    "search": "搜索",
+    "noData": "暂无数据"
+  },
+  "auth": {
+    "login": "登录",
+    "logout": "退出登录",
+    "loginWithGoogle": "使用 Google 登录",
+    "welcomeBack": "欢迎回来",
+    "loginDescription": "登录以管理你的简历"
+  },
+  "dashboard": {
+    "title": "我的简历",
+    "createResume": "新建简历",
+    "createResumeDescription": "从空白模板开始创建新简历",
+    "resumeCount": "共 {count} 份简历",
+    "lastEdited": "最后编辑于 {date}",
+    "deleteConfirm": "确定要删除「{title}」吗？此操作不可恢复。",
+    "duplicateSuccess": "简历已复制",
+    "noResumes": "还没有简历，点击上方按钮创建一份吧",
+    "templateClassic": "经典",
+    "templateModern": "现代",
+    "templateMinimal": "极简",
+    "upload": {
+      "fromTemplate": "从模板创建",
+      "fromFile": "上传文件",
+      "dropzone": "拖拽简历文件到此处",
+      "acceptedTypes": "PDF、PNG、JPG、WebP（最大 10MB）",
+      "browse": "浏览文件",
+      "parsing": "解析中...",
+      "uploadAndParse": "上传并解析",
+      "invalidType": "不支持的文件类型，仅支持 PDF、PNG、JPG、WebP",
+      "fileTooLarge": "文件过大，最大支持 10MB",
+      "parseFailed": "简历解析失败，请重试"
+    }
+  },
+  "editor": {
+    "toolbar": {
+      "undo": "撤销",
+      "redo": "重做",
+      "preview": "预览",
+      "export": "导出 PDF",
+      "template": "切换模板",
+      "settings": "设置",
+      "autoSaved": "已自动保存",
+      "saving": "保存中..."
+    },
+    "sidebar": {
+      "sections": "简历模块",
+      "addSection": "添加模块",
+      "dragHint": "拖拽模块以调整顺序"
+    },
+    "sections": {
+      "personalInfo": "个人信息",
+      "summary": "个人简介",
+      "workExperience": "工作经历",
+      "education": "教育背景",
+      "skills": "技能特长",
+      "projects": "项目经历",
+      "certifications": "资格证书",
+      "languages": "语言能力",
+      "custom": "自定义模块"
+    },
+    "fields": {
+      "fullName": "姓名",
+      "jobTitle": "职位",
+      "email": "邮箱",
+      "phone": "电话",
+      "location": "所在地",
+      "website": "个人网站",
+      "company": "公司",
+      "position": "职位",
+      "startDate": "开始时间",
+      "endDate": "结束时间",
+      "current": "至今",
+      "description": "描述",
+      "highlights": "亮点",
+      "institution": "学校",
+      "degree": "学位",
+      "field": "专业",
+      "gpa": "GPA",
+      "skillCategory": "技能分类",
+      "projectName": "项目名称",
+      "technologies": "技术栈",
+      "addItem": "添加条目",
+      "removeItem": "删除条目"
+    }
+  },
+  "ai": {
+    "panelTitle": "AI 助手",
+    "placeholder": "描述你想优化的内容...",
+    "send": "发送",
+    "thinking": "AI 思考中...",
+    "suggestion": "AI 建议",
+    "applySuggestion": "应用建议",
+    "dismissSuggestion": "忽略",
+    "defaultGreeting": "你好！我是你的简历优化助手。告诉我你想改进简历的哪个部分？",
+    "errorMessage": "出错了，请稍后重试",
+    "newChat": "新对话",
+    "toolCall": "工具调用",
+    "toolCalling": "调用:",
+    "toolResult": "执行结果",
+    "toolCallSuccess": "成功",
+    "toolCallError": "失败",
+    "toolUpdateSection": "已更新模块",
+    "toolAddSection": "已添加模块",
+    "toolRewriteText": "已改写文本",
+    "toolSuggestSkills": "已推荐技能",
+    "loadMore": "加载更多",
+    "loadingMore": "加载中..."
+  },
+  "pdf": {
+    "exporting": "正在生成 PDF...",
+    "exportSuccess": "PDF 导出成功",
+    "exportError": "PDF 导出失败，请重试",
+    "selectTemplate": "选择导出模板"
+  },
+  "settings": {
+    "title": "设置",
+    "language": "界面语言",
+    "theme": "主题",
+    "themeLight": "浅色",
+    "themeDark": "深色",
+    "themeSystem": "跟随系统"
+  }
+}

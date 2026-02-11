@@ -1,0 +1,138 @@
+{
+  "common": {
+    "appName": "JadeAI",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "duplicate": "Duplicate",
+    "export": "Export",
+    "loading": "Loading...",
+    "confirm": "Confirm",
+    "back": "Back",
+    "search": "Search",
+    "noData": "No data"
+  },
+  "auth": {
+    "login": "Log in",
+    "logout": "Log out",
+    "loginWithGoogle": "Sign in with Google",
+    "welcomeBack": "Welcome back",
+    "loginDescription": "Sign in to manage your resumes"
+  },
+  "dashboard": {
+    "title": "My Resumes",
+    "createResume": "New Resume",
+    "createResumeDescription": "Start from a blank template",
+    "resumeCount": "{count} resumes",
+    "lastEdited": "Last edited {date}",
+    "deleteConfirm": "Are you sure you want to delete \"{title}\"? This action cannot be undone.",
+    "duplicateSuccess": "Resume duplicated",
+    "noResumes": "No resumes yet. Click the button above to create one.",
+    "templateClassic": "Classic",
+    "templateModern": "Modern",
+    "templateMinimal": "Minimal",
+    "upload": {
+      "fromTemplate": "From Template",
+      "fromFile": "Upload File",
+      "dropzone": "Drag and drop your resume here",
+      "acceptedTypes": "PDF, PNG, JPG, WebP (max 10MB)",
+      "browse": "Browse Files",
+      "parsing": "Parsing...",
+      "uploadAndParse": "Upload & Parse",
+      "invalidType": "Unsupported file type. Accepted: PDF, PNG, JPG, WebP",
+      "fileTooLarge": "File too large. Maximum size: 10MB",
+      "parseFailed": "Failed to parse resume. Please try again."
+    }
+  },
+  "editor": {
+    "toolbar": {
+      "undo": "Undo",
+      "redo": "Redo",
+      "preview": "Preview",
+      "export": "Export PDF",
+      "template": "Switch Template",
+      "settings": "Settings",
+      "autoSaved": "Auto-saved",
+      "saving": "Saving..."
+    },
+    "sidebar": {
+      "sections": "Sections",
+      "addSection": "Add Section",
+      "dragHint": "Drag sections to reorder"
+    },
+    "sections": {
+      "personalInfo": "Personal Info",
+      "summary": "Summary",
+      "workExperience": "Work Experience",
+      "education": "Education",
+      "skills": "Skills",
+      "projects": "Projects",
+      "certifications": "Certifications",
+      "languages": "Languages",
+      "custom": "Custom Section"
+    },
+    "fields": {
+      "fullName": "Full Name",
+      "jobTitle": "Job Title",
+      "email": "Email",
+      "phone": "Phone",
+      "location": "Location",
+      "website": "Website",
+      "company": "Company",
+      "position": "Position",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "current": "Present",
+      "description": "Description",
+      "highlights": "Highlights",
+      "institution": "Institution",
+      "degree": "Degree",
+      "field": "Field of Study",
+      "gpa": "GPA",
+      "skillCategory": "Category",
+      "projectName": "Project Name",
+      "technologies": "Technologies",
+      "addItem": "Add Item",
+      "removeItem": "Remove Item"
+    }
+  },
+  "ai": {
+    "panelTitle": "AI Assistant",
+    "placeholder": "Describe what you want to improve...",
+    "send": "Send",
+    "thinking": "AI is thinking...",
+    "suggestion": "AI Suggestion",
+    "applySuggestion": "Apply",
+    "dismissSuggestion": "Dismiss",
+    "defaultGreeting": "Hi! I'm your resume optimization assistant. Which part of your resume would you like to improve?",
+    "errorMessage": "Something went wrong. Please try again.",
+    "newChat": "New Chat",
+    "toolCall": "Tool Call",
+    "toolCalling": "Calling:",
+    "toolResult": "Result",
+    "toolCallSuccess": "Success",
+    "toolCallError": "Failed",
+    "toolUpdateSection": "Updated section",
+    "toolAddSection": "Added section",
+    "toolRewriteText": "Rewrote text",
+    "toolSuggestSkills": "Suggested skills",
+    "loadMore": "Load more",
+    "loadingMore": "Loading..."
+  },
+  "pdf": {
+    "exporting": "Generating PDF...",
+    "exportSuccess": "PDF exported successfully",
+    "exportError": "PDF export failed. Please try again.",
+    "selectTemplate": "Select export template"
+  },
+  "settings": {
+    "title": "Settings",
+    "language": "Language",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
+  }
+}

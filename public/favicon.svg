@@ -1,0 +1,32 @@
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="jade-v" x1="2" y1="2" x2="30" y2="30" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background -->
+  <rect x="2" y="2" width="28" height="28" rx="7" fill="url(#jade-v)"/>
+
+  <!-- White JR monogram -->
+  <g stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <!-- J top serif -->
+    <path d="M8 9H17"/>
+    <!-- Shared vertical -->
+    <path d="M15 9V21"/>
+    <!-- J hook -->
+    <path d="M15 21C15 23.5 13 25 11 25C9.5 25 8.5 24 8.5 23"/>
+    <!-- R bowl -->
+    <path d="M15 9H20.5C23.5 9 25 11 25 13.5C25 16 23.5 18 20.5 18H15"/>
+    <!-- R leg -->
+    <path d="M19.5 18L26 25"/>
+  </g>
+
+  <!-- AI sparkle glow -->
+  <circle cx="27" cy="6.5" r="4" fill="#FCD34D" opacity="0.15"/>
+  <!-- AI sparkle — main star -->
+  <path d="M27 3L27.8 5.5L30.5 6.5L27.8 7.5L27 10L26.2 7.5L23.5 6.5L26.2 5.5Z" fill="#FCD34D"/>
+  <!-- AI sparkle — small dot -->
+  <circle cx="23.5" cy="3.5" r="1" fill="#FCD34D" opacity="0.5"/>
+</svg>

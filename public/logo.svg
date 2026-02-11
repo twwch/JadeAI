@@ -1,0 +1,40 @@
+<svg width="180" height="48" viewBox="0 0 180 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="jade-f" x1="2" y1="2" x2="46" y2="46" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Icon (scaled to fit 48px height) -->
+  <g>
+    <rect x="2" y="2" width="44" height="44" rx="11" fill="url(#jade-f)"/>
+
+    <g stroke="white" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <!-- J top serif -->
+      <path d="M11 12H24"/>
+      <!-- Shared vertical -->
+      <path d="M22 12V32"/>
+      <!-- J hook -->
+      <path d="M22 32C22 35.5 20 38 16.5 38C14.5 38 13 37 13 36"/>
+      <!-- R bowl -->
+      <path d="M22 12H30C34.5 12 37 15 37 19C37 23 34.5 26 30 26H22"/>
+      <!-- R leg -->
+      <path d="M29 26L39 38"/>
+    </g>
+
+    <!-- AI sparkle glow -->
+    <circle cx="41" cy="9" r="6" fill="#FCD34D" opacity="0.12"/>
+    <!-- AI sparkle — main star -->
+    <path d="M41 3.5L42.4 8L47 9.5L42.4 11L41 15.5L39.6 11L35 9.5L39.6 8Z" fill="#FCD34D"/>
+    <!-- AI sparkle — small star -->
+    <path d="M34.5 2L35.1 4L37 4.5L35.1 5L34.5 7L33.9 5L32 4.5L33.9 4Z" fill="#FCD34D" opacity="0.6"/>
+    <!-- AI sparkle — tiny dot -->
+    <circle cx="45" cy="4" r="1.1" fill="#FCD34D" opacity="0.45"/>
+  </g>
+
+  <!-- Text: JadeAI -->
+  <text x="54" y="33" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="26" font-weight="700" fill="#064E3B" letter-spacing="-0.5">
+    Jade<tspan fill="#10B981">AI</tspan>
+  </text>
+</svg>
