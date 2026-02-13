@@ -1,0 +1,164 @@
+import { create } from 'zustand';
+
+export type AIProvider = 'openai' | 'anthropic' | 'custom';
+
+interface SettingsStore {
+  // AI settings
+  aiProvider: AIProvider;
+  aiApiKey: string; // stored locally only, never sent to server
+  aiBaseURL: string;
+  aiModel: string;
+
+  // Editor settings
+  autoSave: boolean;
+  autoSaveInterval: number; // in milliseconds
+
+  // Hydration state
+  _hydrated: boolean;
+  _syncing: boolean;
+
+  // Actions
+  setAIProvider: (provider: AIProvider) => void;
+  setAIApiKey: (key: string) => void;
+  setAIBaseURL: (url: string) => void;
+  setAIModel: (model: string) => void;
+  setAutoSave: (enabled: boolean) => void;
+  setAutoSaveInterval: (interval: number) => void;
+  hydrate: () => void;
+}
+
+const API_KEY_STORAGE_KEY = 'jade_api_key';
+
+function getFingerprint(): string | null {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('jade_fingerprint');
+}
+
+function getHeaders(): Record<string, string> {
+  const fp = getFingerprint();
+  return {
+    'Content-Type': 'application/json',
+    ...(fp ? { 'x-fingerprint': fp } : {}),
+  };
+}
+
+// Sync settings to server (debounced)
+let syncTimeout: ReturnType<typeof setTimeout> | null = null;
+
+function syncToServer(state: SettingsStore) {
+  if (syncTimeout) clearTimeout(syncTimeout);
+  syncTimeout = setTimeout(async () => {
+    try {
+      await fetch('/api/user/settings', {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({
+          aiProvider: state.aiProvider,
+          aiBaseURL: state.aiBaseURL,
+          aiModel: state.aiModel,
+          autoSave: state.autoSave,
+          autoSaveInterval: state.autoSaveInterval,
+        }),
+      });
+    } catch {
+      // silently fail, local state is still correct
+    }
+  }, 500);
+}
+
+function saveApiKeyLocally(key: string) {
+  if (typeof window === 'undefined') return;
+  try {
+    if (key) {
+      localStorage.setItem(API_KEY_STORAGE_KEY, key);
+    } else {
+      localStorage.removeItem(API_KEY_STORAGE_KEY);
+    }
+  } catch { /* ignore */ }
+}
+
+function loadApiKeyLocally(): string {
+  if (typeof window === 'undefined') return '';
+  try {
+    return localStorage.getItem(API_KEY_STORAGE_KEY) || '';
+  } catch {
+    return '';
+  }
+}
+
+export const useSettingsStore = create<SettingsStore>((set, get) => ({
+  aiProvider: 'openai',
+  aiApiKey: '',
+  aiBaseURL: 'https://api.openai.com/v1',
+  aiModel: 'gpt-4o',
+  autoSave: true,
+  autoSaveInterval: 500,
+  _hydrated: false,
+  _syncing: false,
+
+  setAIProvider: (provider) => {
+    const defaults: Record<AIProvider, { baseURL: string; model: string }> = {
+      openai: { baseURL: 'https://api.openai.com/v1', model: 'gpt-4o' },
+      anthropic: { baseURL: 'https://api.anthropic.com', model: 'claude-sonnet-4-20250514' },
+      custom: { baseURL: get().aiBaseURL, model: get().aiModel },
+    };
+    set({
+      aiProvider: provider,
+      aiBaseURL: defaults[provider].baseURL,
+      aiModel: defaults[provider].model,
+    });
+    syncToServer(get());
+  },
+
+  setAIApiKey: (key) => {
+    set({ aiApiKey: key });
+    saveApiKeyLocally(key);
+  },
+
+  setAIBaseURL: (url) => {
+    set({ aiBaseURL: url });
+    syncToServer(get());
+  },
+
+  setAIModel: (model) => {
+    set({ aiModel: model });
+    syncToServer(get());
+  },
+
+  setAutoSave: (enabled) => {
+    set({ autoSave: enabled });
+    syncToServer(get());
+  },
+
+  setAutoSaveInterval: (interval) => {
+    set({ autoSaveInterval: interval });
+    syncToServer(get());
+  },
+
+  hydrate: async () => {
+    if (get()._hydrated) return;
+
+    // Load API key from localStorage immediately
+    const apiKey = loadApiKeyLocally();
+    set({ aiApiKey: apiKey });
+
+    // Load other settings from server
+    try {
+      const res = await fetch('/api/user/settings', { headers: getHeaders() });
+      if (res.ok) {
+        const data = await res.json();
+        set({
+          ...(data.aiProvider && { aiProvider: data.aiProvider }),
+          ...(data.aiBaseURL && { aiBaseURL: data.aiBaseURL }),
+          ...(data.aiModel && { aiModel: data.aiModel }),
+          ...(typeof data.autoSave === 'boolean' && { autoSave: data.autoSave }),
+          ...(typeof data.autoSaveInterval === 'number' && { autoSaveInterval: data.autoSaveInterval }),
+          _hydrated: true,
+        });
+        return;
+      }
+    } catch { /* fall through */ }
+
+    set({ _hydrated: true });
+  },
+}));

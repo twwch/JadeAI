@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { GripVertical, Trash2, Eye, EyeOff } from 'lucide-react';
+import { GripVertical, Trash2, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/stores/editor-store';
@@ -37,7 +37,8 @@ const sectionComponents: Record<string, React.ComponentType<{ section: ResumeSec
 };
 
 export function SectionWrapper({ section, onUpdate, onRemove }: SectionWrapperProps) {
-  const { selectedSectionId, selectSection } = useEditorStore();
+  const t = useTranslations('editor');
+  const { selectedSectionId, selectSection, showAiChat, toggleAiChat } = useEditorStore();
   const { toggleSectionVisibility } = useResumeStore();
   const { attributes, listeners } = useDragHandle();
   const isSelected = selectedSectionId === section.id;
@@ -61,6 +62,18 @@ export function SectionWrapper({ section, onUpdate, onRemove }: SectionWrapperPr
           <h3 className="text-sm font-semibold text-zinc-700">{section.title}</h3>
         </div>
         <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 w-7 cursor-pointer p-0 text-pink-400 hover:text-pink-600"
+            title={t('aiPolish')}
+            onClick={(e) => {
+              e.stopPropagation();
+              if (!showAiChat) toggleAiChat();
+            }}
+          >
+            <Sparkles className="h-3.5 w-3.5" />
+          </Button>
           <Button
             variant="ghost"
             size="sm"

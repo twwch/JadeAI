@@ -10,6 +10,7 @@ import { useUIStore } from '@/stores/ui-store';
 import { useFingerprint } from '@/hooks/use-fingerprint';
 import { ResumeGrid } from '@/components/dashboard/resume-grid';
 import { CreateResumeDialog } from '@/components/dashboard/create-resume-dialog';
+import { SettingsDialog } from '@/components/settings/settings-dialog';
 
 export default function DashboardPage() {
   const t = useTranslations('dashboard');
@@ -27,7 +28,7 @@ export default function DashboardPage() {
     <div>
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-zinc-900">{t('title')}</h1>
+          <h1 className="text-2xl font-bold text-zinc-900 dark:text-foreground">{t('title')}</h1>
           {resumes.length > 0 && (
             <p className="mt-1 text-sm text-zinc-500">
               {t('resumeCount', { count: resumes.length })}
@@ -50,8 +51,8 @@ export default function DashboardPage() {
           ))}
         </div>
       ) : resumes.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-200 py-16">
-          <p className="text-zinc-500">{t('noResumes')}</p>
+        <div className="flex flex-col items-center justify-center rounded-xl border-2 border-dashed border-zinc-200 dark:border-zinc-700 py-16">
+          <p className="text-zinc-500 dark:text-zinc-400">{t('noResumes')}</p>
         </div>
       ) : (
         <ResumeGrid
@@ -66,6 +67,7 @@ export default function DashboardPage() {
         onClose={closeModal}
         onCreate={createResume}
       />
+      <SettingsDialog />
     </div>
   );
 }

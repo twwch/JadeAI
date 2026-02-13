@@ -33,6 +33,11 @@
     "templateClassic": "经典",
     "templateModern": "现代",
     "templateMinimal": "极简",
+    "templateProfessional": "专业",
+    "templateTwoColumn": "双栏",
+    "templateCreative": "创意",
+    "templateAts": "ATS",
+    "templateAcademic": "学术",
     "upload": {
       "fromTemplate": "从模板创建",
       "fromFile": "上传文件",
@@ -54,9 +59,17 @@
       "export": "导出 PDF",
       "template": "切换模板",
       "settings": "设置",
+      "theme": "主题",
       "autoSaved": "已自动保存",
-      "saving": "保存中..."
+      "saving": "保存中...",
+      "unsaved": "未保存",
+      "save": "保存",
+      "exportPdf": "导出 PDF",
+      "exporting": "导出中...",
+      "jdAnalysis": "JD 匹配",
+      "translate": "翻译"
     },
+    "aiPolish": "AI 润色",
     "sidebar": {
       "sections": "简历模块",
       "addSection": "添加模块",
@@ -119,7 +132,8 @@
     "toolRewriteText": "已改写文本",
     "toolSuggestSkills": "已推荐技能",
     "loadMore": "加载更多",
-    "loadingMore": "加载中..."
+    "loadingMore": "加载中...",
+    "bubbleTooltip": "与 AI 助手对话"
   },
   "pdf": {
     "exporting": "正在生成 PDF...",
@@ -133,6 +147,103 @@
     "theme": "主题",
     "themeLight": "浅色",
     "themeDark": "深色",
-    "themeSystem": "跟随系统"
+    "themeSystem": "跟随系统",
+    "ai": {
+      "title": "AI 配置",
+      "provider": "AI 服务商",
+      "apiKey": "API Key",
+      "apiKeyPlaceholder": "输入你的 API Key...",
+      "apiKeyHint": "API Key 仅保存在本地浏览器中，不会上传到服务器。",
+      "baseURL": "API 地址",
+      "model": "默认模型",
+      "modelPlaceholder": "输入模型名称..."
+    },
+    "appearance": {
+      "title": "外观",
+      "theme": "主题模式",
+      "themeLight": "浅色",
+      "themeDark": "深色",
+      "themeSystem": "跟随系统",
+      "language": "界面语言"
+    },
+    "editorTab": {
+      "title": "编辑器",
+      "autoSave": "自动保存",
+      "autoSaveDescription": "编辑内容后自动保存到服务器",
+      "autoSaveInterval": "自动保存间隔"
+    }
+  },
+  "themeEditor": {
+    "title": "主题编辑",
+    "reset": "重置主题",
+    "presets": "预设主题",
+    "preset": {
+      "classic": "经典",
+      "modern": "现代",
+      "minimal": "简约",
+      "elegant": "优雅",
+      "bold": "大胆",
+      "creative": "创意"
+    },
+    "colors": "颜色",
+    "primaryColor": "主色调",
+    "accentColor": "强调色",
+    "typography": "字体排版",
+    "fontFamily": "字体",
+    "fontSizeLabel": "字号",
+    "fontSize": {
+      "small": "小",
+      "medium": "中",
+      "large": "大"
+    },
+    "lineSpacing": "行间距",
+    "spacing": "间距",
+    "sectionSpacing": "区块间距",
+    "pageMargin": "页边距",
+    "margin": {
+      "top": "上",
+      "right": "右",
+      "bottom": "下",
+      "left": "左"
+    }
+  },
+  "jdAnalysis": {
+    "title": "JD 匹配分析",
+    "description": "粘贴目标职位描述，分析简历匹配度",
+    "placeholder": "在此粘贴职位描述...",
+    "analyze": "开始分析",
+    "analyzing": "分析中...",
+    "analyzeAgain": "分析其他 JD",
+    "close": "关闭",
+    "overallScore": "匹配度",
+    "atsScore": "ATS 评分",
+    "summary": "总结",
+    "keywordMatches": "匹配关键词",
+    "missingKeywords": "缺失关键词",
+    "suggestions": "优化建议",
+    "currentState": "当前",
+    "suggestedChange": "建议",
+    "pasteJd": "粘贴职位描述以开始分析",
+    "noResults": "暂无分析结果"
+  },
+  "translate": {
+    "title": "AI 简历翻译",
+    "description": "使用 AI 一键翻译简历中英文",
+    "targetLanguage": "目标语言",
+    "translateAll": "翻译整份简历",
+    "translating": "正在翻译简历...",
+    "success": "翻译完成！",
+    "error": "翻译失败，请重试",
+    "chinese": "中文",
+    "english": "English (英文)",
+    "japanese": "日语 (日本語)",
+    "korean": "韩语 (한국어)",
+    "french": "法语 (Français)",
+    "german": "德语 (Deutsch)",
+    "spanish": "西班牙语 (Español)",
+    "portuguese": "葡萄牙语 (Português)",
+    "russian": "俄语 (Русский)",
+    "arabic": "阿拉伯语 (العربية)",
+    "close": "关闭"
   }
 }

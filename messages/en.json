@@ -33,6 +33,11 @@
     "templateClassic": "Classic",
     "templateModern": "Modern",
     "templateMinimal": "Minimal",
+    "templateProfessional": "Professional",
+    "templateTwoColumn": "Two-Column",
+    "templateCreative": "Creative",
+    "templateAts": "ATS",
+    "templateAcademic": "Academic",
     "upload": {
       "fromTemplate": "From Template",
       "fromFile": "Upload File",
@@ -54,9 +59,17 @@
       "export": "Export PDF",
       "template": "Switch Template",
       "settings": "Settings",
+      "theme": "Theme",
       "autoSaved": "Auto-saved",
-      "saving": "Saving..."
+      "saving": "Saving...",
+      "unsaved": "Unsaved",
+      "save": "Save",
+      "exportPdf": "Export PDF",
+      "exporting": "Exporting...",
+      "jdAnalysis": "JD Match",
+      "translate": "Translate"
     },
+    "aiPolish": "AI Polish",
     "sidebar": {
       "sections": "Sections",
       "addSection": "Add Section",
@@ -119,7 +132,8 @@
     "toolRewriteText": "Rewrote text",
     "toolSuggestSkills": "Suggested skills",
     "loadMore": "Load more",
-    "loadingMore": "Loading..."
+    "loadingMore": "Loading...",
+    "bubbleTooltip": "Chat with AI Assistant"
   },
   "pdf": {
     "exporting": "Generating PDF...",
@@ -133,6 +147,103 @@
     "theme": "Theme",
     "themeLight": "Light",
     "themeDark": "Dark",
-    "themeSystem": "System"
+    "themeSystem": "System",
+    "ai": {
+      "title": "AI Config",
+      "provider": "AI Provider",
+      "apiKey": "API Key",
+      "apiKeyPlaceholder": "Enter your API Key...",
+      "apiKeyHint": "Your API Key is stored locally in your browser and never sent to our servers.",
+      "baseURL": "Base URL",
+      "model": "Default Model",
+      "modelPlaceholder": "Enter model name..."
+    },
+    "appearance": {
+      "title": "Appearance",
+      "theme": "Theme Mode",
+      "themeLight": "Light",
+      "themeDark": "Dark",
+      "themeSystem": "System",
+      "language": "Language"
+    },
+    "editorTab": {
+      "title": "Editor",
+      "autoSave": "Auto Save",
+      "autoSaveDescription": "Automatically save changes to the server after editing",
+      "autoSaveInterval": "Auto Save Interval"
+    }
+  },
+  "themeEditor": {
+    "title": "Theme Editor",
+    "reset": "Reset Theme",
+    "presets": "Presets",
+    "preset": {
+      "classic": "Classic",
+      "modern": "Modern",
+      "minimal": "Minimal",
+      "elegant": "Elegant",
+      "bold": "Bold",
+      "creative": "Creative"
+    },
+    "colors": "Colors",
+    "primaryColor": "Primary Color",
+    "accentColor": "Accent Color",
+    "typography": "Typography",
+    "fontFamily": "Font Family",
+    "fontSizeLabel": "Font Size",
+    "fontSize": {
+      "small": "S",
+      "medium": "M",
+      "large": "L"
+    },
+    "lineSpacing": "Line Spacing",
+    "spacing": "Spacing",
+    "sectionSpacing": "Section Spacing",
+    "pageMargin": "Page Margin",
+    "margin": {
+      "top": "Top",
+      "right": "Right",
+      "bottom": "Bottom",
+      "left": "Left"
+    }
+  },
+  "jdAnalysis": {
+    "title": "JD Match Analysis",
+    "description": "Paste a job description to analyze how well your resume matches",
+    "placeholder": "Paste the job description here...",
+    "analyze": "Analyze Match",
+    "analyzing": "Analyzing...",
+    "analyzeAgain": "Analyze Another JD",
+    "close": "Close",
+    "overallScore": "Match Score",
+    "atsScore": "ATS Score",
+    "summary": "Summary",
+    "keywordMatches": "Matched Keywords",
+    "missingKeywords": "Missing Keywords",
+    "suggestions": "Suggestions",
+    "currentState": "Current",
+    "suggestedChange": "Suggested",
+    "pasteJd": "Paste a job description to get started",
+    "noResults": "No analysis results available"
+  },
+  "translate": {
+    "title": "AI Resume Translation",
+    "description": "Translate your entire resume between Chinese and English with AI",
+    "targetLanguage": "Target Language",
+    "translateAll": "Translate Entire Resume",
+    "translating": "Translating your resume...",
+    "success": "Translation complete!",
+    "error": "Translation failed. Please try again.",
+    "chinese": "Chinese (中文)",
+    "english": "English",
+    "japanese": "Japanese (日本語)",
+    "korean": "Korean (한국어)",
+    "french": "French (Français)",
+    "german": "German (Deutsch)",
+    "spanish": "Spanish (Español)",
+    "portuguese": "Portuguese (Português)",
+    "russian": "Russian (Русский)",
+    "arabic": "Arabic (العربية)",
+    "close": "Close"
   }
 }

@@ -18,7 +18,7 @@ interface ChatSession {
   updatedAt: Date | number | null;
 }
 
-interface AIChatPanelProps {
+interface AIChatContentProps {
   resumeId: string;
 }
 
@@ -38,9 +38,9 @@ function formatTime(date: Date | number | null) {
   return `${y}/${m}/${day} · ${h}:${min}`;
 }
 
-export function AIChatPanel({ resumeId }: AIChatPanelProps) {
+/** Headless chat body — reusable in both side panel and floating bubble */
+export function AIChatContent({ resumeId }: AIChatContentProps) {
   const t = useTranslations('ai');
-  const { toggleAiPanel } = useEditorStore();
   const [models, setModels] = useState<string[]>([]);
   const [selectedModel, setSelectedModel] = useState<string>();
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -194,8 +194,8 @@ export function AIChatPanel({ resumeId }: AIChatPanelProps) {
   }, [hasMore, isLoadingMore, loadMore]);
 
   return (
-    <div className="flex w-80 shrink-0 flex-col overflow-hidden border-l bg-white">
-      {/* Header */}
+    <>
+      {/* Header bar */}
       <div className="flex items-center justify-between border-b px-4 py-3">
         <div className="flex items-center gap-2">
           <Sparkles className="h-4 w-4 text-pink-500" />
@@ -259,14 +259,6 @@ export function AIChatPanel({ resumeId }: AIChatPanelProps) {
           >
             <Plus className="h-4 w-4" />
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-7 w-7 cursor-pointer p-0"
-            onClick={toggleAiPanel}
-          >
-            <X className="h-4 w-4" />
-          </Button>
         </div>
       </div>
 
@@ -317,6 +309,26 @@ export function AIChatPanel({ resumeId }: AIChatPanelProps) {
         selectedModel={selectedModel}
         onModelChange={setSelectedModel}
       />
+    </>
+  );
+}
+
+/** Side-panel wrapper (backward compat) */
+export function AIChatPanel({ resumeId }: { resumeId: string }) {
+  const { toggleAiChat } = useEditorStore();
+
+  return (
+    <div className="flex w-80 shrink-0 flex-col overflow-hidden border-l bg-white">
+      <AIChatContent resumeId={resumeId} />
+      {/* Close button overlaid on the header */}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="absolute right-1 top-1 h-7 w-7 cursor-pointer p-0"
+        onClick={toggleAiChat}
+      >
+        <X className="h-4 w-4" />
+      </Button>
     </div>
   );
 }

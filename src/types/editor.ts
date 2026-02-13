@@ -4,8 +4,7 @@ export interface EditorState {
   selectedSectionId: string | null;
   selectedItemId: string | null;
   isDragging: boolean;
-  showPreview: boolean;
-  showAiPanel: boolean;
+  showAiChat: boolean;
   zoom: number;
 }
 

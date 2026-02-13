@@ -2,8 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
-import { FileText, Copy, Trash2, MoreVertical } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Copy, Trash2, MoreVertical } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -11,6 +10,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Badge } from '@/components/ui/badge';
+import { TemplateThumbnail } from './template-thumbnail';
 import type { Resume } from '@/types/resume';
 
 interface ResumeCardProps {
@@ -19,36 +19,51 @@ interface ResumeCardProps {
   onDuplicate: () => void;
 }
 
+const templateLabelKeys: Record<string, string> = {
+  classic: 'dashboard.templateClassic',
+  modern: 'dashboard.templateModern',
+  minimal: 'dashboard.templateMinimal',
+  professional: 'dashboard.templateProfessional',
+  'two-column': 'dashboard.templateTwoColumn',
+  creative: 'dashboard.templateCreative',
+  ats: 'dashboard.templateAts',
+  academic: 'dashboard.templateAcademic',
+};
+
 export function ResumeCard({ resume, onDelete, onDuplicate }: ResumeCardProps) {
   const t = useTranslations();
   const router = useRouter();
 
-  const templateLabel =
-    resume.template === 'modern'
-      ? t('dashboard.templateModern')
-      : resume.template === 'minimal'
-        ? t('dashboard.templateMinimal')
-        : t('dashboard.templateClassic');
+  const labelKey = templateLabelKeys[resume.template] || 'dashboard.templateClassic';
+  const templateLabel = t(labelKey);
 
   return (
-    <Card
-      className="group cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5"
+    <div
+      className="group relative cursor-pointer overflow-hidden rounded-xl border border-zinc-200 bg-white transition-all duration-200 hover:shadow-lg hover:-translate-y-0.5 dark:border-zinc-700/60 dark:bg-card"
       onClick={() => router.push(`/editor/${resume.id}`)}
     >
-      <CardContent className="p-5">
-        <div className="mb-4 flex h-24 items-center justify-center rounded-lg bg-zinc-100">
-          <FileText className="h-10 w-10 text-zinc-300" />
-        </div>
-        <div className="flex items-start justify-between">
+      {/* Template preview thumbnail */}
+      <div className="relative border-b border-zinc-100 bg-zinc-50 p-3 dark:border-zinc-700/40 dark:bg-zinc-800/50">
+        <TemplateThumbnail
+          template={resume.template}
+          className="mx-auto h-[120px] w-[85px] shadow-sm ring-1 ring-zinc-200/60"
+        />
+        {/* Hover overlay with actions */}
+        <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-200 group-hover:bg-black/5 dark:group-hover:bg-white/5" />
+      </div>
+
+      {/* Info section */}
+      <div className="p-3.5">
+        <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
-            <h3 className="truncate font-semibold text-zinc-900">
+            <h3 className="truncate text-sm font-semibold text-zinc-900 dark:text-zinc-100">
               {resume.title}
             </h3>
-            <div className="mt-1 flex items-center gap-2">
-              <Badge variant="secondary" className="text-xs">
+            <div className="mt-1.5 flex items-center gap-1.5">
+              <Badge variant="secondary" className="text-[11px] px-1.5 py-0">
                 {templateLabel}
               </Badge>
-              <span className="text-xs text-zinc-400">
+              <span className="text-[11px] text-zinc-400 dark:text-zinc-500">
                 {resume.updatedAt
                   ? t('dashboard.lastEdited', {
                       date: new Date(resume.updatedAt).toLocaleDateString(),
@@ -59,10 +74,10 @@ export function ResumeCard({ resume, onDelete, onDuplicate }: ResumeCardProps) {
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger
-              className="cursor-pointer rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-zinc-100"
+              className="cursor-pointer rounded-md p-1 opacity-0 transition-opacity group-hover:opacity-100 hover:bg-zinc-100 dark:hover:bg-zinc-800"
               onClick={(e) => e.stopPropagation()}
             >
-              <MoreVertical className="h-4 w-4 text-zinc-500" />
+              <MoreVertical className="h-4 w-4 text-zinc-400" />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuItem
@@ -88,7 +103,7 @@ export function ResumeCard({ resume, onDelete, onDuplicate }: ResumeCardProps) {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

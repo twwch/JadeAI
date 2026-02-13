@@ -1,20 +1,33 @@
 'use client';
 
-import { use } from 'react';
+import { use, useEffect } from 'react';
 import { useEditor } from '@/hooks/use-editor';
 import { useFingerprint } from '@/hooks/use-fingerprint';
 import { EditorToolbar } from '@/components/editor/editor-toolbar';
 import { EditorSidebar } from '@/components/editor/editor-sidebar';
 import { EditorCanvas } from '@/components/editor/editor-canvas';
-import { AIChatPanel } from '@/components/ai/ai-chat-panel';
+import { ThemeEditor } from '@/components/editor/theme-editor';
+import { EditorPreviewPanel } from '@/components/editor/editor-preview-panel';
+import { AIChatBubble } from '@/components/ai/ai-chat-bubble';
+import { SettingsDialog } from '@/components/settings/settings-dialog';
+import { JdAnalysisDialog } from '@/components/editor/jd-analysis-dialog';
+import { TranslateDialog } from '@/components/editor/translate-dialog';
 import { useEditorStore } from '@/stores/editor-store';
+import { useUIStore } from '@/stores/ui-store';
+import { useSettingsStore } from '@/stores/settings-store';
 import { Skeleton } from '@/components/ui/skeleton';
 
 export default function EditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { isLoading: fpLoading } = useFingerprint();
   const { resume, sections, updateSection, addSection, removeSection, reorderSections } = useEditor(id);
-  const { showAiPanel } = useEditorStore();
+  const { showThemeEditor } = useEditorStore();
+  const { activeModal, openModal, closeModal } = useUIStore();
+  const { hydrate, _hydrated } = useSettingsStore();
+
+  useEffect(() => {
+    if (!_hydrated) hydrate();
+  }, [_hydrated, hydrate]);
 
   if (fpLoading || !resume) {
     return (
@@ -42,8 +55,21 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
           onRemoveSection={removeSection}
           onReorderSections={reorderSections}
         />
-        {showAiPanel && <AIChatPanel resumeId={id} />}
+        {showThemeEditor && <ThemeEditor />}
+        <EditorPreviewPanel />
       </div>
+      <AIChatBubble resumeId={id} />
+      <SettingsDialog />
+      <JdAnalysisDialog
+        open={activeModal === 'jd-analysis'}
+        onOpenChange={(open) => open ? openModal('jd-analysis') : closeModal()}
+        resumeId={id}
+      />
+      <TranslateDialog
+        open={activeModal === 'translate'}
+        onOpenChange={(open) => open ? openModal('translate') : closeModal()}
+        resumeId={id}
+      />
     </div>
   );
 }

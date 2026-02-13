@@ -53,4 +53,16 @@ export const userRepository = {
     await db.update(users).set({ ...data, updatedAt: new Date() }).where(eq(users.id, id));
     return this.findById(id);
   },
+
+  async getSettings(id: string) {
+    const result = await db.select({ settings: users.settings }).from(users).where(eq(users.id, id)).limit(1);
+    return (result[0]?.settings || {}) as Record<string, unknown>;
+  },
+
+  async updateSettings(id: string, settings: Record<string, unknown>) {
+    const current = await this.getSettings(id);
+    const merged = { ...current, ...settings };
+    await db.update(users).set({ settings: merged, updatedAt: new Date() }).where(eq(users.id, id));
+    return merged;
+  },
 };

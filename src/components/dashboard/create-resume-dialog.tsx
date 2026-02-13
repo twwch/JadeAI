@@ -14,7 +14,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TEMPLATES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
-import { Upload, FileText, Image, X, Loader2 } from 'lucide-react';
+import { Upload, FileText, Image, X, Loader2, Check } from 'lucide-react';
+import { TemplateThumbnail } from './template-thumbnail';
 
 interface CreateResumeDialogProps {
   open: boolean;
@@ -25,6 +26,17 @@ interface CreateResumeDialogProps {
 type Tab = 'template' | 'upload';
 
 const ACCEPTED_EXTENSIONS = '.pdf,.png,.jpg,.jpeg,.webp';
+
+const templateLabelsMap: Record<string, string> = {
+  classic: 'dashboard.templateClassic',
+  modern: 'dashboard.templateModern',
+  minimal: 'dashboard.templateMinimal',
+  professional: 'dashboard.templateProfessional',
+  'two-column': 'dashboard.templateTwoColumn',
+  creative: 'dashboard.templateCreative',
+  ats: 'dashboard.templateAts',
+  academic: 'dashboard.templateAcademic',
+};
 
 export function CreateResumeDialog({ open, onClose, onCreate }: CreateResumeDialogProps) {
   const t = useTranslations();
@@ -126,32 +138,26 @@ export function CreateResumeDialog({ open, onClose, onCreate }: CreateResumeDial
     setIsDragging(false);
   }, []);
 
-  const templateLabels: Record<string, string> = {
-    classic: t('dashboard.templateClassic'),
-    modern: t('dashboard.templateModern'),
-    minimal: t('dashboard.templateMinimal'),
-  };
-
   const fileIcon = file?.type === 'application/pdf' ? FileText : Image;
   const FileIcon = fileIcon;
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && resetAndClose()}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
+      <DialogContent className="sm:max-w-2xl p-0 gap-0 overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-0">
           <DialogTitle>{t('dashboard.createResume')}</DialogTitle>
           <DialogDescription>{t('dashboard.createResumeDescription')}</DialogDescription>
         </DialogHeader>
 
         {/* Tabs */}
-        <div className="flex gap-1 rounded-lg bg-zinc-100 p-1">
+        <div className="mx-6 mt-4 flex gap-1 rounded-lg bg-zinc-100 p-1 dark:bg-zinc-800">
           <button
             type="button"
             className={cn(
               'flex-1 cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
               tab === 'template'
-                ? 'bg-white text-zinc-900 shadow-sm'
-                : 'text-zinc-500 hover:text-zinc-700'
+                ? 'bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100'
+                : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
             )}
             onClick={() => setTab('template')}
           >
@@ -162,8 +168,8 @@ export function CreateResumeDialog({ open, onClose, onCreate }: CreateResumeDial
             className={cn(
               'flex-1 cursor-pointer rounded-md px-3 py-1.5 text-sm font-medium transition-colors',
               tab === 'upload'
-                ? 'bg-white text-zinc-900 shadow-sm'
-                : 'text-zinc-500 hover:text-zinc-700'
+                ? 'bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100'
+                : 'text-zinc-500 hover:text-zinc-700 dark:text-zinc-400 dark:hover:text-zinc-200'
             )}
             onClick={() => setTab('upload')}
           >
@@ -171,52 +177,73 @@ export function CreateResumeDialog({ open, onClose, onCreate }: CreateResumeDial
           </button>
         </div>
 
-        <div className="space-y-4 py-2">
+        <div className="px-6 py-4">
           {tab === 'template' ? (
-            /* From Template tab */
-            <>
+            <div className="space-y-4">
+              <Input
+                placeholder={t('editor.fields.fullName')}
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+              />
+
               <div>
-                <Input
-                  placeholder={t('editor.fields.fullName')}
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                />
-              </div>
-              <div>
-                <p className="mb-2 text-sm font-medium text-zinc-700">
+                <p className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">
                   {t('editor.toolbar.template')}
                 </p>
-                <div className="grid grid-cols-3 gap-2">
-                  {TEMPLATES.map((tpl) => (
-                    <button
-                      key={tpl}
-                      type="button"
-                      className={cn(
-                        'cursor-pointer rounded-lg border-2 p-3 text-center text-sm transition-all duration-200',
-                        template === tpl
-                          ? 'border-pink-500 bg-pink-50 text-pink-700'
-                          : 'border-zinc-200 hover:border-zinc-300'
-                      )}
-                      onClick={() => setTemplate(tpl)}
-                    >
-                      {templateLabels[tpl]}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-4 gap-3">
+                  {TEMPLATES.map((tpl) => {
+                    const isSelected = template === tpl;
+                    return (
+                      <button
+                        key={tpl}
+                        type="button"
+                        className={cn(
+                          'group/tpl relative cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-200',
+                          isSelected
+                            ? 'border-pink-500 shadow-md shadow-pink-500/10'
+                            : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
+                        )}
+                        onClick={() => setTemplate(tpl)}
+                      >
+                        {/* Thumbnail */}
+                        <div className="relative bg-zinc-50 p-2 dark:bg-zinc-800/50">
+                          <TemplateThumbnail
+                            template={tpl}
+                            className="mx-auto h-[100px] w-[71px] shadow-sm ring-1 ring-zinc-200/50"
+                          />
+                          {/* Selected check */}
+                          {isSelected && (
+                            <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-pink-500 text-white shadow-sm">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </div>
+                        {/* Label */}
+                        <div className={cn(
+                          'px-2 py-1.5 text-center text-xs font-medium transition-colors',
+                          isSelected
+                            ? 'bg-pink-50 text-pink-700 dark:bg-pink-950/30 dark:text-pink-300'
+                            : 'text-zinc-600 dark:text-zinc-400'
+                        )}>
+                          {t(templateLabelsMap[tpl])}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            </>
+            </div>
           ) : (
-            /* Upload File tab */
-            <>
+            <div className="space-y-4">
               {/* Dropzone */}
               <div
                 className={cn(
-                  'relative flex flex-col items-center justify-center rounded-lg border-2 border-dashed p-6 transition-colors',
+                  'relative flex flex-col items-center justify-center rounded-xl border-2 border-dashed p-6 transition-colors',
                   isDragging
-                    ? 'border-pink-400 bg-pink-50'
+                    ? 'border-pink-400 bg-pink-50 dark:bg-pink-950/20'
                     : file
-                      ? 'border-green-300 bg-green-50'
-                      : 'border-zinc-300 hover:border-zinc-400'
+                      ? 'border-green-300 bg-green-50 dark:border-green-700 dark:bg-green-950/20'
+                      : 'border-zinc-300 hover:border-zinc-400 dark:border-zinc-600 dark:hover:border-zinc-500'
                 )}
                 onDrop={handleDrop}
                 onDragOver={handleDragOver}
@@ -224,16 +251,16 @@ export function CreateResumeDialog({ open, onClose, onCreate }: CreateResumeDial
               >
                 {file ? (
                   <div className="flex items-center gap-3">
-                    <FileIcon className="h-8 w-8 text-green-600" />
+                    <FileIcon className="h-8 w-8 text-green-600 dark:text-green-400" />
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium text-zinc-700">{file.name}</p>
-                      <p className="text-xs text-zinc-500">
+                      <p className="truncate text-sm font-medium text-zinc-700 dark:text-zinc-200">{file.name}</p>
+                      <p className="text-xs text-zinc-500 dark:text-zinc-400">
                         {(file.size / 1024).toFixed(0)} KB
                       </p>
                     </div>
                     <button
                       type="button"
-                      className="cursor-pointer rounded-full p-1 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-600"
+                      className="cursor-pointer rounded-full p-1 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-600 dark:hover:bg-zinc-700"
                       onClick={() => setFile(null)}
                     >
                       <X className="h-4 w-4" />
@@ -242,11 +269,11 @@ export function CreateResumeDialog({ open, onClose, onCreate }: CreateResumeDial
                 ) : (
                   <>
                     <Upload className="mb-2 h-8 w-8 text-zinc-400" />
-                    <p className="text-sm text-zinc-600">{t('dashboard.upload.dropzone')}</p>
+                    <p className="text-sm text-zinc-600 dark:text-zinc-300">{t('dashboard.upload.dropzone')}</p>
                     <p className="mt-1 text-xs text-zinc-400">{t('dashboard.upload.acceptedTypes')}</p>
                     <button
                       type="button"
-                      className="mt-3 cursor-pointer rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-200"
+                      className="mt-3 cursor-pointer rounded-md bg-zinc-100 px-3 py-1.5 text-sm font-medium text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
                       onClick={() => fileInputRef.current?.click()}
                     >
                       {t('dashboard.upload.browse')}
@@ -272,32 +299,54 @@ export function CreateResumeDialog({ open, onClose, onCreate }: CreateResumeDial
 
               {/* Template selector for uploaded file */}
               <div>
-                <p className="mb-2 text-sm font-medium text-zinc-700">
+                <p className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">
                   {t('editor.toolbar.template')}
                 </p>
-                <div className="grid grid-cols-3 gap-2">
-                  {TEMPLATES.map((tpl) => (
-                    <button
-                      key={tpl}
-                      type="button"
-                      className={cn(
-                        'cursor-pointer rounded-lg border-2 p-3 text-center text-sm transition-all duration-200',
-                        template === tpl
-                          ? 'border-pink-500 bg-pink-50 text-pink-700'
-                          : 'border-zinc-200 hover:border-zinc-300'
-                      )}
-                      onClick={() => setTemplate(tpl)}
-                    >
-                      {templateLabels[tpl]}
-                    </button>
-                  ))}
+                <div className="grid grid-cols-4 gap-3">
+                  {TEMPLATES.map((tpl) => {
+                    const isSelected = template === tpl;
+                    return (
+                      <button
+                        key={tpl}
+                        type="button"
+                        className={cn(
+                          'group/tpl relative cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-200',
+                          isSelected
+                            ? 'border-pink-500 shadow-md shadow-pink-500/10'
+                            : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
+                        )}
+                        onClick={() => setTemplate(tpl)}
+                      >
+                        <div className="relative bg-zinc-50 p-2 dark:bg-zinc-800/50">
+                          <TemplateThumbnail
+                            template={tpl}
+                            className="mx-auto h-[100px] w-[71px] shadow-sm ring-1 ring-zinc-200/50"
+                          />
+                          {isSelected && (
+                            <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-pink-500 text-white shadow-sm">
+                              <Check className="h-3 w-3" />
+                            </div>
+                          )}
+                        </div>
+                        <div className={cn(
+                          'px-2 py-1.5 text-center text-xs font-medium transition-colors',
+                          isSelected
+                            ? 'bg-pink-50 text-pink-700 dark:bg-pink-950/30 dark:text-pink-300'
+                            : 'text-zinc-600 dark:text-zinc-400'
+                        )}>
+                          {t(templateLabelsMap[tpl])}
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
-            </>
+            </div>
           )}
         </div>
 
-        <div className="flex justify-end gap-2">
+        {/* Footer */}
+        <div className="flex justify-end gap-2 border-t border-zinc-100 px-6 py-4 dark:border-zinc-800">
           <Button variant="outline" onClick={resetAndClose} className="cursor-pointer">
             {t('common.cancel')}
           </Button>

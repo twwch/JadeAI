@@ -1,6 +1,9 @@
-import { tool } from 'ai';
+import { tool, generateText, Output } from 'ai';
 import { z } from 'zod/v4';
 import { resumeRepository } from '@/lib/db/repositories/resume.repository';
+import { getModel } from '@/lib/ai/provider';
+import { jdAnalysisOutputSchema } from '@/lib/ai/jd-analysis-schema';
+import { translateOutputSchema } from '@/lib/ai/translate-schema';
 
 export function createExecutableTools(resumeId: string) {
   return {
@@ -116,6 +119,84 @@ export function createExecutableTools(resumeId: string) {
         await resumeRepository.updateSection(skillsSection.id, { content: { categories } });
 
         return { success: true, category, skills, sectionId: skillsSection.id };
+      },
+    }),
+
+    analyzeJdMatch: tool({
+      description: 'Analyze how well the current resume matches a job description. Use this when the user pastes a JD or asks about job fit.',
+      inputSchema: z.object({
+        jobDescription: z.string().describe('The job description text to analyze against the resume'),
+      }),
+      execute: async ({ jobDescription }) => {
+        const resume = await resumeRepository.findById(resumeId);
+        if (!resume) return { success: false, error: 'Resume not found' };
+
+        const model = getModel();
+        const resumeContext = JSON.stringify(resume.sections);
+
+        const result = await generateText({
+          model,
+          maxOutputTokens: 8192,
+          output: Output.object({ schema: jdAnalysisOutputSchema }),
+          system: `You are an expert resume analyst. Analyze the match between the resume and job description. Be specific and actionable.`,
+          prompt: `## Resume Data\n${resumeContext}\n\n## Job Description\n${jobDescription}\n\nAnalyze the match and provide a comprehensive analysis.`,
+        });
+
+        return { success: true, analysis: result.output };
+      },
+    }),
+
+    translateResume: tool({
+      description: 'Translate the resume to a different language. Use this when the user asks to translate their resume to Chinese or English.',
+      inputSchema: z.object({
+        targetLanguage: z.enum(['zh', 'en']).describe('Target language: "zh" for Chinese, "en" for English'),
+      }),
+      execute: async ({ targetLanguage }) => {
+        const resume = await resumeRepository.findById(resumeId);
+        if (!resume) return { success: false, error: 'Resume not found' };
+
+        const sectionsData = resume.sections.map((s: any) => ({
+          sectionId: s.id,
+          type: s.type,
+          title: s.title,
+          content: s.content,
+        }));
+
+        const model = getModel();
+
+        const translatePrompt = targetLanguage === 'zh'
+          ? `You are a professional resume translator. Translate from English to Simplified Chinese. Keep technical terms in English. Preserve JSON structure and field names. Only translate values. Keep IDs, URLs, emails, phone numbers unchanged.`
+          : `You are a professional resume translator. Translate from Chinese to English. Use strong action verbs. Preserve JSON structure and field names. Only translate values. Keep IDs, URLs, emails, phone numbers unchanged.`;
+
+        const result = await generateText({
+          model,
+          maxOutputTokens: 16384,
+          output: Output.object({ schema: translateOutputSchema }),
+          system: translatePrompt,
+          prompt: `Translate the following resume sections:\n${JSON.stringify(sectionsData, null, 2)}`,
+        });
+
+        const translatedOutput = result.output!;
+
+        // Update each section in the database
+        for (const translatedSection of translatedOutput.sections) {
+          const originalSection = resume.sections.find((s: any) => s.id === translatedSection.sectionId);
+          if (!originalSection) continue;
+
+          await resumeRepository.updateSection(translatedSection.sectionId, {
+            title: translatedSection.title,
+            content: translatedSection.content,
+          });
+        }
+
+        // Update resume language
+        await resumeRepository.update(resumeId, { language: targetLanguage });
+
+        return {
+          success: true,
+          language: targetLanguage,
+          translatedSections: translatedOutput.sections.length,
+        };
       },
     }),
   };

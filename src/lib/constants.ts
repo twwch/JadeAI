@@ -22,7 +22,7 @@ export const DEFAULT_SECTIONS: { type: SectionType; titleZh: string; titleEn: st
   { type: 'skills', titleZh: '技能特长', titleEn: 'Skills' },
 ];
 
-export const TEMPLATES = ['classic', 'modern', 'minimal'] as const;
+export const TEMPLATES = ['classic', 'modern', 'minimal', 'professional', 'two-column', 'creative', 'ats', 'academic'] as const;
 export type Template = (typeof TEMPLATES)[number];
 
 export const AUTOSAVE_DELAY = 500;

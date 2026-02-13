@@ -4,6 +4,7 @@ import { routing } from '@/i18n/routing';
 import { SessionProvider } from 'next-auth/react';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { Toaster } from '@/components/ui/sonner';
+import { ThemeProvider } from '@/components/layout/theme-provider';
 
 export default async function LocaleLayout({
   children,
@@ -23,10 +24,17 @@ export default async function LocaleLayout({
   return (
     <SessionProvider>
       <NextIntlClientProvider locale={locale} messages={messages}>
-        <TooltipProvider>
-          {children}
-          <Toaster />
-        </TooltipProvider>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <TooltipProvider>
+            {children}
+            <Toaster />
+          </TooltipProvider>
+        </ThemeProvider>
       </NextIntlClientProvider>
     </SessionProvider>
   );

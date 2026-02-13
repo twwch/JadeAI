@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { Resume, ResumeSection, SectionContent } from '@/types/resume';
 import { AUTOSAVE_DELAY } from '@/lib/constants';
+import { useSettingsStore } from '@/stores/settings-store';
 
 interface ResumeStore {
   currentResume: Resume | null;
@@ -156,9 +157,18 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
     const { _saveTimeout } = get();
     if (_saveTimeout) clearTimeout(_saveTimeout);
 
+    const { autoSave, autoSaveInterval, _hydrated } = useSettingsStore.getState();
+
+    // If settings are hydrated and autoSave is off, only mark dirty, don't auto-save
+    if (_hydrated && !autoSave) {
+      set({ _saveTimeout: null });
+      return;
+    }
+
+    const delay = _hydrated ? autoSaveInterval : AUTOSAVE_DELAY;
     const timeout = setTimeout(() => {
       get().save();
-    }, AUTOSAVE_DELAY);
+    }, delay);
 
     set({ _saveTimeout: timeout });
   },

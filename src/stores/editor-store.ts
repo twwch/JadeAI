@@ -7,8 +7,8 @@ interface EditorStore {
   selectedSectionId: string | null;
   selectedItemId: string | null;
   isDragging: boolean;
-  showPreview: boolean;
-  showAiPanel: boolean;
+  showAiChat: boolean;
+  showThemeEditor: boolean;
   zoom: number;
   undoStack: ResumeSnapshot[];
   redoStack: ResumeSnapshot[];
@@ -16,8 +16,8 @@ interface EditorStore {
   selectSection: (id: string | null) => void;
   selectItem: (id: string | null) => void;
   setDragging: (isDragging: boolean) => void;
-  togglePreview: () => void;
-  toggleAiPanel: () => void;
+  toggleAiChat: () => void;
+  toggleThemeEditor: () => void;
   setZoom: (zoom: number) => void;
   pushSnapshot: (sections: ResumeSection[]) => void;
   undo: () => ResumeSnapshot | null;
@@ -29,8 +29,8 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   selectedSectionId: null,
   selectedItemId: null,
   isDragging: false,
-  showPreview: false,
-  showAiPanel: true,
+  showAiChat: false,
+  showThemeEditor: false,
   zoom: 100,
   undoStack: [],
   redoStack: [],
@@ -38,8 +38,8 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   selectSection: (id) => set({ selectedSectionId: id, selectedItemId: null }),
   selectItem: (id) => set({ selectedItemId: id }),
   setDragging: (isDragging) => set({ isDragging }),
-  togglePreview: () => set((s) => ({ showPreview: !s.showPreview })),
-  toggleAiPanel: () => set((s) => ({ showAiPanel: !s.showAiPanel })),
+  toggleAiChat: () => set((s) => ({ showAiChat: !s.showAiChat })),
+  toggleThemeEditor: () => set((s) => ({ showThemeEditor: !s.showThemeEditor })),
   setZoom: (zoom) => set({ zoom }),
 
   pushSnapshot: (sections) => {
@@ -79,8 +79,8 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       selectedSectionId: null,
       selectedItemId: null,
       isDragging: false,
-      showPreview: false,
-      showAiPanel: true,
+      showAiChat: false,
+      showThemeEditor: false,
       zoom: 100,
       undoStack: [],
       redoStack: [],
