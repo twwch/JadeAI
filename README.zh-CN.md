@@ -1,34 +1,71 @@
+<div align="center">
+
 # JadeAI
+
+**AI 驱动的智能简历生成器**
+
+拖拽编辑、实时 AI 优化、20 套专业模板、多格式导出，轻松打造高质量简历。
 
 [English](./README.md)
 
-AI 驱动的智能简历生成器，支持拖拽编辑、实时 AI 优化和 PDF 导出。
+</div>
 
+---
 
 ## 功能特性
 
-- **拖拽编辑器** — 可视化拖拽构建简历，自由排序各模块
-- **AI 助手** — 基于对话的 AI 实时改写、优化简历内容并提供改进建议
-- **PDF 导出** — 高保真 PDF 生成，内置多套模板（经典、现代、极简）
-- **多简历管理** — 创建、复制、切换多份简历
-- **国际化** — 完整的中英文界面支持
-- **灵活认证** — 可插拔认证方案：Google OAuth 或浏览器指纹 fallback
-- **双数据库** — 同时支持 SQLite（默认，零配置）和 PostgreSQL
+### 简历编辑
+
+- **拖拽编辑器** — 可视化拖拽排列简历模块与条目
+- **行内编辑** — 点击任意字段，直接在画布上编辑
+- **20 套专业模板** — 经典、现代、极简、创意、ATS 友好、时间线等多种风格
+- **主题定制** — 颜色、字体、间距、页边距实时预览调整
+- **撤销 / 重做** — 完整编辑历史（最多 50 步）
+- **自动保存** — 可配置保存间隔（0.3s–5s），支持手动保存
+
+### AI 能力
+
+- **AI 聊天助手** — 编辑器内集成对话式 AI，支持多会话和持久化历史
+- **AI 一键生成简历** — 输入职位、经验、技能，自动生成完整简历
+- **简历解析** — 上传已有 PDF 或图片，AI 自动提取全部内容
+- **JD 匹配分析** — 对比简历与职位描述：关键词匹配、ATS 评分、改进建议
+- **求职信生成** — 基于简历和 JD 的 AI 定制求职信，可选语气（正式 / 友好 / 自信）
+- **语法与写作检查** — 检测弱动词、模糊描述和语法问题，返回质量评分
+- **多语言翻译** — 支持 10 种语言互译，保留专业术语原文
+
+### 导出与分享
+
+- **多格式导出** — PDF（Puppeteer + Chromium）、DOCX、HTML、TXT、JSON
+- **链接分享** — 基于 Token 的分享链接，支持密码保护
+- **浏览统计** — 追踪分享简历的查看次数
+
+### 简历管理
+
+- **多简历仪表盘** — 网格和列表视图、搜索、排序（按日期、名称）
+- **复制与重命名** — 快捷简历管理操作
+- **新手引导** — 交互式分步引导，帮助新用户快速上手
+
+### 其他
+
+- **双语界面** — 完整的中文（zh）和英文（en）界面
+- **暗色模式** — 浅色、深色、跟随系统三种主题
+- **灵活认证** — Google OAuth 或浏览器指纹（零配置即用）
+- **双数据库** — SQLite（默认，零配置）或 PostgreSQL
 
 ## 技术栈
 
 | 层级 | 技术 |
 |------|------|
 | 框架 | Next.js 16 (App Router, Turbopack) |
-| UI | React 19, Tailwind CSS 4, shadcn/ui |
-| 拖拽 | dnd-kit |
+| UI | React 19, Tailwind CSS 4, shadcn/ui, Radix UI |
+| 拖拽 | @dnd-kit |
 | 状态管理 | Zustand |
 | 数据库 | Drizzle ORM (SQLite / PostgreSQL) |
 | 认证 | NextAuth.js v5 + FingerprintJS |
 | AI | Vercel AI SDK v6 + OpenAI / Anthropic |
-| PDF | @react-pdf/renderer |
+| PDF | Puppeteer Core + Chromium |
 | 国际化 | next-intl |
-| 数据校验 | Zod |
+| 数据校验 | Zod v4 |
 
 ## 快速开始
 
@@ -56,7 +93,7 @@ cp .env.example .env.local
 编辑 `.env.local`：
 
 ```bash
-# AI（必填）
+# AI（必填 — 服务端默认配置，用户也可在设置中自行配置）
 AI_API_KEY=sk-...
 AI_BASE_URL=https://api.openai.com/v1
 AI_MODEL=gpt-4o
@@ -68,12 +105,17 @@ DB_TYPE=sqlite
 NEXT_PUBLIC_AUTH_ENABLED=false
 ```
 
+查看 `.env.example` 了解所有可用选项（Google OAuth、PostgreSQL 等）。
+
 ### 初始化数据库并启动
 
 ```bash
 # 生成并执行迁移
 pnpm db:generate
 pnpm db:migrate
+
+# （可选）填充示例数据
+pnpm db:seed
 
 # 启动开发服务器
 pnpm dev
@@ -89,7 +131,7 @@ pnpm dev
 | `pnpm build` | 生产构建 |
 | `pnpm start` | 启动生产服务器 |
 | `pnpm lint` | 运行 ESLint 检查 |
-| `pnpm type-check` | 运行 TypeScript 类型检查 |
+| `pnpm type-check` | TypeScript 类型检查 |
 | `pnpm db:generate` | 从 schema 生成 Drizzle 迁移文件 |
 | `pnpm db:migrate` | 执行数据库迁移 |
 | `pnpm db:studio` | 打开 Drizzle Studio（数据库 GUI） |
@@ -99,29 +141,31 @@ pnpm dev
 
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── [locale]/           # 国际化路由 (/zh/..., /en/...)
-│   │   ├── dashboard/      # 简历列表
-│   │   ├── editor/[id]/    # 简历编辑器
-│   │   └── preview/[id]/   # 简历预览
-│   └── api/                # API 路由
-│       ├── ai/chat/        # AI 对话（流式）
-│       ├── resume/         # 简历 CRUD
-│       └── auth/           # 认证
+├── app/                        # Next.js App Router
+│   ├── [locale]/               # 国际化路由 (/zh/..., /en/...)
+│   │   ├── dashboard/          # 简历列表与管理
+│   │   ├── editor/[id]/        # 简历编辑器
+│   │   ├── preview/[id]/       # 全屏预览
+│   │   ├── templates/          # 模板画廊
+│   │   └── share/[token]/      # 公开分享简历查看
+│   └── api/
+│       ├── ai/                 # AI 接口（聊天、生成、JD 分析、求职信、语法检查、翻译）
+│       ├── resume/             # 简历 CRUD、导出、解析、分享
+│       └── auth/               # NextAuth 认证
 ├── components/
-│   ├── ui/                 # shadcn/ui 基础组件
-│   ├── editor/             # 拖拽编辑器
-│   ├── ai/                 # AI 对话面板
-│   ├── preview/            # 简历预览与模板
-│   └── dashboard/          # 仪表盘组件
+│   ├── ui/                     # shadcn/ui 基础组件
+│   ├── editor/                 # 编辑器画布、区块、字段、弹窗
+│   ├── ai/                     # AI 对话面板与气泡
+│   ├── preview/templates/      # 20 套简历模板
+│   ├── dashboard/              # 仪表盘卡片、网格、弹窗
+│   └── layout/                 # 头部、主题、语言切换
 ├── lib/
-│   ├── db/                 # 数据库层（schema、仓库、适配器）
-│   ├── auth/               # 认证配置
-│   ├── ai/                 # AI 提示词、工具、工具函数
-│   └── pdf/                # PDF 生成
-├── hooks/                  # 自定义 React Hooks
-├── stores/                 # Zustand 状态仓库
-└── types/                  # TypeScript 类型定义
+│   ├── db/                     # Schema、仓库、迁移、适配器
+│   ├── auth/                   # 认证配置
+│   └── ai/                     # AI 提示词、工具、模型配置
+├── hooks/                      # 自定义 React Hooks
+├── stores/                     # Zustand 状态仓库（简历、编辑器、设置、UI、引导）
+└── types/                      # TypeScript 类型定义
 ```
 
 ## 许可证
