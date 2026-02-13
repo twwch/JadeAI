@@ -12,7 +12,8 @@
     "confirm": "Confirm",
     "back": "Back",
     "search": "Search",
-    "noData": "No data"
+    "noData": "No data",
+    "rename": "Rename"
   },
   "auth": {
     "login": "Log in",
@@ -371,6 +372,14 @@
     "error": "Something went wrong. Please try again.",
     "cancel": "Cancel",
     "close": "Close"
+  },
+  "templates": {
+    "title": "Templates",
+    "subtitle": "Choose a template to start building your resume",
+    "preview": "Preview",
+    "useTemplate": "Use This Template",
+    "creating": "Creating...",
+    "nav": "Templates"
   },
   "publicView": {
     "title": "Shared Resume",

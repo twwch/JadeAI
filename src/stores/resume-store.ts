@@ -35,9 +35,30 @@ export const useResumeStore = create<ResumeStore>((set, get) => ({
     // Cancel any pending autosave to prevent stale data overwriting server changes (e.g., from AI tool calls)
     const { _saveTimeout } = get();
     if (_saveTimeout) clearTimeout(_saveTimeout);
+
+    // Normalize: ensure all items/categories in section content have id fields
+    const sections = resume.sections.map((s) => {
+      const content = s.content as unknown as Record<string, unknown>;
+      if (Array.isArray(content?.items)) {
+        content.items = (content.items as any[]).map((item) =>
+          typeof item === 'object' && item !== null && !item.id
+            ? { ...item, id: crypto.randomUUID() }
+            : item
+        );
+      }
+      if (Array.isArray(content?.categories)) {
+        content.categories = (content.categories as any[]).map((cat) =>
+          typeof cat === 'object' && cat !== null && !cat.id
+            ? { ...cat, id: crypto.randomUUID() }
+            : cat
+        );
+      }
+      return { ...s, content: content as unknown as typeof s.content };
+    });
+
     set({
-      currentResume: resume,
-      sections: resume.sections,
+      currentResume: { ...resume, sections },
+      sections,
       isDirty: false,
       _saveTimeout: null,
     });

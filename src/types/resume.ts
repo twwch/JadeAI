@@ -88,6 +88,7 @@ export interface LanguageItem {
   id: string;
   language: string;
   proficiency: string;
+  description?: string;
 }
 
 export interface LanguagesContent {

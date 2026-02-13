@@ -41,7 +41,7 @@ export function SortableSection({ id, children }: SortableSectionProps) {
 
   return (
     <DragHandleCtx.Provider value={{ attributes, listeners }}>
-      <div ref={setNodeRef} style={style}>
+      <div ref={setNodeRef} style={style} data-section-id={id}>
         {children}
       </div>
     </DragHandleCtx.Provider>

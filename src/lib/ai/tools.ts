@@ -8,10 +8,20 @@ import { translateOutputSchema } from '@/lib/ai/translate-schema';
 export function createExecutableTools(resumeId: string) {
   return {
     updateSection: tool({
-      description: 'Update the content of a specific resume section. Use this when the user wants to modify any part of their resume.',
+      description: `Update the content of a specific resume section. Section content structures:
+- personal_info: { fullName, jobTitle, email, phone, location, website, linkedin, github }
+- summary: { text: string }
+- work_experience: { items: [{ id, company, position, location, startDate, endDate, current, description, highlights }] }
+- education: { items: [{ id, institution, degree, field, location, startDate, endDate, gpa, highlights }] }
+- skills: { categories: [{ id, name, skills: string[] }] }
+- projects: { items: [{ id, name, url, description, technologies, highlights }] }
+- certifications: { items: [{ id, name, issuer, date, url }] }
+- languages: { items: [{ id, language, proficiency }] }
+- custom: { items: [{ id, title, subtitle, date, description }] }
+Use field="items" or field="categories" to update list sections. Each item MUST include a unique "id" (use a UUID).`,
       inputSchema: z.object({
         sectionId: z.string().describe('The ID of the section to update'),
-        field: z.string().describe('The field within the section to update (e.g., "fullName", "text", "items")'),
+        field: z.string().describe('The field within the section to update (e.g., "fullName", "text", "items", "categories")'),
         value: z.string().describe('The new value for the field. For complex values (arrays, objects), pass a JSON string.'),
       }),
       execute: async ({ sectionId, field, value }) => {
@@ -28,10 +38,39 @@ export function createExecutableTools(resumeId: string) {
           // Use as string if not valid JSON
         }
 
-        const updatedContent = { ...(section.content as Record<string, unknown>), [field]: parsedValue };
+        // Fix field name for item-based sections when AI uses wrong field
+        const itemSections = ['work_experience', 'education', 'projects', 'certifications', 'languages', 'custom'];
+        let actualField = field;
+        if (itemSections.includes(section.type) && field !== 'items') {
+          // AI sent wrong field (e.g. "text") for an items-based section — convert to items
+          if (typeof parsedValue === 'string') {
+            // Convert plain text to a single custom item
+            parsedValue = [{ id: crypto.randomUUID(), title: '', description: parsedValue }];
+          } else if (!Array.isArray(parsedValue)) {
+            // If it's an object with items inside, extract them
+            if (Array.isArray((parsedValue as any)?.items)) {
+              parsedValue = (parsedValue as any).items;
+            }
+          }
+          actualField = section.type === 'skills' ? 'categories' : 'items';
+        }
+        if (section.type === 'skills' && field !== 'categories') {
+          actualField = 'categories';
+        }
+
+        // Ensure items/categories always have id fields
+        if (Array.isArray(parsedValue)) {
+          parsedValue = (parsedValue as any[]).map((item) =>
+            typeof item === 'object' && item !== null && !item.id
+              ? { ...item, id: crypto.randomUUID() }
+              : item
+          );
+        }
+
+        const updatedContent = { ...(section.content as Record<string, unknown>), [actualField]: parsedValue };
         await resumeRepository.updateSection(sectionId, { content: updatedContent });
 
-        return { success: true, sectionType: section.type, field, updatedContent };
+        return { success: true, sectionType: section.type, field: actualField, updatedContent };
       },
     }),
 

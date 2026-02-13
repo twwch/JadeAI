@@ -1,7 +1,8 @@
 'use client';
 
+import { useState, useRef, useEffect } from 'react';
 import { useTranslations } from 'next-intl';
-import { GripVertical, Trash2, Eye, EyeOff, Sparkles } from 'lucide-react';
+import { GripVertical, X, Eye, EyeOff, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/stores/editor-store';
 import { useResumeStore } from '@/stores/resume-store';
@@ -38,11 +39,32 @@ const sectionComponents: Record<string, React.ComponentType<{ section: ResumeSec
 export function SectionWrapper({ section, onUpdate, onRemove }: SectionWrapperProps) {
   const t = useTranslations('editor');
   const { selectedSectionId, selectSection, showAiChat, toggleAiChat } = useEditorStore();
-  const { toggleSectionVisibility } = useResumeStore();
+  const { toggleSectionVisibility, updateSectionTitle } = useResumeStore();
   const { attributes, listeners } = useDragHandle();
   const isSelected = selectedSectionId === section.id;
+  const [isRenaming, setIsRenaming] = useState(false);
+  const [renameValue, setRenameValue] = useState(section.title);
+  const renameInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (isRenaming) {
+      renameInputRef.current?.focus();
+      renameInputRef.current?.select();
+    }
+  }, [isRenaming]);
+
+  const commitRename = () => {
+    const trimmed = renameValue.trim();
+    if (trimmed && trimmed !== section.title) {
+      updateSectionTitle(section.id, trimmed);
+    } else {
+      setRenameValue(section.title);
+    }
+    setIsRenaming(false);
+  };
 
   const SectionComponent = sectionComponents[section.type];
+  const isCustom = section.type === 'custom';
 
   return (
     <div
@@ -58,7 +80,27 @@ export function SectionWrapper({ section, onUpdate, onRemove }: SectionWrapperPr
             {...attributes}
             {...listeners}
           />
-          <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{section.title}</h3>
+          {isRenaming ? (
+            <input
+              ref={renameInputRef}
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              onBlur={commitRename}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') commitRename();
+                if (e.key === 'Escape') { setRenameValue(section.title); setIsRenaming(false); }
+              }}
+              className="h-6 w-32 rounded border border-pink-300 bg-transparent px-1 text-sm font-semibold text-zinc-700 outline-none dark:text-zinc-200"
+              onClick={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <h3
+              className={`text-sm font-semibold text-zinc-700 dark:text-zinc-200 ${isCustom ? 'cursor-text rounded px-1 -mx-1 hover:bg-zinc-100 dark:hover:bg-zinc-700' : ''}`}
+              onDoubleClick={isCustom ? (e) => { e.stopPropagation(); setRenameValue(section.title); setIsRenaming(true); } : undefined}
+            >
+              {section.title}
+            </h3>
+          )}
         </div>
         <div className="flex items-center gap-1">
           <Button
@@ -91,13 +133,13 @@ export function SectionWrapper({ section, onUpdate, onRemove }: SectionWrapperPr
           <Button
             variant="ghost"
             size="sm"
-            className="h-7 w-7 cursor-pointer p-0 text-red-400 hover:text-red-600"
+            className="h-7 w-7 cursor-pointer p-0 text-zinc-400 hover:text-red-500"
             onClick={(e) => {
               e.stopPropagation();
               onRemove();
             }}
           >
-            <Trash2 className="h-3.5 w-3.5" />
+            <X className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>

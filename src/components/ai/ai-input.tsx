@@ -29,7 +29,7 @@ export function AIInput({ input, onChange, onSubmit, isLoading, models, selected
           rows={2}
           className="w-full resize-none bg-transparent px-4 pt-3 pb-2 text-sm text-zinc-900 placeholder:text-zinc-400 focus:outline-none"
           onKeyDown={(e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
+            if (e.key === 'Enter' && !e.shiftKey && !e.nativeEvent.isComposing) {
               e.preventDefault();
               const form = e.currentTarget.closest('form');
               if (form) form.requestSubmit();

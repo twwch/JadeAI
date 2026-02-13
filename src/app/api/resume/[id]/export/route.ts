@@ -398,10 +398,9 @@ function buildCreativeSectionContent(section: Section): string {
   if (section.type === 'skills') {
     return `<div class="space-y-3">${((c as SkillsContent).categories || []).map((cat: any) => `<div>
       <p class="mb-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500">${esc(cat.name)}</p>
-      <div class="space-y-1.5">${(cat.skills || []).map((skill: string, i: number) => `<div class="flex items-center gap-3">
-        <span class="w-24 shrink-0 text-sm text-zinc-700">${esc(skill)}</span>
-        <div class="h-2 flex-1 overflow-hidden rounded-full bg-zinc-100"><div class="h-full rounded-full" style="background:${GRADIENT};width:${Math.max(60, 100 - i * 8)}%"></div></div>
-      </div>`).join('')}</div>
+      <div class="flex flex-wrap gap-1.5">${(cat.skills || []).map((skill: string) =>
+        `<span class="rounded-full border px-2.5 py-0.5 text-xs font-medium text-zinc-700" style="border-color:${PRIMARY}40;background-color:${PRIMARY}08">${esc(skill)}</span>`
+      ).join('')}</div>
     </div>`).join('')}</div>`;
   }
   if (section.type === 'projects') {
@@ -452,7 +451,7 @@ function buildCreativeHtml(resume: ResumeWithSections): string {
         <div>
           <h1 class="text-3xl font-extrabold tracking-tight">${esc(pi.fullName || 'Your Name')}</h1>
           ${pi.jobTitle ? `<p class="mt-1 text-lg font-light text-white/80">${esc(pi.jobTitle)}</p>` : ''}
-          ${contacts.length ? `<div class="mt-3 flex flex-wrap gap-2 text-xs text-white/70">${contacts.map(c => `<span class="rounded-full bg-white/15 px-2.5 py-0.5 backdrop-blur-sm">${esc(c)}</span>`).join('')}</div>` : ''}
+          ${contacts.length ? `<div class="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-white/70">${contacts.map((c, i) => `<span>${esc(c)}${i < contacts.length - 1 ? '<span class="mx-0.5 text-white/30">|</span>' : ''}</span>`).join('')}</div>` : ''}
         </div>
       </div>
     </div>
@@ -1067,6 +1066,9 @@ export async function GET(
 
     const format = request.nextUrl.searchParams.get('format') || 'json';
     const title = resume.title || 'resume';
+    const now = new Date();
+    const ts = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
+    const filename = `${title}-${ts}`;
 
     switch (format) {
       case 'json': {
@@ -1078,7 +1080,7 @@ export async function GET(
           status: 200,
           headers: {
             'Content-Type': 'text/html; charset=utf-8',
-            'Content-Disposition': `attachment; filename="${encodeURIComponent(title)}.html"`,
+            'Content-Disposition': `attachment; filename="${encodeURIComponent(filename)}.html"`,
           },
         });
       }
@@ -1088,7 +1090,7 @@ export async function GET(
           status: 200,
           headers: {
             'Content-Type': 'text/plain; charset=utf-8',
-            'Content-Disposition': `attachment; filename="${encodeURIComponent(title)}.txt"`,
+            'Content-Disposition': `attachment; filename="${encodeURIComponent(filename)}.txt"`,
           },
         });
       }
@@ -1098,7 +1100,7 @@ export async function GET(
           status: 200,
           headers: {
             'Content-Type': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-            'Content-Disposition': `attachment; filename="${encodeURIComponent(title)}.doc"`,
+            'Content-Disposition': `attachment; filename="${encodeURIComponent(filename)}.doc"`,
           },
         });
       }
@@ -1109,7 +1111,7 @@ export async function GET(
           status: 200,
           headers: {
             'Content-Type': 'application/pdf',
-            'Content-Disposition': `attachment; filename="${encodeURIComponent(title)}.pdf"`,
+            'Content-Disposition': `attachment; filename="${encodeURIComponent(filename)}.pdf"`,
           },
         });
       }

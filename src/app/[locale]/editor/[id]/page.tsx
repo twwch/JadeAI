@@ -52,6 +52,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         <EditorSidebar
           sections={sections}
           onAddSection={addSection}
+          onReorderSections={reorderSections}
         />
         <EditorCanvas
           sections={sections}

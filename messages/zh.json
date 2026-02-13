@@ -12,7 +12,8 @@
     "confirm": "确认",
     "back": "返回",
     "search": "搜索",
-    "noData": "暂无数据"
+    "noData": "暂无数据",
+    "rename": "重命名"
   },
   "auth": {
     "login": "登录",
@@ -371,6 +372,14 @@
     "error": "操作失败，请重试。",
     "cancel": "取消",
     "close": "关闭"
+  },
+  "templates": {
+    "title": "模板",
+    "subtitle": "选择一个模板开始创建你的简历",
+    "preview": "预览",
+    "useTemplate": "使用此模板",
+    "creating": "创建中...",
+    "nav": "模板"
   },
   "publicView": {
     "title": "共享简历",

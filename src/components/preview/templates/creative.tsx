@@ -44,10 +44,11 @@ export function CreativeTemplate({ resume }: { resume: Resume }) {
               <p className="mt-1 text-lg font-light text-white/80">{pi.jobTitle}</p>
             )}
             {contacts.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-2 text-xs text-white/70">
+              <div className="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-white/70">
                 {contacts.map((c, i) => (
-                  <span key={i} className="rounded-full bg-white/15 px-2.5 py-0.5 backdrop-blur-sm">
+                  <span key={i} className="flex items-center gap-1.5">
                     {c}
+                    {i < contacts.length - 1 && <span className="text-white/30">|</span>}
                   </span>
                 ))}
               </div>
@@ -153,20 +154,15 @@ function CreativeSectionContent({ section }: { section: any }) {
         {categories.map((cat: any) => (
           <div key={cat.id}>
             <p className="mb-1.5 text-xs font-bold uppercase tracking-wider text-zinc-500">{cat.name}</p>
-            <div className="space-y-1.5">
+            <div className="flex flex-wrap gap-1.5">
               {(cat.skills || []).map((skill: string, i: number) => (
-                <div key={i} className="flex items-center gap-3">
-                  <span className="w-24 shrink-0 text-sm text-zinc-700">{skill}</span>
-                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-zinc-100">
-                    <div
-                      className="h-full rounded-full"
-                      style={{
-                        background: GRADIENT,
-                        width: `${Math.max(60, 100 - i * 8)}%`,
-                      }}
-                    />
-                  </div>
-                </div>
+                <span
+                  key={i}
+                  className="rounded-full border px-2.5 py-0.5 text-xs font-medium text-zinc-700"
+                  style={{ borderColor: `${PRIMARY}40`, backgroundColor: `${PRIMARY}08` }}
+                >
+                  {skill}
+                </span>
               ))}
             </div>
           </div>

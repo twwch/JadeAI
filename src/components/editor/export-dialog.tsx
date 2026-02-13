@@ -87,6 +87,8 @@ export function ExportDialog({ open, onOpenChange, resumeId }: ExportDialogProps
       a.href = url;
 
       const title = currentResume?.title || 'resume';
+      const now = new Date();
+      const ts = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, '0')}${String(now.getDate()).padStart(2, '0')}${String(now.getHours()).padStart(2, '0')}${String(now.getMinutes()).padStart(2, '0')}${String(now.getSeconds()).padStart(2, '0')}`;
       const extMap: Record<string, string> = {
         pdf: 'pdf',
         docx: 'docx',
@@ -94,7 +96,7 @@ export function ExportDialog({ open, onOpenChange, resumeId }: ExportDialogProps
         txt: 'txt',
         json: 'json',
       };
-      a.download = `${title}.${extMap[selectedFormat]}`;
+      a.download = `${title}-${ts}.${extMap[selectedFormat]}`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);

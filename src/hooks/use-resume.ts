@@ -64,6 +64,23 @@ export function useResume() {
     return false;
   }, []);
 
+  const renameResume = useCallback(async (id: string, title: string) => {
+    try {
+      const res = await fetch(`/api/resume/${id}`, {
+        method: 'PUT',
+        headers: getHeaders(),
+        body: JSON.stringify({ title }),
+      });
+      if (res.ok) {
+        setResumes((prev) => prev.map((r) => r.id === id ? { ...r, title } : r));
+        return true;
+      }
+    } catch (error) {
+      console.error('Failed to rename resume:', error);
+    }
+    return false;
+  }, []);
+
   const duplicateResume = useCallback(async (id: string) => {
     try {
       const res = await fetch(`/api/resume/${id}/duplicate`, {
@@ -87,6 +104,7 @@ export function useResume() {
     fetchResumes,
     createResume,
     deleteResume,
+    renameResume,
     duplicateResume,
   };
 }

@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { EditableText } from '../fields/editable-text';
@@ -35,19 +35,22 @@ export function LanguagesSection({ section, onUpdate }: Props) {
   return (
     <div className="space-y-4">
       {items.map((item, index) => (
-        <div key={item.id}>
+        <div key={item.id || `lang-${index}`}>
           {index > 0 && <Separator className="mb-4" />}
-          <FieldWrapper>
-            <EditableText label="Language" value={item.language} onChange={(v) => updateItem(index, { language: v })} />
-            <div className="flex items-end gap-1">
-              <div className="flex-1">
-                <EditableText label="Proficiency" value={item.proficiency} onChange={(v) => updateItem(index, { proficiency: v })} />
+          <div className="space-y-3">
+            <FieldWrapper>
+              <EditableText label={t('language' as any) || 'Language'} value={item.language} onChange={(v) => updateItem(index, { language: v })} />
+              <div className="flex items-end gap-1">
+                <div className="flex-1">
+                  <EditableText label="Proficiency" value={item.proficiency} onChange={(v) => updateItem(index, { proficiency: v })} />
+                </div>
+                <Button variant="ghost" size="sm" className="h-8 w-8 cursor-pointer p-0 text-zinc-400 hover:text-red-500" onClick={() => removeItem(index)}>
+                  <X className="h-3.5 w-3.5" />
+                </Button>
               </div>
-              <Button variant="ghost" size="sm" className="h-8 w-8 cursor-pointer p-0 text-red-400 hover:text-red-600" onClick={() => removeItem(index)}>
-                <Trash2 className="h-3.5 w-3.5" />
-              </Button>
-            </div>
-          </FieldWrapper>
+            </FieldWrapper>
+            <EditableText label={t('description')} value={(item as any).description || ''} onChange={(v) => updateItem(index, { description: v } as any)} />
+          </div>
         </div>
       ))}
       <Button variant="outline" size="sm" onClick={addItem} className="w-full cursor-pointer gap-1">

@@ -1,7 +1,7 @@
 'use client';
 
 import { useTranslations } from 'next-intl';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { EditableText } from '../fields/editable-text';
@@ -48,7 +48,7 @@ export function WorkExperienceSection({ section, onUpdate }: Props) {
   return (
     <div className="space-y-4">
       {items.map((item, index) => (
-        <div key={item.id}>
+        <div key={item.id || `we-${index}`}>
           {index > 0 && <Separator className="mb-4" />}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
@@ -56,10 +56,10 @@ export function WorkExperienceSection({ section, onUpdate }: Props) {
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 cursor-pointer p-1 text-red-400 hover:text-red-600"
+                className="h-7 cursor-pointer p-1 text-zinc-400 hover:text-red-500"
                 onClick={() => removeItem(index)}
               >
-                <Trash2 className="h-3.5 w-3.5" />
+                <X className="h-3.5 w-3.5" />
               </Button>
             </div>
             <FieldWrapper>

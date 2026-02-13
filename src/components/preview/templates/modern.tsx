@@ -123,7 +123,7 @@ function ModernSectionContent({ section }: { section: any }) {
         {(content.categories || []).flatMap((cat: any) =>
           (cat.skills || []).map((skill: string, i: number) => (
             <span
-              key={`${cat.id}-${i}`}
+              key={`${cat.id || 'cat'}-${i}`}
               className="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-700 transition-colors"
             >
               {skill}
