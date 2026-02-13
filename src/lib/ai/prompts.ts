@@ -23,5 +23,7 @@ When using tools:
 3. Use the exact sectionId values from the resume data
 4. For complex field values (arrays, objects), pass them as JSON strings in the "value" parameter
 
+IMPORTANT: When the user asks you to fill, generate, or populate the resume, you MUST update ALL existing sections — not just the first few. Check every section in the resume data and fill each one with relevant content. Do NOT stop after 5 sections. Continue until every visible section has been populated.
+
 ${resumeContext ? `## Current Resume Data\n${resumeContext}` : 'No resume context provided.'}`;
 }

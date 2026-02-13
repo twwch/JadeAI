@@ -31,6 +31,18 @@ const templateLabelKeys: Record<string, string> = {
   creative: 'dashboard.templateCreative',
   ats: 'dashboard.templateAts',
   academic: 'dashboard.templateAcademic',
+  elegant: 'dashboard.templateElegant',
+  executive: 'dashboard.templateExecutive',
+  developer: 'dashboard.templateDeveloper',
+  designer: 'dashboard.templateDesigner',
+  startup: 'dashboard.templateStartup',
+  formal: 'dashboard.templateFormal',
+  infographic: 'dashboard.templateInfographic',
+  compact: 'dashboard.templateCompact',
+  euro: 'dashboard.templateEuro',
+  clean: 'dashboard.templateClean',
+  bold: 'dashboard.templateBold',
+  timeline: 'dashboard.templateTimeline',
 };
 
 export function ResumeCard({ resume, onDelete, onDuplicate, onRename, onShare }: ResumeCardProps) {
@@ -77,17 +89,17 @@ export function ResumeCard({ resume, onDelete, onDuplicate, onRename, onShare }:
       onClick={() => { if (!renamingRef.current) router.push(`/editor/${resume.id}`); }}
     >
       {/* Template preview thumbnail */}
-      <div className="relative border-b border-zinc-100 bg-zinc-50 p-3 dark:border-zinc-700/40 dark:bg-zinc-800/50">
+      <div className="relative border-b border-zinc-100 bg-zinc-50 p-2.5 dark:border-zinc-700/40 dark:bg-zinc-800/50">
         <TemplateThumbnail
           template={resume.template}
-          className="mx-auto h-[120px] w-[85px] shadow-sm ring-1 ring-zinc-200/60"
+          className="mx-auto h-[100px] w-[71px] shadow-sm ring-1 ring-zinc-200/60"
         />
         {/* Hover overlay with actions */}
         <div className="absolute inset-0 flex items-center justify-center bg-black/0 transition-all duration-200 group-hover:bg-black/5 dark:group-hover:bg-white/5" />
       </div>
 
       {/* Info section */}
-      <div className="p-3.5">
+      <div className="p-2.5">
         <div className="flex items-start justify-between gap-2">
           <div className="min-w-0 flex-1">
             {isRenaming ? (

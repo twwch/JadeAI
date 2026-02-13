@@ -29,6 +29,18 @@ const templateLabelKeys: Record<string, string> = {
   creative: 'dashboard.templateCreative',
   ats: 'dashboard.templateAts',
   academic: 'dashboard.templateAcademic',
+  elegant: 'dashboard.templateElegant',
+  executive: 'dashboard.templateExecutive',
+  developer: 'dashboard.templateDeveloper',
+  designer: 'dashboard.templateDesigner',
+  startup: 'dashboard.templateStartup',
+  formal: 'dashboard.templateFormal',
+  infographic: 'dashboard.templateInfographic',
+  compact: 'dashboard.templateCompact',
+  euro: 'dashboard.templateEuro',
+  clean: 'dashboard.templateClean',
+  bold: 'dashboard.templateBold',
+  timeline: 'dashboard.templateTimeline',
 };
 
 export function ResumeListItem({ resume, onDelete, onDuplicate, onRename }: ResumeListItemProps) {

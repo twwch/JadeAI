@@ -2,6 +2,7 @@
 
 import { useId } from 'react';
 import type { Resume, ThemeConfig } from '@/types/resume';
+import { BACKGROUND_TEMPLATES } from '@/lib/constants';
 import { ClassicTemplate } from './templates/classic';
 import { ModernTemplate } from './templates/modern';
 import { MinimalTemplate } from './templates/minimal';
@@ -10,6 +11,18 @@ import { TwoColumnTemplate } from './templates/two-column';
 import { CreativeTemplate } from './templates/creative';
 import { AtsTemplate } from './templates/ats';
 import { AcademicTemplate } from './templates/academic';
+import { ElegantTemplate } from './templates/elegant';
+import { ExecutiveTemplate } from './templates/executive';
+import { DeveloperTemplate } from './templates/developer';
+import { DesignerTemplate } from './templates/designer';
+import { StartupTemplate } from './templates/startup';
+import { FormalTemplate } from './templates/formal';
+import { InfographicTemplate } from './templates/infographic';
+import { CompactTemplate } from './templates/compact';
+import { EuroTemplate } from './templates/euro';
+import { CleanTemplate } from './templates/clean';
+import { BoldTemplate } from './templates/bold';
+import { TimelineTemplate } from './templates/timeline';
 
 interface ResumePreviewProps {
   resume: Resume;
@@ -24,6 +37,18 @@ const templateMap: Record<string, React.ComponentType<{ resume: Resume }>> = {
   creative: CreativeTemplate,
   ats: AtsTemplate,
   academic: AcademicTemplate,
+  elegant: ElegantTemplate,
+  executive: ExecutiveTemplate,
+  developer: DeveloperTemplate,
+  designer: DesignerTemplate,
+  startup: StartupTemplate,
+  formal: FormalTemplate,
+  infographic: InfographicTemplate,
+  compact: CompactTemplate,
+  euro: EuroTemplate,
+  clean: CleanTemplate,
+  bold: BoldTemplate,
+  timeline: TimelineTemplate,
 };
 
 const FONT_SIZE_SCALE: Record<string, { body: string; h1: string; h2: string; h3: string }> = {
@@ -42,16 +67,17 @@ const DEFAULT_THEME: ThemeConfig = {
   sectionSpacing: 16,
 };
 
-function buildThemeCSS(scopeId: string, theme: ThemeConfig): string {
+function buildThemeCSS(scopeId: string, theme: ThemeConfig, template: string): string {
   const s = `[data-theme-scope="${scopeId}"]`;
   const fs = FONT_SIZE_SCALE[theme.fontSize] || FONT_SIZE_SCALE.medium;
   const m = theme.margin;
+  const needsPadding = !BACKGROUND_TEMPLATES.has(template);
 
   return `
     ${s} > div {
       font-family: ${theme.fontFamily}, sans-serif !important;
       line-height: ${theme.lineSpacing} !important;
-      padding: ${m.top}px ${m.right}px ${m.bottom}px ${m.left}px !important;
+      ${needsPadding ? `padding: ${m.top}px ${m.right}px ${m.bottom}px ${m.left}px !important;` : ''}
     }
     ${s} p, ${s} li, ${s} span, ${s} td, ${s} a {
       font-size: ${fs.body} !important;
@@ -92,7 +118,7 @@ export function ResumePreview({ resume }: ResumePreviewProps) {
 
   return (
     <div data-theme-scope={scopeId}>
-      <style dangerouslySetInnerHTML={{ __html: buildThemeCSS(scopeId, theme) }} />
+      <style dangerouslySetInnerHTML={{ __html: buildThemeCSS(scopeId, theme, resume.template) }} />
       <Template resume={resume} />
     </div>
   );

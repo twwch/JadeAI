@@ -28,6 +28,18 @@ const templateLabelKeys: Record<string, string> = {
   creative: 'dashboard.templateCreative',
   ats: 'dashboard.templateAts',
   academic: 'dashboard.templateAcademic',
+  elegant: 'dashboard.templateElegant',
+  executive: 'dashboard.templateExecutive',
+  developer: 'dashboard.templateDeveloper',
+  designer: 'dashboard.templateDesigner',
+  startup: 'dashboard.templateStartup',
+  formal: 'dashboard.templateFormal',
+  infographic: 'dashboard.templateInfographic',
+  compact: 'dashboard.templateCompact',
+  euro: 'dashboard.templateEuro',
+  clean: 'dashboard.templateClean',
+  bold: 'dashboard.templateBold',
+  timeline: 'dashboard.templateTimeline',
 };
 
 const TEMPLATES_TOUR_STEPS: TourStepConfig[] = [
@@ -348,17 +360,19 @@ export default function TemplatesPage() {
           if (!open) setPreviewTemplate(null);
         }}
       >
-        <DialogContent className="h-[90vh] w-[90vw] sm:max-w-[900px] overflow-y-auto">
-          <DialogHeader>
+        <DialogContent className="flex h-[90vh] w-[90vw] flex-col gap-0 overflow-hidden p-0 sm:max-w-[900px]">
+          <DialogHeader className="shrink-0 border-b border-zinc-100 px-6 py-4 dark:border-zinc-800">
             <DialogTitle>
               {previewTemplate && t(templateLabelKeys[previewTemplate])}
             </DialogTitle>
           </DialogHeader>
-          {previewTemplate && (
-            <div className="mx-auto w-full max-w-[794px]">
-              <ResumePreview resume={buildMockResume(previewTemplate)} />
-            </div>
-          )}
+          <div className="flex-1 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {previewTemplate && (
+              <div className="mx-auto w-full max-w-[794px] p-6">
+                <ResumePreview resume={buildMockResume(previewTemplate)} />
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
       <TourOverlay tourId="templates" steps={TEMPLATES_TOUR_STEPS} />

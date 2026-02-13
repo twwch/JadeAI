@@ -22,8 +22,14 @@ export const DEFAULT_SECTIONS: { type: SectionType; titleZh: string; titleEn: st
   { type: 'skills', titleZh: '技能特长', titleEn: 'Skills' },
 ];
 
-export const TEMPLATES = ['classic', 'modern', 'minimal', 'professional', 'two-column', 'creative', 'ats', 'academic'] as const;
+export const TEMPLATES = ['classic', 'modern', 'minimal', 'professional', 'two-column', 'creative', 'ats', 'academic', 'elegant', 'executive', 'developer', 'designer', 'startup', 'formal', 'infographic', 'compact', 'euro', 'clean', 'bold', 'timeline'] as const;
 export type Template = (typeof TEMPLATES)[number];
+
+/** Templates with full-bleed background headers — no outer padding needed */
+export const BACKGROUND_TEMPLATES: ReadonlySet<string> = new Set([
+  'modern', 'creative', 'two-column', 'executive', 'developer',
+  'designer', 'startup', 'infographic', 'compact', 'bold',
+]);
 
 export const AUTOSAVE_DELAY = 500;
 export const MAX_UNDO_STACK = 50;

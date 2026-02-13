@@ -36,6 +36,18 @@ const templateLabelsMap: Record<string, string> = {
   creative: 'dashboard.templateCreative',
   ats: 'dashboard.templateAts',
   academic: 'dashboard.templateAcademic',
+  elegant: 'dashboard.templateElegant',
+  executive: 'dashboard.templateExecutive',
+  developer: 'dashboard.templateDeveloper',
+  designer: 'dashboard.templateDesigner',
+  startup: 'dashboard.templateStartup',
+  formal: 'dashboard.templateFormal',
+  infographic: 'dashboard.templateInfographic',
+  compact: 'dashboard.templateCompact',
+  euro: 'dashboard.templateEuro',
+  clean: 'dashboard.templateClean',
+  bold: 'dashboard.templateBold',
+  timeline: 'dashboard.templateTimeline',
 };
 
 export function CreateResumeDialog({ open, onClose, onCreate }: CreateResumeDialogProps) {
@@ -143,7 +155,7 @@ export function CreateResumeDialog({ open, onClose, onCreate }: CreateResumeDial
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && resetAndClose()}>
-      <DialogContent className="sm:max-w-2xl p-0 gap-0 overflow-hidden">
+      <DialogContent className="sm:max-w-4xl p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-0">
           <DialogTitle>{t('dashboard.createResume')}</DialogTitle>
           <DialogDescription>{t('dashboard.createResumeDescription')}</DialogDescription>
@@ -190,46 +202,48 @@ export function CreateResumeDialog({ open, onClose, onCreate }: CreateResumeDial
                 <p className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">
                   {t('editor.toolbar.template')}
                 </p>
-                <div className="grid grid-cols-4 gap-3">
-                  {TEMPLATES.map((tpl) => {
-                    const isSelected = template === tpl;
-                    return (
-                      <button
-                        key={tpl}
-                        type="button"
-                        className={cn(
-                          'group/tpl relative cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-200',
-                          isSelected
-                            ? 'border-pink-500 shadow-md shadow-pink-500/10'
-                            : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
-                        )}
-                        onClick={() => setTemplate(tpl)}
-                      >
-                        {/* Thumbnail */}
-                        <div className="relative bg-zinc-50 p-2 dark:bg-zinc-800/50">
-                          <TemplateThumbnail
-                            template={tpl}
-                            className="mx-auto h-[100px] w-[71px] shadow-sm ring-1 ring-zinc-200/50"
-                          />
-                          {/* Selected check */}
-                          {isSelected && (
-                            <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-pink-500 text-white shadow-sm">
-                              <Check className="h-3 w-3" />
-                            </div>
+                <div className="max-h-[400px] overflow-y-auto pr-1">
+                  <div className="grid grid-cols-5 gap-3">
+                    {TEMPLATES.map((tpl) => {
+                      const isSelected = template === tpl;
+                      return (
+                        <button
+                          key={tpl}
+                          type="button"
+                          className={cn(
+                            'group/tpl relative cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-200',
+                            isSelected
+                              ? 'border-pink-500 shadow-md shadow-pink-500/10'
+                              : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
                           )}
-                        </div>
-                        {/* Label */}
-                        <div className={cn(
-                          'px-2 py-1.5 text-center text-xs font-medium transition-colors',
-                          isSelected
-                            ? 'bg-pink-50 text-pink-700 dark:bg-pink-950/30 dark:text-pink-300'
-                            : 'text-zinc-600 dark:text-zinc-400'
-                        )}>
-                          {t(templateLabelsMap[tpl])}
-                        </div>
-                      </button>
-                    );
-                  })}
+                          onClick={() => setTemplate(tpl)}
+                        >
+                          {/* Thumbnail */}
+                          <div className="relative bg-zinc-50 p-2 dark:bg-zinc-800/50">
+                            <TemplateThumbnail
+                              template={tpl}
+                              className="mx-auto h-[100px] w-[71px] shadow-sm ring-1 ring-zinc-200/50"
+                            />
+                            {/* Selected check */}
+                            {isSelected && (
+                              <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-pink-500 text-white shadow-sm">
+                                <Check className="h-3 w-3" />
+                              </div>
+                            )}
+                          </div>
+                          {/* Label */}
+                          <div className={cn(
+                            'px-2 py-1.5 text-center text-xs font-medium transition-colors',
+                            isSelected
+                              ? 'bg-pink-50 text-pink-700 dark:bg-pink-950/30 dark:text-pink-300'
+                              : 'text-zinc-600 dark:text-zinc-400'
+                          )}>
+                            {t(templateLabelsMap[tpl])}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
@@ -302,43 +316,45 @@ export function CreateResumeDialog({ open, onClose, onCreate }: CreateResumeDial
                 <p className="mb-3 text-sm font-medium text-zinc-700 dark:text-zinc-300">
                   {t('editor.toolbar.template')}
                 </p>
-                <div className="grid grid-cols-4 gap-3">
-                  {TEMPLATES.map((tpl) => {
-                    const isSelected = template === tpl;
-                    return (
-                      <button
-                        key={tpl}
-                        type="button"
-                        className={cn(
-                          'group/tpl relative cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-200',
-                          isSelected
-                            ? 'border-pink-500 shadow-md shadow-pink-500/10'
-                            : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
-                        )}
-                        onClick={() => setTemplate(tpl)}
-                      >
-                        <div className="relative bg-zinc-50 p-2 dark:bg-zinc-800/50">
-                          <TemplateThumbnail
-                            template={tpl}
-                            className="mx-auto h-[100px] w-[71px] shadow-sm ring-1 ring-zinc-200/50"
-                          />
-                          {isSelected && (
-                            <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-pink-500 text-white shadow-sm">
-                              <Check className="h-3 w-3" />
-                            </div>
+                <div className="max-h-[400px] overflow-y-auto pr-1">
+                  <div className="grid grid-cols-5 gap-3">
+                    {TEMPLATES.map((tpl) => {
+                      const isSelected = template === tpl;
+                      return (
+                        <button
+                          key={tpl}
+                          type="button"
+                          className={cn(
+                            'group/tpl relative cursor-pointer overflow-hidden rounded-xl border-2 transition-all duration-200',
+                            isSelected
+                              ? 'border-pink-500 shadow-md shadow-pink-500/10'
+                              : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
                           )}
-                        </div>
-                        <div className={cn(
-                          'px-2 py-1.5 text-center text-xs font-medium transition-colors',
-                          isSelected
-                            ? 'bg-pink-50 text-pink-700 dark:bg-pink-950/30 dark:text-pink-300'
-                            : 'text-zinc-600 dark:text-zinc-400'
-                        )}>
-                          {t(templateLabelsMap[tpl])}
-                        </div>
-                      </button>
-                    );
-                  })}
+                          onClick={() => setTemplate(tpl)}
+                        >
+                          <div className="relative bg-zinc-50 p-2 dark:bg-zinc-800/50">
+                            <TemplateThumbnail
+                              template={tpl}
+                              className="mx-auto h-[100px] w-[71px] shadow-sm ring-1 ring-zinc-200/50"
+                            />
+                            {isSelected && (
+                              <div className="absolute right-1.5 top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-pink-500 text-white shadow-sm">
+                                <Check className="h-3 w-3" />
+                              </div>
+                            )}
+                          </div>
+                          <div className={cn(
+                            'px-2 py-1.5 text-center text-xs font-medium transition-colors',
+                            isSelected
+                              ? 'bg-pink-50 text-pink-700 dark:bg-pink-950/30 dark:text-pink-300'
+                              : 'text-zinc-600 dark:text-zinc-400'
+                          )}>
+                            {t(templateLabelsMap[tpl])}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             </div>
