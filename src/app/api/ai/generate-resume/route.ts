@@ -1,0 +1,158 @@
+import { NextRequest, NextResponse } from 'next/server';
+import { generateText } from 'ai';
+import { getModel } from '@/lib/ai/provider';
+import { resolveUser, getUserIdFromRequest } from '@/lib/auth/helpers';
+import { resumeRepository } from '@/lib/db/repositories/resume.repository';
+import { generateResumeInputSchema, type GenerateResumeOutput } from '@/lib/ai/generate-resume-schema';
+
+const SECTION_TITLES: Record<string, Record<string, string>> = {
+  zh: {
+    personal_info: '个人信息',
+    summary: '个人简介',
+    work_experience: '工作经历',
+    education: '教育背景',
+    skills: '专业技能',
+    projects: '项目经历',
+  },
+  en: {
+    personal_info: 'Personal Information',
+    summary: 'Professional Summary',
+    work_experience: 'Work Experience',
+    education: 'Education',
+    skills: 'Skills',
+    projects: 'Projects',
+  },
+};
+
+function getSystemPrompt(language: string): string {
+  const lang = language === 'en' ? 'English' : 'Simplified Chinese';
+
+  return `You are a professional resume writer. Generate a complete, realistic, and professional resume in ${lang}.
+
+Resume generation guidelines:
+- Generate realistic and professional content that would be appropriate for the given job title and experience level
+- Use concrete, quantifiable achievements (e.g., "Increased performance by 40%", "Led a team of 8 engineers")
+- Create believable company names, institution names, and project names
+- Use strong action verbs to start bullet points (e.g., "Spearheaded", "Architected", "Optimized")
+- Dates should be in YYYY-MM format
+- For personal_info, generate a plausible name, email, phone, and location — do NOT use obviously fake data like "John Doe" or "jane@example.com"
+- Skills should be organized into relevant categories (e.g., "Programming Languages", "Frameworks", "Tools")
+- The number of work experience items should scale with years of experience (1-2 for junior, 2-3 for mid, 3-4 for senior)
+- Include 1-2 education entries
+- Include 2-3 project entries with realistic technologies
+- Each work experience and project should have 3-5 highlight bullet points
+- CRITICAL: Return raw JSON only. Do NOT wrap in markdown code fences, headers, or any other formatting.`;
+}
+
+/** Strip markdown code fences and parse JSON */
+function parseJsonSafe(text: string): any {
+  let cleaned = text.trim();
+  // Remove ```json ... ``` or ``` ... ```
+  if (cleaned.startsWith('```')) {
+    cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
+  }
+  // If it starts with markdown (e.g. "# ..."), try to extract the first JSON object
+  if (cleaned.startsWith('#') || cleaned.startsWith('*')) {
+    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
+    if (jsonMatch) {
+      cleaned = jsonMatch[0];
+    }
+  }
+  return JSON.parse(cleaned);
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const fingerprint = getUserIdFromRequest(request);
+    const user = await resolveUser(fingerprint);
+    if (!user) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await request.json();
+    const parsed = generateResumeInputSchema.safeParse(body);
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: 'Invalid input', details: parsed.error.issues },
+        { status: 400 }
+      );
+    }
+
+    const { jobTitle, yearsOfExperience, skills, industry, language } = parsed.data;
+    const lang = language || 'zh';
+
+    const model = getModel();
+
+    const skillsContext = skills && skills.length > 0
+      ? `\nKey skills to incorporate: ${skills.join(', ')}`
+      : '';
+    const industryContext = industry
+      ? `\nIndustry: ${industry}`
+      : '';
+
+    const result = await generateText({
+      model,
+      maxOutputTokens: 8192,
+      system: getSystemPrompt(lang),
+      prompt: `Generate a complete resume for a ${jobTitle} with ${yearsOfExperience} years of experience.${skillsContext}${industryContext}
+
+Return a JSON object with these exact top-level keys: personal_info, summary, work_experience, education, skills, projects.
+
+The structure must be:
+- personal_info: { fullName, jobTitle, email, phone, location, website?, linkedin?, github? }
+- summary: { text }
+- work_experience: { items: [{ company, position, location?, startDate, endDate (null if current), current, description, highlights: string[] }] }
+- education: { items: [{ institution, degree, field, location?, startDate, endDate, gpa?, highlights: string[] }] }
+- skills: { categories: [{ name, skills: string[] }] }
+- projects: { items: [{ name, url?, startDate?, endDate?, description, technologies: string[], highlights: string[] }] }
+
+Return raw JSON only — no markdown fences, no comments.`,
+    });
+
+    const generatedData: GenerateResumeOutput = parseJsonSafe(result.text);
+
+    // Create a new resume in the database
+    const resumeTitle = lang === 'zh'
+      ? `${jobTitle} - AI生成简历`
+      : `${jobTitle} - AI Generated Resume`;
+
+    const newResume = await resumeRepository.create({
+      userId: user.id,
+      title: resumeTitle,
+      language: lang,
+    });
+
+    if (!newResume) {
+      return NextResponse.json({ error: 'Failed to create resume' }, { status: 500 });
+    }
+
+    // Create sections in the database
+    const titles = SECTION_TITLES[lang] || SECTION_TITLES.zh;
+    const sectionTypes = ['personal_info', 'summary', 'work_experience', 'education', 'skills', 'projects'] as const;
+
+    for (let i = 0; i < sectionTypes.length; i++) {
+      const type = sectionTypes[i];
+      const content = generatedData[type];
+
+      await resumeRepository.createSection({
+        resumeId: newResume.id,
+        type,
+        title: titles[type],
+        sortOrder: i,
+        content,
+      });
+    }
+
+    // Fetch the complete resume with sections
+    const completeResume = await resumeRepository.findById(newResume.id);
+
+    return NextResponse.json({
+      resumeId: newResume.id,
+      title: resumeTitle,
+      sections: completeResume?.sections || [],
+    });
+  } catch (error) {
+    console.error('POST /api/ai/generate-resume error:', error);
+    return NextResponse.json({ error: 'Failed to generate resume' }, { status: 500 });
+  }
+}

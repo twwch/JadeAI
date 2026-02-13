@@ -26,7 +26,7 @@ export function EditableList({ label, items, onChange, placeholder }: EditableLi
 
   return (
     <div className="space-y-1">
-      <label className="text-xs font-medium text-zinc-500">{label}</label>
+      <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{label}</label>
       <div className="space-y-1.5">
         {(items || []).map((item, index) => (
           <div key={index} className="flex items-center gap-1">

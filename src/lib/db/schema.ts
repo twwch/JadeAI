@@ -34,6 +34,10 @@ export const resumes = sqliteTable('resumes', {
   themeConfig: text('theme_config', { mode: 'json' }).default('{}'),
   isDefault: integer('is_default', { mode: 'boolean' }).notNull().default(false),
   language: text('language').notNull().default('zh'),
+  shareToken: text('share_token'),
+  isPublic: integer('is_public', { mode: 'boolean' }).notNull().default(false),
+  sharePassword: text('share_password'),
+  viewCount: integer('view_count').notNull().default(0),
   createdAt: integer('created_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
   updatedAt: integer('updated_at', { mode: 'timestamp' }).notNull().default(sql`(unixepoch())`),
 });

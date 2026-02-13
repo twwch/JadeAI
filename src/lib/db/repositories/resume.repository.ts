@@ -1,4 +1,4 @@
-import { eq, desc } from 'drizzle-orm';
+import { eq, desc, sql } from 'drizzle-orm';
 import { db } from '../index';
 import { resumes, resumeSections } from '../schema';
 
@@ -62,6 +62,22 @@ export const resumeRepository = {
     }
 
     return this.findById(newId);
+  },
+
+  // Share operations
+  async findByShareToken(token: string) {
+    const resume = await db.select().from(resumes).where(eq(resumes.shareToken, token)).limit(1);
+    if (!resume[0]) return null;
+    const sections = await db.select().from(resumeSections).where(eq(resumeSections.resumeId, resume[0].id)).orderBy(resumeSections.sortOrder);
+    return { ...resume[0], sections };
+  },
+
+  async incrementViewCount(id: string) {
+    await db.update(resumes).set({ viewCount: sql`${resumes.viewCount} + 1` } as any).where(eq(resumes.id, id));
+  },
+
+  async updateShareSettings(id: string, settings: { isPublic?: boolean; shareToken?: string | null; sharePassword?: string | null }) {
+    await db.update(resumes).set({ ...settings, updatedAt: new Date() } as any).where(eq(resumes.id, id));
   },
 
   // Section operations

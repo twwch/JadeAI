@@ -13,7 +13,7 @@ interface EditableTextProps {
 export function EditableText({ label, value, onChange, placeholder, type = 'text' }: EditableTextProps) {
   return (
     <div className="space-y-1">
-      <label className="text-xs font-medium text-zinc-500">{label}</label>
+      <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{label}</label>
       <Input
         type={type}
         value={value || ''}

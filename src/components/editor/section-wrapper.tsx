@@ -2,7 +2,6 @@
 
 import { useTranslations } from 'next-intl';
 import { GripVertical, Trash2, Eye, EyeOff, Sparkles } from 'lucide-react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useEditorStore } from '@/stores/editor-store';
 import { useResumeStore } from '@/stores/resume-store';
@@ -46,20 +45,20 @@ export function SectionWrapper({ section, onUpdate, onRemove }: SectionWrapperPr
   const SectionComponent = sectionComponents[section.type];
 
   return (
-    <Card
-      className={`transition-all duration-200 ${
-        isSelected ? 'ring-2 ring-pink-300 shadow-md' : 'hover:shadow-sm'
+    <div
+      className={`rounded-lg border border-transparent transition-all duration-200 ${
+        isSelected ? 'border-pink-300 bg-white dark:bg-zinc-800/50' : 'hover:bg-white/60 dark:hover:bg-zinc-800/30'
       } ${!section.visible ? 'opacity-50' : ''}`}
       onClick={() => selectSection(section.id)}
     >
-      <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 pt-3 px-4">
+      <div className="flex flex-row items-center justify-between pb-2 pt-3 px-4">
         <div className="flex items-center gap-2">
           <GripVertical
             className="h-4 w-4 cursor-grab text-zinc-300 active:cursor-grabbing"
             {...attributes}
             {...listeners}
           />
-          <h3 className="text-sm font-semibold text-zinc-700">{section.title}</h3>
+          <h3 className="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{section.title}</h3>
         </div>
         <div className="flex items-center gap-1">
           <Button
@@ -101,14 +100,14 @@ export function SectionWrapper({ section, onUpdate, onRemove }: SectionWrapperPr
             <Trash2 className="h-3.5 w-3.5" />
           </Button>
         </div>
-      </CardHeader>
-      <CardContent className="px-4 pb-4">
+      </div>
+      <div className="px-4 pb-4">
         {SectionComponent ? (
           <SectionComponent section={section} onUpdate={onUpdate} />
         ) : (
           <p className="text-sm text-zinc-400">Unknown section type: {section.type}</p>
         )}
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

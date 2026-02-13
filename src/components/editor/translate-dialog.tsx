@@ -11,14 +11,8 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
 import { useResumeStore } from '@/stores/resume-store';
+import { LanguageSelect } from '@/components/ui/language-select';
 import { Languages, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface TranslateDialogProps {
@@ -28,19 +22,6 @@ interface TranslateDialogProps {
 }
 
 type TranslateState = 'idle' | 'translating' | 'success' | 'error';
-
-const LANGUAGE_OPTIONS = [
-  { value: 'zh', label: 'chinese', flag: '🇨🇳' },
-  { value: 'en', label: 'english', flag: '🇺🇸' },
-  { value: 'ja', label: 'japanese', flag: '🇯🇵' },
-  { value: 'ko', label: 'korean', flag: '🇰🇷' },
-  { value: 'fr', label: 'french', flag: '🇫🇷' },
-  { value: 'de', label: 'german', flag: '🇩🇪' },
-  { value: 'es', label: 'spanish', flag: '🇪🇸' },
-  { value: 'pt', label: 'portuguese', flag: '🇧🇷' },
-  { value: 'ru', label: 'russian', flag: '🇷🇺' },
-  { value: 'ar', label: 'arabic', flag: '🇸🇦' },
-] as const;
 
 export function TranslateDialog({ open, onOpenChange, resumeId }: TranslateDialogProps) {
   const t = useTranslations('translate');
@@ -124,19 +105,7 @@ export function TranslateDialog({ open, onOpenChange, resumeId }: TranslateDialo
               <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 {t('targetLanguage')}
               </label>
-              <Select value={targetLanguage} onValueChange={setTargetLanguage}>
-                <SelectTrigger className="w-full cursor-pointer">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                  {LANGUAGE_OPTIONS.map((lang) => (
-                    <SelectItem key={lang.value} value={lang.value} className="cursor-pointer">
-                      <span className="mr-2">{lang.flag}</span>
-                      {t(lang.label)}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <LanguageSelect value={targetLanguage} onValueChange={setTargetLanguage} />
             </div>
           )}
 

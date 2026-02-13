@@ -66,7 +66,7 @@ export function EditableDate({ label, value, onChange }: EditableDateProps) {
 
   return (
     <div className="space-y-1">
-      <label className="text-xs font-medium text-zinc-500">{label}</label>
+      <label className="text-xs font-medium text-zinc-500 dark:text-zinc-400">{label}</label>
       <Popover>
         <PopoverTrigger asChild>
           <Button

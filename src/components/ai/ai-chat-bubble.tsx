@@ -59,7 +59,7 @@ export function AIChatBubble({ resumeId }: AIChatBubbleProps) {
 
   // Chat window position (left/top, null = auto-calculate from bubble)
   const [windowPos, setWindowPos] = useState<{ left: number; top: number } | null>(null);
-  const windowDragRef = useRef<{ startX: number; startY: number; origLeft: number; origTop: number } | null>(null);
+  const windowDragRef = useRef<{ startX: number; startY: number; origLeft: number; origTop: number; origBubbleX: number; origBubbleY: number } | null>(null);
 
   // Tooltip
   const [showTooltip, setShowTooltip] = useState(false);
@@ -110,7 +110,11 @@ export function AIChatBubble({ resumeId }: AIChatBubbleProps) {
   const onWindowMouseDown = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     const current = winPos;
-    windowDragRef.current = { startX: e.clientX, startY: e.clientY, origLeft: current.left, origTop: current.top };
+    windowDragRef.current = {
+      startX: e.clientX, startY: e.clientY,
+      origLeft: current.left, origTop: current.top,
+      origBubbleX: bubblePos.x, origBubbleY: bubblePos.y,
+    };
 
     const onMouseMove = (ev: MouseEvent) => {
       if (!windowDragRef.current) return;
@@ -119,6 +123,11 @@ export function AIChatBubble({ resumeId }: AIChatBubbleProps) {
       setWindowPos({
         left: windowDragRef.current.origLeft + dx,
         top: windowDragRef.current.origTop + dy,
+      });
+      // Move bubble in sync (right/bottom offsets move inversely to left/top)
+      setBubblePos({
+        x: Math.max(0, windowDragRef.current.origBubbleX - dx),
+        y: Math.max(0, windowDragRef.current.origBubbleY - dy),
       });
     };
 
@@ -130,7 +139,7 @@ export function AIChatBubble({ resumeId }: AIChatBubbleProps) {
 
     document.addEventListener('mousemove', onMouseMove);
     document.addEventListener('mouseup', onMouseUp);
-  }, [winPos]);
+  }, [winPos, bubblePos]);
 
   return (
     <>

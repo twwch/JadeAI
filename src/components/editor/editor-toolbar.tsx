@@ -2,14 +2,13 @@
 
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
-import { ArrowLeft, Undo2, Redo2, Download, Settings, Palette, Save, FileSearch, Languages } from 'lucide-react';
+import { ArrowLeft, Undo2, Redo2, Download, Settings, Palette, Save, FileSearch, Languages, FileText, SpellCheck, Share2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { useEditorStore } from '@/stores/editor-store';
 import { useResumeStore } from '@/stores/resume-store';
 import { useUIStore } from '@/stores/ui-store';
 import { useSettingsStore } from '@/stores/settings-store';
-import { usePdfExport } from '@/hooks/use-pdf-export';
 import { LocaleSwitcher } from '@/components/layout/locale-switcher';
 
 interface EditorToolbarProps {
@@ -23,7 +22,6 @@ export function EditorToolbar({ resumeId }: EditorToolbarProps) {
   const { isSaving, isDirty, currentResume, sections, reorderSections, save } = useResumeStore();
   const { openModal } = useUIStore();
   const autoSave = useSettingsStore((s) => s.autoSave);
-  const { exportPdf, isExporting } = usePdfExport();
 
   const handleUndo = () => {
     const snapshot = undo();
@@ -37,13 +35,6 @@ export function EditorToolbar({ resumeId }: EditorToolbarProps) {
     if (snapshot) {
       reorderSections(snapshot.sections);
     }
-  };
-
-  const handleExportPdf = async () => {
-    if (!currentResume) return;
-    // Save first if dirty
-    if (isDirty) await save();
-    await exportPdf({ ...currentResume, sections });
   };
 
   return (
@@ -102,13 +93,22 @@ export function EditorToolbar({ resumeId }: EditorToolbarProps) {
         <Button
           variant="ghost"
           size="sm"
-          onClick={handleExportPdf}
-          disabled={isExporting}
+          onClick={() => openModal('export')}
           className="cursor-pointer"
           title={t('exportPdf')}
         >
           <Download className="h-4 w-4" />
-          <span className="ml-1 text-xs hidden sm:inline">{isExporting ? t('exporting') : t('exportPdf')}</span>
+          <span className="ml-1 text-xs hidden sm:inline">{t('exportPdf')}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => openModal('share')}
+          className="cursor-pointer"
+          title={t('share')}
+        >
+          <Share2 className="h-4 w-4" />
+          <span className="ml-1 text-xs hidden sm:inline">{t('share')}</span>
         </Button>
         <Separator orientation="vertical" className="h-6" />
         <Button
@@ -130,6 +130,26 @@ export function EditorToolbar({ resumeId }: EditorToolbarProps) {
         >
           <Languages className="h-4 w-4" />
           <span className="ml-1 text-xs hidden sm:inline">{t('translate')}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => openModal('cover-letter')}
+          className="cursor-pointer"
+          title={t('coverLetter')}
+        >
+          <FileText className="h-4 w-4" />
+          <span className="ml-1 text-xs hidden sm:inline">{t('coverLetter')}</span>
+        </Button>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => openModal('grammar-check')}
+          className="cursor-pointer"
+          title={t('grammarCheck')}
+        >
+          <SpellCheck className="h-4 w-4" />
+          <span className="ml-1 text-xs hidden sm:inline">{t('grammarCheck')}</span>
         </Button>
         <Separator orientation="vertical" className="h-6" />
         <Button

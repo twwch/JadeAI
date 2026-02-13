@@ -70,7 +70,7 @@ export function EditorSidebar({ sections, onAddSection }: EditorSidebarProps) {
   };
 
   return (
-    <div className="w-56 shrink-0 border-r bg-white">
+    <div className="w-56 shrink-0 border-r bg-white dark:bg-zinc-900 dark:border-zinc-800">
       <div className="p-3">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
           {t('sidebar.sections')}
@@ -86,8 +86,8 @@ export function EditorSidebar({ sections, onAddSection }: EditorSidebarProps) {
                 type="button"
                 className={`flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm transition-colors duration-150 ${
                   selectedSectionId === section.id
-                    ? 'bg-pink-50 text-pink-700'
-                    : 'text-zinc-600 hover:bg-zinc-50'
+                    ? 'bg-pink-50 text-pink-700 dark:bg-pink-950/40 dark:text-pink-300'
+                    : 'text-zinc-600 hover:bg-zinc-50 dark:text-zinc-400 dark:hover:bg-zinc-800'
                 }`}
                 onClick={() => selectSection(section.id)}
               >
@@ -111,7 +111,7 @@ export function EditorSidebar({ sections, onAddSection }: EditorSidebarProps) {
                     <button
                       key={type}
                       type="button"
-                      className="flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-zinc-500 transition-colors duration-150 hover:bg-zinc-50 hover:text-zinc-700"
+                      className="flex w-full cursor-pointer items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm text-zinc-500 transition-colors duration-150 hover:bg-zinc-50 hover:text-zinc-700 dark:text-zinc-500 dark:hover:bg-zinc-800 dark:hover:text-zinc-300"
                       onClick={() => handleAddSection(type)}
                     >
                       <Plus className="h-3 w-3 shrink-0" />

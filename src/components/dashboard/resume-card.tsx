@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
-import { Copy, Trash2, MoreVertical } from 'lucide-react';
+import { Copy, Trash2, MoreVertical, Share2 } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,6 +17,7 @@ interface ResumeCardProps {
   resume: Resume;
   onDelete: () => void;
   onDuplicate: () => void;
+  onShare?: () => void;
 }
 
 const templateLabelKeys: Record<string, string> = {
@@ -30,7 +31,7 @@ const templateLabelKeys: Record<string, string> = {
   academic: 'dashboard.templateAcademic',
 };
 
-export function ResumeCard({ resume, onDelete, onDuplicate }: ResumeCardProps) {
+export function ResumeCard({ resume, onDelete, onDuplicate, onShare }: ResumeCardProps) {
   const t = useTranslations();
   const router = useRouter();
 
@@ -90,6 +91,18 @@ export function ResumeCard({ resume, onDelete, onDuplicate }: ResumeCardProps) {
                 <Copy className="mr-2 h-4 w-4" />
                 {t('common.duplicate')}
               </DropdownMenuItem>
+              {onShare && (
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onShare();
+                  }}
+                >
+                  <Share2 className="mr-2 h-4 w-4" />
+                  {t('share.title')}
+                </DropdownMenuItem>
+              )}
               <DropdownMenuItem
                 className="cursor-pointer text-red-600"
                 onClick={(e) => {

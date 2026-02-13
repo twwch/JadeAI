@@ -10,6 +10,7 @@ import type {
   CertificationsContent,
   LanguagesContent,
 } from '@/types/resume';
+import type { PdfExportOptions } from '@/hooks/use-pdf-export';
 import { isSectionEmpty } from './utils';
 
 // Register Noto Sans SC (static OTF) for CJK support
@@ -101,7 +102,7 @@ const LEFT_TYPES_SET = new Set(['skills', 'languages', 'certifications', 'custom
 // ————————————————————————————————————
 // Main export
 // ————————————————————————————————————
-export function ResumePdfDocument({ resume }: { resume: Resume }) {
+export function ResumePdfDocument({ resume, options }: { resume: Resume; options?: PdfExportOptions }) {
   const variant = getVariant(resume.template);
   const personalInfo = resume.sections.find((sec) => sec.type === 'personal_info');
   const pi = (personalInfo?.content || {}) as PersonalInfoContent;
@@ -112,14 +113,34 @@ export function ResumePdfDocument({ resume }: { resume: Resume }) {
 
   const contacts = [pi.email, pi.phone, pi.location, pi.website].filter((c): c is string => Boolean(c));
 
+  const pageSize = options?.pageSize || 'A4';
+  const margins = options?.margins;
+  const pageStyle = margins
+    ? [s.page, { paddingTop: margins.top, paddingBottom: margins.bottom, paddingLeft: margins.left, paddingRight: margins.right }]
+    : s.page;
+
   // Two-column splits sections into left/right
   if (variant === 'two-column') {
-    return <TwoColumnPdfDocument pi={pi} contacts={contacts} visibleSections={visibleSections} />;
+    return <TwoColumnPdfDocument pi={pi} contacts={contacts} visibleSections={visibleSections} pageSize={pageSize} />;
   }
 
   return (
     <Document>
-      <Page size="A4" style={s.page}>
+      <Page size={pageSize} style={pageStyle}>
+        {/* Header Text */}
+        {options?.headerText ? (
+          <View style={{ position: 'absolute', top: 8, left: 0, right: 0, alignItems: 'center' }} fixed>
+            <Text style={{ fontSize: 7, color: '#a1a1aa' }}>{options.headerText}</Text>
+          </View>
+        ) : null}
+
+        {/* Watermark */}
+        {options?.watermark && options?.watermarkText ? (
+          <View style={{ position: 'absolute', top: '40%', left: 0, right: 0, alignItems: 'center', transform: 'rotate(-30deg)', opacity: 0.06 }} fixed>
+            <Text style={{ fontSize: 48, fontWeight: 700, color: '#a1a1aa' }}>{options.watermarkText}</Text>
+          </View>
+        ) : null}
+
         {/* Header */}
         <PdfHeader variant={variant} pi={pi} contacts={contacts} />
 
@@ -138,6 +159,13 @@ export function ResumePdfDocument({ resume }: { resume: Resume }) {
             );
           })}
         </View>
+
+        {/* Footer Text */}
+        {options?.footerText ? (
+          <View style={{ position: 'absolute', bottom: 8, left: 0, right: 0, alignItems: 'center' }} fixed>
+            <Text style={{ fontSize: 7, color: '#a1a1aa' }}>{options.footerText}</Text>
+          </View>
+        ) : null}
       </Page>
     </Document>
   );
@@ -168,7 +196,7 @@ function PdfHeader({ variant, pi, contacts }: { variant: TemplateVariant; pi: Pe
   if (variant === 'creative') {
     const allContacts = [pi.email, pi.phone, pi.location, pi.website, pi.linkedin, pi.github].filter(Boolean);
     return (
-      <View style={{ backgroundColor: CREATIVE_PURPLE, paddingHorizontal: 40, paddingVertical: 28, marginTop: -PAGE_PADDING, position: 'relative', overflow: 'hidden' }}>
+      <View style={{ backgroundColor: CREATIVE_PURPLE, paddingHorizontal: 40, paddingVertical: 28, marginTop: -PAGE_PADDING, position: 'relative' }}>
         {/* Decorative circles */}
         <View style={{ position: 'absolute', right: 32, top: 12, width: 80, height: 80, borderRadius: 40, borderWidth: 3, borderColor: '#ffffff', opacity: 0.1 }} />
         <View style={{ position: 'absolute', right: 60, top: 40, width: 40, height: 40, borderRadius: 20, borderWidth: 2, borderColor: '#ffffff', opacity: 0.1 }} />
@@ -540,9 +568,11 @@ function CreativePdfSectionContent({ section, title }: { section: any; title: Re
             {idx === 0 && title}
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
               <Text style={{ fontWeight: 700, fontSize: 10, color: '#27272a' }}>{item.position}</Text>
-              <Text style={{ fontSize: 8, fontWeight: 600, color: '#ffffff', backgroundColor: CREATIVE_PURPLE, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2 }}>
-                {item.startDate} – {item.current ? 'Present' : item.endDate}
-              </Text>
+              <View style={{ backgroundColor: CREATIVE_PURPLE, borderRadius: 10, paddingHorizontal: 8, paddingVertical: 2 }}>
+                <Text style={{ fontSize: 8, fontWeight: 600, color: '#ffffff' }}>
+                  {item.startDate} – {item.current ? 'Present' : item.endDate}
+                </Text>
+              </View>
             </View>
             {item.company ? <Text style={{ fontSize: 10, color: CREATIVE_PURPLE, fontWeight: 500 }}>{item.company}</Text> : null}
             {item.description ? <Text style={{ fontSize: 10, color: '#52525b', marginTop: 2, lineHeight: 1.6 }}>{item.description}</Text> : null}
@@ -618,7 +648,9 @@ function CreativePdfSectionContent({ section, title }: { section: any; title: Re
               {item.technologies?.length > 0 ? (
                 <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 3, marginTop: 4 }}>
                   {item.technologies.map((t: string, i: number) => (
-                    <Text key={i} style={{ fontSize: 7, color: '#ffffff', backgroundColor: CREATIVE_PURPLE, borderRadius: 10, paddingHorizontal: 6, paddingVertical: 2, fontWeight: 500 }}>{t}</Text>
+                    <View key={i} style={{ backgroundColor: CREATIVE_PURPLE, borderRadius: 10, paddingHorizontal: 6, paddingVertical: 2 }}>
+                      <Text style={{ fontSize: 7, color: '#ffffff', fontWeight: 500 }}>{t}</Text>
+                    </View>
                   ))}
                 </View>
               ) : null}
@@ -709,7 +741,7 @@ function CreativePdfSectionContent({ section, title }: { section: any; title: Re
 }
 
 // ——— Two-Column PDF layout ———
-function TwoColumnPdfDocument({ pi, contacts, visibleSections }: { pi: PersonalInfoContent; contacts: string[]; visibleSections: any[] }) {
+function TwoColumnPdfDocument({ pi, contacts, visibleSections, pageSize = 'A4' }: { pi: PersonalInfoContent; contacts: string[]; visibleSections: any[]; pageSize?: 'A4' | 'LETTER' }) {
   const leftSections = visibleSections.filter((sec) => LEFT_TYPES_SET.has(sec.type));
   const rightSections = visibleSections.filter((sec) => !LEFT_TYPES_SET.has(sec.type));
 
@@ -718,7 +750,7 @@ function TwoColumnPdfDocument({ pi, contacts, visibleSections }: { pi: PersonalI
 
   return (
     <Document>
-      <Page size="A4" style={[s.page, { paddingTop: 0, paddingBottom: 0 }]}>
+      <Page size={pageSize} style={[s.page, { paddingTop: 0, paddingBottom: 0 }]}>
         <View style={{ flexDirection: 'row', minHeight: '100%' }}>
           {/* Left Column */}
           <View style={{ width: leftWidth, backgroundColor: DARK, paddingHorizontal: 16, paddingVertical: 24 }}>
