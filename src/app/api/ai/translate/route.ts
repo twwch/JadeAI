@@ -1,9 +1,11 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import { generateText } from 'ai';
 import { getModel } from '@/lib/ai/provider';
 import { resolveUser, getUserIdFromRequest } from '@/lib/auth/helpers';
 import { resumeRepository } from '@/lib/db/repositories/resume.repository';
-import { translateInputSchema, type TranslateOutput } from '@/lib/ai/translate-schema';
+import { translateInputSchema } from '@/lib/ai/translate-schema';
+import { extractJson } from '@/lib/ai/extract-json';
+import { z } from 'zod/v4';
 
 const LANGUAGE_NAMES: Record<string, string> = {
   zh: 'Simplified Chinese',
@@ -18,130 +20,246 @@ const LANGUAGE_NAMES: Record<string, string> = {
   ar: 'Arabic',
 };
 
-function getTranslatePrompt(targetLanguage: string): string {
+/** Fields to strip before sending to AI (e.g. base64 avatar), keyed by section type */
+const STRIP_FIELDS: Record<string, string[]> = {
+  personal_info: ['avatar'],
+};
+
+const MAX_CONCURRENCY = 4;
+
+const singleSectionSchema = z.object({
+  sectionId: z.string(),
+  title: z.string(),
+  content: z.any(),
+});
+
+function getSectionTranslatePrompt(targetLanguage: string): string {
   const langName = LANGUAGE_NAMES[targetLanguage] || targetLanguage;
 
-  return `You are a professional resume translator. Translate the following resume sections into ${langName}.
+  return `You are a professional resume translator. Translate the given resume section into ${langName}.
 
-Translation guidelines:
-- Use professional and formal ${langName} appropriate for resumes in the target locale
-- Translate job titles, company descriptions, and achievements naturally — do not transliterate
-- Keep proper nouns (company names, university names) in their commonly recognized form in the target language. If no standard translation exists, keep the original name
-- Dates should remain in the same format (YYYY-MM)
-- Technical terms and programming languages should stay in English (e.g., JavaScript, React, AWS)
-- Adapt phrasing to the target language's resume conventions
+Rules:
+- Use professional, formal ${langName} appropriate for resumes
+- Translate job titles, descriptions, and achievements naturally
+- Keep proper nouns in their commonly recognized form. If no standard translation exists, keep original
+- Dates remain in the same format (YYYY-MM)
+- Technical terms and programming languages stay in English (e.g., JavaScript, React, AWS)
 - Section titles should use standard resume headings in the target language
-- Preserve the exact JSON structure and all field names — only translate the string values
+- Preserve the exact JSON structure and all field names — only translate string values
 - Keep all IDs, URLs, emails, phone numbers unchanged
-- CRITICAL: You are a JSON API. Your entire response must be a single valid JSON object starting with { and ending with }. Do NOT use markdown syntax. Do NOT wrap in code fences. Do NOT add any text before or after the JSON.`;
+- CRITICAL: Return a single valid JSON object. No markdown, no code fences, no extra text.`;
 }
 
-import { extractJson } from '@/lib/ai/extract-json';
-import { z } from 'zod/v4';
+async function translateSection(
+  section: { sectionId: string; type: string; title: string; content: unknown },
+  targetLanguage: string,
+  model: ReturnType<typeof getModel>
+) {
+  const result = await generateText({
+    model,
+    maxOutputTokens: 4096,
+    system: getSectionTranslatePrompt(targetLanguage),
+    prompt: `Translate this resume section. Return JSON with keys: sectionId, title, content.\n\n${JSON.stringify(section)}`,
+    providerOptions: {
+      openai: { response_format: { type: 'json_object' } },
+    },
+  });
 
-const translateOutputSchema = z.object({
-  sections: z.array(z.any()),
-});
+  return extractJson(result.text, singleSectionSchema);
+}
+
+/** Run async tasks with a concurrency limit */
+async function runWithConcurrency<T, R>(
+  items: T[],
+  limit: number,
+  fn: (item: T) => Promise<R>,
+  onSettled?: (index: number, result: PromiseSettledResult<R>) => void
+): Promise<PromiseSettledResult<R>[]> {
+  const results: PromiseSettledResult<R>[] = new Array(items.length);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < items.length) {
+      const i = nextIndex++;
+      try {
+        const r = await fn(items[i]);
+        results[i] = { status: 'fulfilled', value: r };
+      } catch (e) {
+        results[i] = { status: 'rejected', reason: e };
+      }
+      onSettled?.(i, results[i]);
+    }
+  }
+
+  const workers = Array.from({ length: Math.min(limit, items.length) }, () => worker());
+  await Promise.all(workers);
+  return results;
+}
 
 export async function POST(request: NextRequest) {
   try {
     const fingerprint = getUserIdFromRequest(request);
     const user = await resolveUser(fingerprint);
     if (!user) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
 
     const body = await request.json();
     const parsed = translateInputSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: 'Invalid input', details: parsed.error.issues },
+      return new Response(
+        JSON.stringify({ error: 'Invalid input', details: parsed.error.issues }),
         { status: 400 }
       );
     }
 
     const { resumeId, targetLanguage, sectionIds } = parsed.data;
 
-    // Fetch the resume and verify ownership
     const resume = await resumeRepository.findById(resumeId);
     if (!resume) {
-      return NextResponse.json({ error: 'Resume not found' }, { status: 404 });
+      return new Response(JSON.stringify({ error: 'Resume not found' }), { status: 404 });
     }
     if (resume.userId !== user.id) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401 });
     }
 
-    // Filter sections if specific IDs are provided
-    const sectionsToTranslate = sectionIds
+    const allSections = sectionIds
       ? resume.sections.filter((s: any) => sectionIds.includes(s.id))
       : resume.sections;
 
-    if (sectionsToTranslate.length === 0) {
-      return NextResponse.json({ error: 'No sections found to translate' }, { status: 400 });
+    if (allSections.length === 0) {
+      return new Response(JSON.stringify({ error: 'No sections found to translate' }), { status: 400 });
     }
 
-    // Prepare sections data for AI translation
-    const sectionsData = sectionsToTranslate.map((s: any) => ({
-      sectionId: s.id,
-      type: s.type,
-      title: s.title,
-      content: s.content,
-    }));
+    // Build section data for AI, stripping heavy non-translatable fields (e.g. base64 avatar)
+    // Save stripped fields so we can merge them back after translation
+    const strippedFields = new Map<string, Record<string, unknown>>();
+
+    const sectionsData = allSections.map((s: any) => {
+      const fieldsToStrip = STRIP_FIELDS[s.type];
+      let content = s.content;
+
+      if (fieldsToStrip && content && typeof content === 'object') {
+        const saved: Record<string, unknown> = {};
+        content = { ...content };
+        for (const field of fieldsToStrip) {
+          if (field in content) {
+            saved[field] = content[field];
+            delete content[field];
+          }
+        }
+        if (Object.keys(saved).length > 0) {
+          strippedFields.set(s.id, saved);
+        }
+      }
+
+      return {
+        sectionId: s.id,
+        type: s.type,
+        title: s.title,
+        content,
+      };
+    });
 
     const model = getModel();
+    const encoder = new TextEncoder();
 
-    const result = await generateText({
-      model,
-      maxOutputTokens: 16384,
-      system: getTranslatePrompt(targetLanguage),
-      prompt: `Translate the following resume sections. Return a JSON object with a "sections" array containing every section with its translated title and content. Respond with JSON only.\n\n${JSON.stringify(sectionsData, null, 2)}`,
-      providerOptions: {
-        openai: {
-          response_format: { type: 'json_object' },
-        },
+    const stream = new ReadableStream({
+      async start(controller) {
+        const send = (data: Record<string, unknown>) => {
+          try {
+            controller.enqueue(encoder.encode(JSON.stringify(data) + '\n'));
+          } catch {
+            // Stream may have been cancelled by client
+          }
+        };
+
+        let completed = 0;
+        const total = sectionsData.length;
+        let failedCount = 0;
+
+        try {
+          const results = await runWithConcurrency<typeof sectionsData[number], z.infer<typeof singleSectionSchema>>(
+            sectionsData,
+            MAX_CONCURRENCY,
+            async (section) => {
+              const translated = await translateSection(section, targetLanguage, model);
+
+              // Merge back stripped fields (e.g. avatar)
+              const saved = strippedFields.get(translated.sectionId);
+              const content = saved
+                ? { ...translated.content, ...saved }
+                : translated.content;
+
+              await resumeRepository.updateSection(translated.sectionId, {
+                title: translated.title,
+                content,
+              });
+
+              return { ...translated, content };
+            },
+            (_index, result) => {
+              completed++;
+              if (result.status === 'rejected') {
+                failedCount++;
+                send({ type: 'progress', completed, total });
+              } else {
+                const section = (result as PromiseFulfilledResult<z.infer<typeof singleSectionSchema>>).value;
+                send({ type: 'progress', completed, total, section });
+              }
+            }
+          );
+
+          if (failedCount > 0) {
+            console.error(
+              'Some sections failed to translate:',
+              results
+                .filter((r) => r.status === 'rejected')
+                .map((f) => (f as PromiseRejectedResult).reason)
+            );
+          }
+
+          // Update resume language
+          await resumeRepository.update(resumeId, { language: targetLanguage });
+        } catch (err) {
+          console.error('Unexpected error during translation:', err);
+        }
+
+        // Always send done and close — even if something above threw
+        try {
+          const updatedResume = await resumeRepository.findById(resumeId);
+          const updatedSections = sectionIds
+            ? updatedResume?.sections.filter((s: any) => sectionIds.includes(s.id))
+            : updatedResume?.sections;
+
+          send({
+            type: 'done',
+            resumeId,
+            language: targetLanguage,
+            sections: updatedSections || [],
+            failedCount,
+          });
+        } catch (err) {
+          console.error('Error fetching final data:', err);
+          send({ type: 'done', resumeId, language: targetLanguage, sections: [], failedCount });
+        }
+
+        try {
+          controller.close();
+        } catch {
+          // Already closed
+        }
       },
     });
 
-    let translatedData: TranslateOutput = extractJson(result.text, translateOutputSchema) as TranslateOutput;
-    // Handle case where model returns the array directly instead of { sections: [...] }
-    if (Array.isArray(translatedData)) {
-      translatedData = { sections: translatedData as any };
-    }
-
-    // Update each section in the database
-    for (const translatedSection of translatedData.sections) {
-      const originalSection = sectionsToTranslate.find(
-        (s: any) => s.id === translatedSection.sectionId
-      );
-      if (!originalSection) continue;
-
-      await resumeRepository.updateSection(translatedSection.sectionId, {
-        title: translatedSection.title,
-        content: translatedSection.content,
-      });
-    }
-
-    // Update resume language field
-    await resumeRepository.update(resumeId, { language: targetLanguage });
-
-    // Fetch the updated resume to return fresh data
-    const updatedResume = await resumeRepository.findById(resumeId);
-    if (!updatedResume) {
-      return NextResponse.json({ error: 'Failed to fetch updated resume' }, { status: 500 });
-    }
-
-    // Return only the translated sections
-    const updatedSections = sectionIds
-      ? updatedResume.sections.filter((s: any) => sectionIds.includes(s.id))
-      : updatedResume.sections;
-
-    return NextResponse.json({
-      resumeId,
-      language: targetLanguage,
-      sections: updatedSections,
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'application/x-ndjson',
+        'Cache-Control': 'no-cache',
+      },
     });
   } catch (error) {
     console.error('POST /api/ai/translate error:', error);
-    return NextResponse.json({ error: 'Failed to translate resume' }, { status: 500 });
+    return new Response(JSON.stringify({ error: 'Failed to translate resume' }), { status: 500 });
   }
 }

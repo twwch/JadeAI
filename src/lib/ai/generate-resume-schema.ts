@@ -6,6 +6,8 @@ export const generateResumeInputSchema = z.object({
   yearsOfExperience: z.number().min(0).max(50).describe('Years of professional experience'),
   skills: z.array(z.string()).optional().describe('Optional list of skills to include'),
   industry: z.string().optional().describe('Optional industry context, e.g. "fintech", "healthcare"'),
+  experience: z.string().optional().describe('Optional free-text work experience description for AI to parse and incorporate'),
+  template: z.string().optional().describe('Template to use for the generated resume'),
   language: z.enum(['zh', 'en']).optional().default('zh').describe('Language for the generated resume'),
 });
 

@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { jobTitle, yearsOfExperience, skills, industry, language } = parsed.data;
+    const { jobTitle, yearsOfExperience, skills, industry, experience, template, language } = parsed.data;
     const lang = language || 'zh';
 
     const model = getModel();
@@ -84,12 +84,15 @@ export async function POST(request: NextRequest) {
     const industryContext = industry
       ? `\nIndustry: ${industry}`
       : '';
+    const experienceContext = experience
+      ? `\n\nThe candidate provided the following work experience description. Parse this into structured work_experience items, and use it to inform the summary, skills, and projects sections:\n---\n${experience}\n---`
+      : '';
 
     const result = await generateText({
       model,
       maxOutputTokens: 8192,
       system: getSystemPrompt(lang),
-      prompt: `Generate a complete resume for a ${jobTitle} with ${yearsOfExperience} years of experience.${skillsContext}${industryContext}
+      prompt: `Generate a complete resume for a ${jobTitle} with ${yearsOfExperience} years of experience.${skillsContext}${industryContext}${experienceContext}
 
 Return a JSON object with these exact top-level keys: personal_info, summary, work_experience, education, skills, projects.
 
@@ -119,6 +122,7 @@ Respond with JSON only.`,
     const newResume = await resumeRepository.create({
       userId: user.id,
       title: resumeTitle,
+      template: template || 'classic',
       language: lang,
     });
 

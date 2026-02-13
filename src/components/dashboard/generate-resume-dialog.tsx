@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import { useRouter } from '@/i18n/routing';
 import { Loader2, CheckCircle2, AlertTriangle, Sparkles } from 'lucide-react';
 import {
@@ -13,7 +13,11 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { LanguageSelect } from '@/components/ui/language-select';
+import { TEMPLATES } from '@/lib/constants';
+import { TemplateThumbnail } from './template-thumbnail';
 
 interface GenerateResumeDialogProps {
   open: boolean;
@@ -23,15 +27,42 @@ interface GenerateResumeDialogProps {
 
 type GenerateState = 'form' | 'generating' | 'success' | 'error';
 
+const templateLabelsMap: Record<string, string> = {
+  classic: 'dashboard.templateClassic',
+  modern: 'dashboard.templateModern',
+  minimal: 'dashboard.templateMinimal',
+  professional: 'dashboard.templateProfessional',
+  'two-column': 'dashboard.templateTwoColumn',
+  creative: 'dashboard.templateCreative',
+  ats: 'dashboard.templateAts',
+  academic: 'dashboard.templateAcademic',
+  elegant: 'dashboard.templateElegant',
+  executive: 'dashboard.templateExecutive',
+  developer: 'dashboard.templateDeveloper',
+  designer: 'dashboard.templateDesigner',
+  startup: 'dashboard.templateStartup',
+  formal: 'dashboard.templateFormal',
+  infographic: 'dashboard.templateInfographic',
+  compact: 'dashboard.templateCompact',
+  euro: 'dashboard.templateEuro',
+  clean: 'dashboard.templateClean',
+  bold: 'dashboard.templateBold',
+  timeline: 'dashboard.templateTimeline',
+};
+
 export function GenerateResumeDialog({ open, onOpenChange, onCreated }: GenerateResumeDialogProps) {
   const t = useTranslations('generateResume');
+  const tGlobal = useTranslations();
+  const locale = useLocale();
   const router = useRouter();
 
   const [jobTitle, setJobTitle] = useState('');
   const [yearsOfExperience, setYearsOfExperience] = useState<number | ''>('');
   const [skills, setSkills] = useState('');
   const [industry, setIndustry] = useState('');
-  const [language, setLanguage] = useState('en');
+  const [experience, setExperience] = useState('');
+  const [template, setTemplate] = useState('classic');
+  const [language, setLanguage] = useState(locale);
   const [state, setState] = useState<GenerateState>('form');
   const [error, setError] = useState('');
   const [result, setResult] = useState<{ resumeId: string; title: string } | null>(null);
@@ -52,8 +83,12 @@ export function GenerateResumeDialog({ open, onOpenChange, onCreated }: Generate
         body: JSON.stringify({
           jobTitle: jobTitle.trim(),
           yearsOfExperience: yearsOfExperience || undefined,
-          skills: skills.trim() || undefined,
+          skills: skills.trim()
+            ? skills.split(/[\s,，、]+/).map(s => s.trim()).filter(Boolean)
+            : undefined,
           industry: industry.trim() || undefined,
+          experience: experience.trim() || undefined,
+          template,
           language,
         }),
       });
@@ -93,7 +128,9 @@ export function GenerateResumeDialog({ open, onOpenChange, onCreated }: Generate
       setYearsOfExperience('');
       setSkills('');
       setIndustry('');
-      setLanguage('en');
+      setExperience('');
+      setTemplate('classic');
+      setLanguage(locale);
       setError('');
       setResult(null);
     }, 200);
@@ -101,7 +138,7 @@ export function GenerateResumeDialog({ open, onOpenChange, onCreated }: Generate
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) handleClose(); }}>
-      <DialogContent className="sm:max-w-lg p-0 gap-0 overflow-hidden">
+      <DialogContent className="sm:max-w-2xl p-0 gap-0 overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-0">
           <DialogTitle className="flex items-center gap-2">
             <Sparkles className="h-5 w-5 text-pink-500" />
@@ -110,34 +147,44 @@ export function GenerateResumeDialog({ open, onOpenChange, onCreated }: Generate
           <DialogDescription>{t('description')}</DialogDescription>
         </DialogHeader>
 
-        <div className="px-6 py-4 space-y-4">
+        <div className="max-h-[70vh] overflow-y-auto px-6 py-4 space-y-4">
           {state === 'form' && (
             <>
-              {/* Job Title */}
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  {t('jobTitle')} *
-                </label>
-                <Input
-                  value={jobTitle}
-                  onChange={(e) => setJobTitle(e.target.value)}
-                  placeholder={t('jobTitle')}
-                />
-              </div>
-
-              {/* Years of Experience */}
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  {t('yearsOfExperience')}
-                </label>
-                <Input
-                  type="number"
-                  min={0}
-                  max={50}
-                  value={yearsOfExperience}
-                  onChange={(e) => setYearsOfExperience(e.target.value ? Number(e.target.value) : '')}
-                  placeholder="3"
-                />
+              {/* Row 1: Job Title + Years + Industry */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    {t('jobTitle')} *
+                  </label>
+                  <Input
+                    value={jobTitle}
+                    onChange={(e) => setJobTitle(e.target.value)}
+                    placeholder={t('jobTitle')}
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    {t('yearsOfExperience')}
+                  </label>
+                  <Input
+                    type="number"
+                    min={0}
+                    max={50}
+                    value={yearsOfExperience}
+                    onChange={(e) => setYearsOfExperience(e.target.value ? Number(e.target.value) : '')}
+                    placeholder="3"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    {t('industry')}
+                  </label>
+                  <Input
+                    value={industry}
+                    onChange={(e) => setIndustry(e.target.value)}
+                    placeholder={t('industry')}
+                  />
+                </div>
               </div>
 
               {/* Skills */}
@@ -152,24 +199,48 @@ export function GenerateResumeDialog({ open, onOpenChange, onCreated }: Generate
                 />
               </div>
 
-              {/* Industry */}
+              {/* Work Experience */}
               <div className="space-y-1.5">
                 <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  {t('industry')}
+                  {t('experience')}
                 </label>
-                <Input
-                  value={industry}
-                  onChange={(e) => setIndustry(e.target.value)}
-                  placeholder={t('industry')}
+                <Textarea
+                  value={experience}
+                  onChange={(e) => setExperience(e.target.value)}
+                  placeholder={t('experiencePlaceholder')}
+                  rows={4}
+                  className="resize-none"
                 />
               </div>
 
-              {/* Language */}
-              <div className="space-y-1.5">
-                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
-                  {t('language')}
-                </label>
-                <LanguageSelect value={language} onValueChange={setLanguage} />
+              {/* Row 2: Language + Template */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    {t('language')}
+                  </label>
+                  <LanguageSelect value={language} onValueChange={setLanguage} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">
+                    {t('template')}
+                  </label>
+                  <Select value={template} onValueChange={setTemplate}>
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-64">
+                      {TEMPLATES.map((tpl) => (
+                        <SelectItem key={tpl} value={tpl}>
+                          <span className="flex items-center gap-2">
+                            <TemplateThumbnail template={tpl} className="h-8 w-6 shrink-0 rounded-sm ring-1 ring-zinc-200/50" />
+                            {tGlobal(templateLabelsMap[tpl])}
+                          </span>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </>
           )}
