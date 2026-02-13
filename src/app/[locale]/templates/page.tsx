@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { ArrowLeft, Eye, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -15,6 +15,8 @@ import { useResume } from '@/hooks/use-resume';
 import { Link, useRouter } from '@/i18n/routing';
 import { useFingerprint } from '@/hooks/use-fingerprint';
 import { ResumePreview } from '@/components/preview/resume-preview';
+import { TourOverlay, type TourStepConfig } from '@/components/tour/tour-overlay';
+import { useTourStore, hasCompletedTour } from '@/stores/tour-store';
 import type { Resume } from '@/types/resume';
 
 const templateLabelKeys: Record<string, string> = {
@@ -27,6 +29,11 @@ const templateLabelKeys: Record<string, string> = {
   ats: 'dashboard.templateAts',
   academic: 'dashboard.templateAcademic',
 };
+
+const TEMPLATES_TOUR_STEPS: TourStepConfig[] = [
+  { target: 'tpl-preview', placement: 'bottom', i18nKey: 'tplPreview' },
+  { target: 'tpl-use', placement: 'bottom', i18nKey: 'tplUse' },
+];
 
 function buildMockResume(template: string): Resume {
   return {
@@ -229,6 +236,14 @@ export default function TemplatesPage() {
   const { fingerprint } = useFingerprint();
   const [previewTemplate, setPreviewTemplate] = useState<string | null>(null);
   const [creatingTemplate, setCreatingTemplate] = useState<string | null>(null);
+  const startTour = useTourStore((s) => s.startTour);
+
+  useEffect(() => {
+    if (hasCompletedTour('templates')) return;
+    if (window.innerWidth < 768) return;
+    const timer = setTimeout(() => startTour('templates', TEMPLATES_TOUR_STEPS.length), 800);
+    return () => clearTimeout(timer);
+  }, [startTour]);
 
   const handleUseTemplate = async (template: string) => {
     setCreatingTemplate(template);
@@ -261,10 +276,11 @@ export default function TemplatesPage() {
       </div>
 
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-        {TEMPLATES.map((template) => {
+        {TEMPLATES.map((template, idx) => {
           const mockResume = buildMockResume(template);
           const label = t(templateLabelKeys[template]);
           const isCreating = creatingTemplate === template;
+          const isFirst = idx === 0;
 
           return (
             <div
@@ -294,6 +310,7 @@ export default function TemplatesPage() {
               {/* Buttons */}
               <div className="flex gap-2 border-t border-zinc-100 px-4 py-3 dark:border-zinc-800">
                 <Button
+                  {...(isFirst ? { 'data-tour': 'tpl-preview' } : {})}
                   variant="outline"
                   size="sm"
                   className="flex-1 cursor-pointer gap-1.5"
@@ -303,6 +320,7 @@ export default function TemplatesPage() {
                   {t('templates.preview')}
                 </Button>
                 <Button
+                  {...(isFirst ? { 'data-tour': 'tpl-use' } : {})}
                   size="sm"
                   className="flex-1 cursor-pointer gap-1.5 bg-pink-500 hover:bg-pink-600"
                   onClick={() => handleUseTemplate(template)}
@@ -343,6 +361,7 @@ export default function TemplatesPage() {
           )}
         </DialogContent>
       </Dialog>
+      <TourOverlay tourId="templates" steps={TEMPLATES_TOUR_STEPS} />
     </div>
   );
 }

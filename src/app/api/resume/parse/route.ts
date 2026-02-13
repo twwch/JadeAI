@@ -22,7 +22,7 @@ REQUIRED JSON SCHEMA:
 RULES:
 - You MUST use the EXACT field names shown above (fullName, jobTitle, workExperience, etc.)
 - Output compact single-line JSON. No indentation, no newlines.
-- No markdown, no code fences, no explanation. Raw JSON only.
+- You are a JSON API. Your entire response must be a single valid JSON object starting with { and ending with }. Do NOT use markdown syntax. Do NOT wrap in code fences. Do NOT add any text before or after the JSON.
 - Use YYYY-MM for dates. Empty string "" for missing fields.
 - For current jobs: current=true, endDate=null.
 - Omit empty arrays (e.g. if no projects, omit "projects" entirely).
@@ -77,6 +77,11 @@ export async function POST(request: NextRequest) {
           { type: 'text', text: 'Extract all resume information from this image. Use the EXACT JSON schema from the system prompt.' },
         ],
       }],
+      providerOptions: {
+        openai: {
+          response_format: { type: 'json_object' },
+        },
+      },
     });
 
     console.log('[parse] finishReason=%s, length=%d', result.finishReason, result.text.length);

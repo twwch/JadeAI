@@ -27,6 +27,7 @@ import {
 import { Separator } from '@/components/ui/separator';
 import { useUIStore } from '@/stores/ui-store';
 import { useSettingsStore, type AIProvider } from '@/stores/settings-store';
+import { useTourStore } from '@/stores/tour-store';
 import { usePathname, useRouter } from '@/i18n/routing';
 import { locales, localeNames } from '@/i18n/config';
 
@@ -67,6 +68,7 @@ export function SettingsDialog() {
     _hydrated,
   } = useSettingsStore();
 
+  const startTour = useTourStore((s) => s.startTour);
   const [showApiKey, setShowApiKey] = useState(false);
   const isOpen = activeModal === 'settings';
 
@@ -277,6 +279,26 @@ export function SettingsDialog() {
                 <span>0.3s</span>
                 <span>5.0s</span>
               </div>
+            </div>
+            <Separator />
+
+            {/* Restart Tour */}
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label>{t('editorTab.restartTour')}</Label>
+                <p className="text-xs text-zinc-400">{t('editorTab.restartTourDescription')}</p>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                className="cursor-pointer"
+                onClick={() => {
+                  closeModal();
+                  setTimeout(() => startTour('editor', 5), 300);
+                }}
+              >
+                {t('editorTab.restartTour')}
+              </Button>
             </div>
           </TabsContent>
         </Tabs>

@@ -39,10 +39,10 @@ export function LanguagesSection({ section, onUpdate }: Props) {
           {index > 0 && <Separator className="mb-4" />}
           <div className="space-y-3">
             <FieldWrapper>
-              <EditableText label={t('language' as any) || 'Language'} value={item.language} onChange={(v) => updateItem(index, { language: v })} />
+              <EditableText label={t('language')} value={item.language} onChange={(v) => updateItem(index, { language: v })} />
               <div className="flex items-end gap-1">
                 <div className="flex-1">
-                  <EditableText label="Proficiency" value={item.proficiency} onChange={(v) => updateItem(index, { proficiency: v })} />
+                  <EditableText label={t('proficiency')} value={item.proficiency} onChange={(v) => updateItem(index, { proficiency: v })} />
                 </div>
                 <Button variant="ghost" size="sm" className="h-8 w-8 cursor-pointer p-0 text-zinc-400 hover:text-red-500" onClick={() => removeItem(index)}>
                   <X className="h-3.5 w-3.5" />

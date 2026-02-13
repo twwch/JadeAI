@@ -41,25 +41,20 @@ Resume generation guidelines:
 - Include 1-2 education entries
 - Include 2-3 project entries with realistic technologies
 - Each work experience and project should have 3-5 highlight bullet points
-- CRITICAL: Return raw JSON only. Do NOT wrap in markdown code fences, headers, or any other formatting.`;
+- CRITICAL: You are a JSON API. Your entire response must be a single valid JSON object starting with { and ending with }. Do NOT use markdown syntax. Do NOT wrap in code fences. Do NOT add any text before or after the JSON.`;
 }
 
-/** Strip markdown code fences and parse JSON */
-function parseJsonSafe(text: string): any {
-  let cleaned = text.trim();
-  // Remove ```json ... ``` or ``` ... ```
-  if (cleaned.startsWith('```')) {
-    cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
-  }
-  // If it starts with markdown (e.g. "# ..."), try to extract the first JSON object
-  if (cleaned.startsWith('#') || cleaned.startsWith('*')) {
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      cleaned = jsonMatch[0];
-    }
-  }
-  return JSON.parse(cleaned);
-}
+import { extractJson } from '@/lib/ai/extract-json';
+import { z } from 'zod/v4';
+
+const generateResumeOutputSchema = z.object({
+  personal_info: z.any(),
+  summary: z.any(),
+  work_experience: z.any(),
+  education: z.any(),
+  skills: z.any(),
+  projects: z.any(),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -106,10 +101,15 @@ The structure must be:
 - skills: { categories: [{ name, skills: string[] }] }
 - projects: { items: [{ name, url?, startDate?, endDate?, description, technologies: string[], highlights: string[] }] }
 
-Return raw JSON only — no markdown fences, no comments.`,
+Respond with JSON only.`,
+      providerOptions: {
+        openai: {
+          response_format: { type: 'json_object' },
+        },
+      },
     });
 
-    const generatedData: GenerateResumeOutput = parseJsonSafe(result.text);
+    const generatedData: GenerateResumeOutput = extractJson(result.text, generateResumeOutputSchema) as GenerateResumeOutput;
 
     // Create a new resume in the database
     const resumeTitle = lang === 'zh'

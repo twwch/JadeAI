@@ -91,6 +91,7 @@ export function EditorToolbar({ resumeId }: EditorToolbarProps) {
         </Button>
         <Separator orientation="vertical" className="h-6" />
         <Button
+          data-tour="export"
           variant="ghost"
           size="sm"
           onClick={() => openModal('export')}
@@ -153,6 +154,7 @@ export function EditorToolbar({ resumeId }: EditorToolbarProps) {
         </Button>
         <Separator orientation="vertical" className="h-6" />
         <Button
+          data-tour="theme"
           variant={showThemeEditor ? 'secondary' : 'ghost'}
           size="sm"
           onClick={toggleThemeEditor}

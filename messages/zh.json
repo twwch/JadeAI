@@ -121,6 +121,8 @@
       "skillCategory": "技能分类",
       "projectName": "项目名称",
       "technologies": "技术栈",
+      "language": "语言",
+      "proficiency": "熟练程度",
       "addItem": "添加条目",
       "removeItem": "删除条目"
     }
@@ -184,7 +186,9 @@
       "title": "编辑器",
       "autoSave": "自动保存",
       "autoSaveDescription": "编辑内容后自动保存到服务器",
-      "autoSaveInterval": "自动保存间隔"
+      "autoSaveInterval": "自动保存间隔",
+      "restartTour": "新手引导",
+      "restartTourDescription": "重新开始编辑器引导教程"
     }
   },
   "themeEditor": {
@@ -237,6 +241,7 @@
     "suggestions": "优化建议",
     "currentState": "当前",
     "suggestedChange": "建议",
+    "optimize": "一键优化",
     "pasteJd": "粘贴职位描述以开始分析",
     "noResults": "暂无分析结果"
   },
@@ -317,6 +322,7 @@
     "typeQuantify": "量化",
     "typeSpelling": "拼写",
     "checkAgain": "再次检查",
+    "fixAll": "一键修复",
     "close": "关闭",
     "error": "语法检查失败，请重试。"
   },
@@ -380,6 +386,58 @@
     "useTemplate": "使用此模板",
     "creating": "创建中...",
     "nav": "模板"
+  },
+  "tour": {
+    "next": "下一步",
+    "prev": "上一步",
+    "finish": "完成",
+    "skip": "跳过",
+    "steps": {
+      "sidebar": {
+        "title": "简历模块",
+        "description": "管理简历的各个模块，拖拽调整顺序"
+      },
+      "preview": {
+        "title": "实时预览",
+        "description": "实时预览简历效果，所见即所得"
+      },
+      "aiChat": {
+        "title": "AI 助手",
+        "description": "AI 助手帮你优化简历内容"
+      },
+      "export": {
+        "title": "导出简历",
+        "description": "导出为 PDF、Word 等格式"
+      },
+      "theme": {
+        "title": "主题定制",
+        "description": "自定义模板和主题样式"
+      },
+      "dashCreate": {
+        "title": "新建简历",
+        "description": "点击这里从空白模板创建一份新简历"
+      },
+      "dashAiGenerate": {
+        "title": "AI 生成",
+        "description": "让 AI 根据你的职位信息自动生成简历"
+      },
+      "dashSearch": {
+        "title": "搜索简历",
+        "description": "快速搜索和筛选你的简历"
+      },
+      "dashTemplates": {
+        "title": "模板库",
+        "description": "浏览更多精美简历模板"
+      },
+      "tplPreview": {
+        "title": "预览模板",
+        "description": "点击预览查看模板的完整效果"
+      },
+      "tplUse": {
+        "title": "使用模板",
+        "description": "选中喜欢的模板，一键创建简历并进入编辑器"
+      }
+    }
   },
   "publicView": {
     "title": "共享简历",

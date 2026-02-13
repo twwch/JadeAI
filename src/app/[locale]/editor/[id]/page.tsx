@@ -16,10 +16,20 @@ import { ExportDialog } from '@/components/editor/export-dialog';
 import { ShareDialog } from '@/components/editor/share-dialog';
 import { CoverLetterDialog } from '@/components/editor/cover-letter-dialog';
 import { GrammarCheckDialog } from '@/components/editor/grammar-check-dialog';
+import { TourOverlay, type TourStepConfig } from '@/components/tour/tour-overlay';
 import { useEditorStore } from '@/stores/editor-store';
 import { useUIStore } from '@/stores/ui-store';
 import { useSettingsStore } from '@/stores/settings-store';
+import { useTourStore, hasCompletedTour } from '@/stores/tour-store';
 import { Skeleton } from '@/components/ui/skeleton';
+
+const EDITOR_TOUR_STEPS: TourStepConfig[] = [
+  { target: 'sidebar', placement: 'right', i18nKey: 'sidebar' },
+  { target: 'preview', placement: 'left', i18nKey: 'preview' },
+  { target: 'ai-chat', placement: 'top', i18nKey: 'aiChat' },
+  { target: 'export', placement: 'bottom', i18nKey: 'export' },
+  { target: 'theme', placement: 'bottom', i18nKey: 'theme' },
+];
 
 export default function EditorPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -28,10 +38,19 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
   const { showThemeEditor } = useEditorStore();
   const { activeModal, openModal, closeModal } = useUIStore();
   const { hydrate, _hydrated } = useSettingsStore();
+  const startTour = useTourStore((s) => s.startTour);
 
   useEffect(() => {
     if (!_hydrated) hydrate();
   }, [_hydrated, hydrate]);
+
+  useEffect(() => {
+    if (!resume) return;
+    if (hasCompletedTour('editor')) return;
+    if (window.innerWidth < 768) return;
+    const timer = setTimeout(() => startTour('editor', EDITOR_TOUR_STEPS.length), 1000);
+    return () => clearTimeout(timer);
+  }, [resume, startTour]);
 
   if (fpLoading || !resume) {
     return (
@@ -95,6 +114,7 @@ export default function EditorPage({ params }: { params: Promise<{ id: string }>
         onOpenChange={(open) => open ? openModal('grammar-check') : closeModal()}
         resumeId={id}
       />
+      <TourOverlay tourId="editor" steps={EDITOR_TOUR_STEPS} />
     </div>
   );
 }

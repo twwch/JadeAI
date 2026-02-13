@@ -22,6 +22,7 @@ export function Header() {
           </Link>
           <nav className="flex items-center gap-4">
             <Link
+              data-tour="dash-templates"
               href="/templates"
               className="text-sm font-medium text-zinc-500 transition-colors hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
             >

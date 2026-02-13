@@ -116,5 +116,6 @@ export function useAIChat({ resumeId, sessionId, initialMessages, selectedModel 
     status,
     error,
     clearMessages,
+    sendMessage,
   };
 }

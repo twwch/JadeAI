@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Loader2, RotateCcw, Target, ShieldCheck, Lightbulb, AlertTriangle } from 'lucide-react';
+import { Loader2, RotateCcw, Target, ShieldCheck, Lightbulb, AlertTriangle, Wand2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useEditorStore } from '@/stores/editor-store';
 
 interface JdAnalysisResult {
   overallScore: number;
@@ -92,6 +93,7 @@ function ScoreCircle({ score, label }: { score: number; label: string }) {
 
 export function JdAnalysisDialog({ open, onOpenChange, resumeId }: JdAnalysisDialogProps) {
   const t = useTranslations('jdAnalysis');
+  const { setShowAiChat, setPendingAiMessage } = useEditorStore();
   const [jobDescription, setJobDescription] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<JdAnalysisResult | null>(null);
@@ -141,6 +143,29 @@ export function JdAnalysisDialog({ open, onOpenChange, resumeId }: JdAnalysisDia
       setJobDescription('');
       setError('');
     }, 200);
+  };
+
+  const handleOptimize = () => {
+    if (!result) return;
+    const parts: string[] = [];
+
+    if (result.missingKeywords.length > 0) {
+      parts.push(`缺失关键词：${result.missingKeywords.join('、')}`);
+    }
+
+    if (result.suggestions.length > 0) {
+      const list = result.suggestions
+        .map((s, i) => `${i + 1}. [${s.section}] "${s.current}" → "${s.suggested}"`)
+        .join('\n');
+      parts.push(`优化建议：\n${list}`);
+    }
+
+    const message = `请根据以下 JD 匹配分析结果优化简历，使其更匹配目标职位：\n\n${parts.join('\n\n')}\n\n请使用工具直接修改对应的简历模块内容，尽量自然地融入缺失关键词。`;
+    onOpenChange(false);
+    setTimeout(() => {
+      setPendingAiMessage(message);
+      setShowAiChat(true);
+    }, 300);
   };
 
   return (
@@ -325,6 +350,15 @@ export function JdAnalysisDialog({ open, onOpenChange, resumeId }: JdAnalysisDia
                 <RotateCcw className="h-3.5 w-3.5" />
                 {t('analyzeAgain')}
               </Button>
+              {(result.suggestions.length > 0 || result.missingKeywords.length > 0) && (
+                <Button
+                  onClick={handleOptimize}
+                  className="cursor-pointer gap-1.5 bg-pink-500 hover:bg-pink-600"
+                >
+                  <Wand2 className="h-3.5 w-3.5" />
+                  {t('optimize')}
+                </Button>
+              )}
             </div>
           </>
         )}

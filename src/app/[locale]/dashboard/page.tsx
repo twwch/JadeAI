@@ -22,11 +22,20 @@ import { CreateResumeDialog } from '@/components/dashboard/create-resume-dialog'
 import { GenerateResumeDialog } from '@/components/dashboard/generate-resume-dialog';
 import { ShareDialog } from '@/components/editor/share-dialog';
 import { SettingsDialog } from '@/components/settings/settings-dialog';
+import { TourOverlay, type TourStepConfig } from '@/components/tour/tour-overlay';
+import { useTourStore, hasCompletedTour } from '@/stores/tour-store';
 import { cn } from '@/lib/utils';
 import type { Resume } from '@/types/resume';
 
 type SortOption = 'lastEdited' | 'created' | 'nameAsc' | 'nameDesc';
 type ViewMode = 'grid' | 'list';
+
+const DASHBOARD_TOUR_STEPS: TourStepConfig[] = [
+  { target: 'dash-create', placement: 'bottom', i18nKey: 'dashCreate' },
+  { target: 'dash-ai-generate', placement: 'bottom', i18nKey: 'dashAiGenerate' },
+  { target: 'dash-search', placement: 'bottom', i18nKey: 'dashSearch' },
+  { target: 'dash-templates', placement: 'bottom', i18nKey: 'dashTemplates' },
+];
 
 const VIEW_PREF_KEY = 'jade_dashboard_view';
 
@@ -66,6 +75,16 @@ export default function DashboardPage() {
   const [sortOption, setSortOption] = useState<SortOption>('lastEdited');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [shareResumeId, setShareResumeId] = useState<string | null>(null);
+  const startTour = useTourStore((s) => s.startTour);
+
+  // Auto-start dashboard tour for first-time users
+  useEffect(() => {
+    if (isLoading || fpLoading) return;
+    if (hasCompletedTour('dashboard')) return;
+    if (window.innerWidth < 768) return;
+    const timer = setTimeout(() => startTour('dashboard', DASHBOARD_TOUR_STEPS.length), 800);
+    return () => clearTimeout(timer);
+  }, [isLoading, fpLoading, startTour]);
 
   // Hydrate view preference from localStorage on mount
   useEffect(() => {
@@ -117,6 +136,7 @@ export default function DashboardPage() {
         </div>
         <div className="flex items-center gap-2">
           <Button
+            data-tour="dash-ai-generate"
             variant="outline"
             onClick={() => openModal('generate-resume')}
             className="cursor-pointer gap-2"
@@ -125,6 +145,7 @@ export default function DashboardPage() {
             {t('aiGenerate')}
           </Button>
           <Button
+            data-tour="dash-create"
             onClick={() => openModal('create-resume')}
             className="cursor-pointer gap-2 bg-pink-500 hover:bg-pink-600"
           >
@@ -138,7 +159,7 @@ export default function DashboardPage() {
       {hasResumes && (
         <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           {/* Search */}
-          <div className="relative flex-1 sm:max-w-xs">
+          <div data-tour="dash-search" className="relative flex-1 sm:max-w-xs">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-400" />
             <Input
               value={searchQuery}
@@ -258,6 +279,7 @@ export default function DashboardPage() {
           resumeId={shareResumeId}
         />
       )}
+      <TourOverlay tourId="dashboard" steps={DASHBOARD_TOUR_STEPS} />
     </div>
   );
 }

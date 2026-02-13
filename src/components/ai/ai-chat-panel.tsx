@@ -143,12 +143,22 @@ export function AIChatContent({ resumeId }: AIChatContentProps) {
     }
   }, [activeSessionId, loadInitial, createNewSession]);
 
-  const { messages: chatMessages, input, handleInputChange, handleSubmit: originalHandleSubmit, isLoading, status } = useAIChat({
+  const { messages: chatMessages, input, handleInputChange, handleSubmit: originalHandleSubmit, isLoading, status, sendMessage } = useAIChat({
     resumeId,
     sessionId: activeSessionId,
     initialMessages,
     selectedModel,
   });
+
+  // Handle pending AI message from other components (e.g. grammar check one-click fix)
+  const pendingAiMessage = useEditorStore((s) => s.pendingAiMessage);
+  const setPendingAiMessage = useEditorStore((s) => s.setPendingAiMessage);
+  useEffect(() => {
+    if (pendingAiMessage && sessionsLoaded && activeSessionId) {
+      sendMessage({ text: pendingAiMessage });
+      setPendingAiMessage(null);
+    }
+  }, [pendingAiMessage, sessionsLoaded, activeSessionId, sendMessage, setPendingAiMessage]);
 
   // Merge historical (paginated older) + chat (current session) messages, dedup by id
   const displayMessages = useMemo(() => {

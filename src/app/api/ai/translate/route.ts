@@ -33,18 +33,15 @@ Translation guidelines:
 - Section titles should use standard resume headings in the target language
 - Preserve the exact JSON structure and all field names — only translate the string values
 - Keep all IDs, URLs, emails, phone numbers unchanged
-- CRITICAL: Return raw JSON only. Do NOT wrap in markdown code fences or any other formatting.`;
+- CRITICAL: You are a JSON API. Your entire response must be a single valid JSON object starting with { and ending with }. Do NOT use markdown syntax. Do NOT wrap in code fences. Do NOT add any text before or after the JSON.`;
 }
 
-/** Strip markdown code fences and parse JSON */
-function parseJsonSafe(text: string): any {
-  let cleaned = text.trim();
-  // Remove ```json ... ``` or ``` ... ```
-  if (cleaned.startsWith('```')) {
-    cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
-  }
-  return JSON.parse(cleaned);
-}
+import { extractJson } from '@/lib/ai/extract-json';
+import { z } from 'zod/v4';
+
+const translateOutputSchema = z.object({
+  sections: z.array(z.any()),
+});
 
 export async function POST(request: NextRequest) {
   try {
@@ -97,13 +94,15 @@ export async function POST(request: NextRequest) {
       model,
       maxOutputTokens: 16384,
       system: getTranslatePrompt(targetLanguage),
-      prompt: `Translate the following resume sections. Return a JSON object with a "sections" array containing every section with its translated title and content. Return raw JSON only — no markdown fences.
-
-## Sections to Translate
-${JSON.stringify(sectionsData, null, 2)}`,
+      prompt: `Translate the following resume sections. Return a JSON object with a "sections" array containing every section with its translated title and content. Respond with JSON only.\n\n${JSON.stringify(sectionsData, null, 2)}`,
+      providerOptions: {
+        openai: {
+          response_format: { type: 'json_object' },
+        },
+      },
     });
 
-    let translatedData: TranslateOutput = parseJsonSafe(result.text);
+    let translatedData: TranslateOutput = extractJson(result.text, translateOutputSchema) as TranslateOutput;
     // Handle case where model returns the array directly instead of { sections: [...] }
     if (Array.isArray(translatedData)) {
       translatedData = { sections: translatedData as any };

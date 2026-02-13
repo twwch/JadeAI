@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { Loader2, AlertTriangle, RotateCcw, SpellCheck } from 'lucide-react';
+import { Loader2, AlertTriangle, RotateCcw, SpellCheck, Wand2 } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -13,9 +13,11 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useEditorStore } from '@/stores/editor-store';
 
 interface GrammarIssue {
-  section: string;
+  sectionId: string;
+  sectionTitle: string;
   severity: 'high' | 'medium' | 'low';
   type: 'grammar' | 'weak_verb' | 'vague' | 'quantify' | 'spelling';
   original: string;
@@ -126,6 +128,7 @@ function TypeBadge({ type, t }: { type: GrammarIssue['type']; t: any }) {
 export function GrammarCheckDialog({ open, onOpenChange, resumeId }: GrammarCheckDialogProps) {
   const t = useTranslations('grammarCheck');
 
+  const { setShowAiChat, setPendingAiMessage } = useEditorStore();
   const [isChecking, setIsChecking] = useState(false);
   const [result, setResult] = useState<GrammarCheckResult | null>(null);
   const [error, setError] = useState('');
@@ -170,6 +173,19 @@ export function GrammarCheckDialog({ open, onOpenChange, resumeId }: GrammarChec
       setResult(null);
       setError('');
     }, 200);
+  };
+
+  const handleFixAll = () => {
+    if (!result || result.issues.length === 0) return;
+    const issueList = result.issues
+      .map((issue, i) => `${i + 1}. [${issue.sectionTitle}] "${issue.original}" → "${issue.suggestion}"`)
+      .join('\n');
+    const message = `请根据以下语法检查结果，逐一修复简历中的问题：\n\n${issueList}\n\n请使用工具直接修改对应的简历模块内容。`;
+    onOpenChange(false);
+    setTimeout(() => {
+      setPendingAiMessage(message);
+      setShowAiChat(true);
+    }, 300);
   };
 
   return (
@@ -269,7 +285,7 @@ export function GrammarCheckDialog({ open, onOpenChange, resumeId }: GrammarChec
                         >
                           <div className="flex flex-wrap items-center gap-1.5">
                             <Badge variant="secondary" className="text-xs font-medium">
-                              {issue.section}
+                              {issue.sectionTitle}
                             </Badge>
                             <SeverityBadge severity={issue.severity} t={t} />
                             <TypeBadge type={issue.type} t={t} />
@@ -323,6 +339,15 @@ export function GrammarCheckDialog({ open, onOpenChange, resumeId }: GrammarChec
                 <RotateCcw className="h-3.5 w-3.5" />
                 {t('checkAgain')}
               </Button>
+              {result.issues.length > 0 && (
+                <Button
+                  onClick={handleFixAll}
+                  className="cursor-pointer gap-1.5 bg-pink-500 hover:bg-pink-600"
+                >
+                  <Wand2 className="h-3.5 w-3.5" />
+                  {t('fixAll')}
+                </Button>
+              )}
             </div>
           </>
         )}

@@ -3,16 +3,19 @@ import { generateText } from 'ai';
 import { getModel } from '@/lib/ai/provider';
 import { resolveUser, getUserIdFromRequest } from '@/lib/auth/helpers';
 import { resumeRepository } from '@/lib/db/repositories/resume.repository';
-import { grammarCheckInputSchema, type GrammarCheckOutput } from '@/lib/ai/grammar-check-schema';
+import { grammarCheckInputSchema, grammarCheckOutputSchema } from '@/lib/ai/grammar-check-schema';
+import { extractJson } from '@/lib/ai/extract-json';
 
 const GRAMMAR_CHECK_PROMPT = `You are an expert resume reviewer and writing coach. Analyze the provided resume sections for writing quality issues.
 
+IMPORTANT: Detect the primary language of the resume content. You MUST respond entirely in the same language as the resume. If the resume is written in Chinese, all your output (summary, suggestions, sectionTitle) must be in Chinese. If in English, respond in English. Match the resume's language exactly.
+
 You must detect and report these types of issues:
-- **grammar**: Grammatical errors, incorrect tense, subject-verb disagreement, article misuse
-- **spelling**: Misspelled words or typos
-- **weak_verb**: Weak or passive verbs that should be replaced with strong action verbs (e.g., "was responsible for" → "Led", "helped with" → "Facilitated")
-- **vague**: Vague or generic descriptions that lack specificity (e.g., "worked on various projects" → specify which projects and what was achieved)
-- **quantify**: Descriptions that could be improved with quantifiable metrics (e.g., "improved performance" → "improved performance by 40%")
+- grammar: Grammatical errors, incorrect tense, subject-verb disagreement, article misuse
+- spelling: Misspelled words or typos
+- weak_verb: Weak or passive verbs that should be replaced with strong action verbs
+- vague: Vague or generic descriptions that lack specificity
+- quantify: Descriptions that could be improved with quantifiable metrics
 
 Analysis guidelines:
 - Check every text field in every section: titles, descriptions, highlights, summary text
@@ -27,24 +30,7 @@ You MUST return a JSON object with exactly these fields:
 - summary: string with overall assessment
 - score: number from 0 to 100
 
-CRITICAL: Return raw JSON only. Do NOT wrap in markdown code fences, headers, or any other formatting.`;
-
-/** Strip markdown code fences and parse JSON */
-function parseJsonSafe(text: string): any {
-  let cleaned = text.trim();
-  // Remove ```json ... ``` or ``` ... ```
-  if (cleaned.startsWith('```')) {
-    cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
-  }
-  // If it starts with markdown (e.g. "# ..."), try to extract the first JSON object
-  if (cleaned.startsWith('#') || cleaned.startsWith('*')) {
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      cleaned = jsonMatch[0];
-    }
-  }
-  return JSON.parse(cleaned);
-}
+CRITICAL: You are a JSON API. Your entire response must be a single valid JSON object starting with { and ending with }. Do NOT use markdown syntax. Do NOT wrap in code fences. Do NOT add any text before or after the JSON.`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -97,15 +83,16 @@ export async function POST(request: NextRequest) {
       model,
       maxOutputTokens: 8192,
       system: GRAMMAR_CHECK_PROMPT,
-      prompt: `Analyze the following resume sections for grammar, spelling, weak verbs, vague descriptions, and opportunities to add quantifiable metrics.
-
-## Resume Sections
-${JSON.stringify(sectionsData, null, 2)}
-
-Return a JSON object with "issues" (array), "summary" (string), and "score" (number 0-100). For each issue, include sectionId, sectionTitle, type, original, suggestion, and severity. Return raw JSON only — no markdown fences.`,
+      prompt: `Analyze the following resume sections. Respond with JSON only.\n\n${JSON.stringify(sectionsData, null, 2)}`,
+      providerOptions: {
+        openai: {
+          response_format: { type: 'json_object' },
+        },
+      },
     });
 
-    const checkResult: GrammarCheckOutput = parseJsonSafe(result.text);
+    console.log('[grammar-check] raw response:\n', result.text);
+    const checkResult = extractJson(result.text, grammarCheckOutputSchema);
 
     return NextResponse.json(checkResult);
   } catch (error) {

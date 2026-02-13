@@ -121,6 +121,8 @@
       "skillCategory": "Category",
       "projectName": "Project Name",
       "technologies": "Technologies",
+      "language": "Language",
+      "proficiency": "Proficiency",
       "addItem": "Add Item",
       "removeItem": "Remove Item"
     }
@@ -184,7 +186,9 @@
       "title": "Editor",
       "autoSave": "Auto Save",
       "autoSaveDescription": "Automatically save changes to the server after editing",
-      "autoSaveInterval": "Auto Save Interval"
+      "autoSaveInterval": "Auto Save Interval",
+      "restartTour": "Guided Tour",
+      "restartTourDescription": "Restart the editor guided tour"
     }
   },
   "themeEditor": {
@@ -237,6 +241,7 @@
     "suggestions": "Suggestions",
     "currentState": "Current",
     "suggestedChange": "Suggested",
+    "optimize": "Optimize Resume",
     "pasteJd": "Paste a job description to get started",
     "noResults": "No analysis results available"
   },
@@ -317,6 +322,7 @@
     "typeQuantify": "Quantify",
     "typeSpelling": "Spelling",
     "checkAgain": "Check Again",
+    "fixAll": "Fix All",
     "close": "Close",
     "error": "Grammar check failed. Please try again."
   },
@@ -380,6 +386,58 @@
     "useTemplate": "Use This Template",
     "creating": "Creating...",
     "nav": "Templates"
+  },
+  "tour": {
+    "next": "Next",
+    "prev": "Back",
+    "finish": "Finish",
+    "skip": "Skip",
+    "steps": {
+      "sidebar": {
+        "title": "Resume Sections",
+        "description": "Manage your resume sections, drag to reorder"
+      },
+      "preview": {
+        "title": "Live Preview",
+        "description": "See real-time preview of your resume"
+      },
+      "aiChat": {
+        "title": "AI Assistant",
+        "description": "AI assistant helps optimize your resume"
+      },
+      "export": {
+        "title": "Export Resume",
+        "description": "Export to PDF, Word, and more"
+      },
+      "theme": {
+        "title": "Theme Customization",
+        "description": "Customize templates and theme styles"
+      },
+      "dashCreate": {
+        "title": "Create Resume",
+        "description": "Click here to create a new resume from a blank template"
+      },
+      "dashAiGenerate": {
+        "title": "AI Generate",
+        "description": "Let AI create a resume based on your job details"
+      },
+      "dashSearch": {
+        "title": "Search Resumes",
+        "description": "Quickly search and filter your resumes"
+      },
+      "dashTemplates": {
+        "title": "Templates",
+        "description": "Browse more beautiful resume templates"
+      },
+      "tplPreview": {
+        "title": "Preview Template",
+        "description": "Click to preview the full template layout"
+      },
+      "tplUse": {
+        "title": "Use Template",
+        "description": "Pick a template to create a resume and enter the editor"
+      }
+    }
   },
   "publicView": {
     "title": "Shared Resume",

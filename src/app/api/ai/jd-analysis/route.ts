@@ -3,9 +3,12 @@ import { generateText } from 'ai';
 import { getModel } from '@/lib/ai/provider';
 import { resolveUser, getUserIdFromRequest } from '@/lib/auth/helpers';
 import { resumeRepository } from '@/lib/db/repositories/resume.repository';
-import { jdAnalysisInputSchema, type JdAnalysisOutput } from '@/lib/ai/jd-analysis-schema';
+import { jdAnalysisInputSchema, jdAnalysisOutputSchema } from '@/lib/ai/jd-analysis-schema';
+import { extractJson } from '@/lib/ai/extract-json';
 
 const JD_ANALYSIS_PROMPT = `You are an expert resume analyst and career coach. Analyze the match between the provided resume and job description.
+
+IMPORTANT: Detect the primary language of the resume content. You MUST respond entirely in the same language as the resume. If the resume is written in Chinese, all your output (summary, suggestions, keywords) must be in Chinese. If in English, respond in English. Match the resume's language exactly.
 
 Your analysis should be thorough and actionable. You MUST return a JSON object with these exact fields:
 - overallScore (number 0-100): Overall match rating
@@ -15,24 +18,7 @@ Your analysis should be thorough and actionable. You MUST return a JSON object w
 - atsScore (number 0-100): ATS compatibility rating
 - summary (string): Concise overall assessment
 
-CRITICAL: Return raw JSON only. Do NOT wrap in markdown code fences, headers, or any other formatting. Do NOT use markdown in your response. Only output a single valid JSON object.`;
-
-/** Strip markdown code fences and parse JSON */
-function parseJsonSafe(text: string): any {
-  let cleaned = text.trim();
-  // Remove ```json ... ``` or ``` ... ```
-  if (cleaned.startsWith('```')) {
-    cleaned = cleaned.replace(/^```(?:json)?\s*\n?/, '').replace(/\n?```\s*$/, '');
-  }
-  // If it starts with markdown (e.g. "# ..."), try to extract the first JSON object
-  if (cleaned.startsWith('#') || cleaned.startsWith('*')) {
-    const jsonMatch = cleaned.match(/\{[\s\S]*\}/);
-    if (jsonMatch) {
-      cleaned = jsonMatch[0];
-    }
-  }
-  return JSON.parse(cleaned);
-}
+CRITICAL: You are a JSON API. Your entire response must be a single valid JSON object starting with { and ending with }. Do NOT use markdown syntax. Do NOT wrap in code fences. Do NOT add any text before or after the JSON.`;
 
 export async function POST(request: NextRequest) {
   try {
@@ -69,16 +55,15 @@ export async function POST(request: NextRequest) {
       model,
       maxOutputTokens: 8192,
       system: JD_ANALYSIS_PROMPT,
-      prompt: `## Resume Data
-${resumeContext}
-
-## Job Description
-${jobDescription}
-
-Analyze the match between this resume and the job description. Return a single JSON object with fields: overallScore, keywordMatches, missingKeywords, suggestions, atsScore, summary. No markdown, no code fences — raw JSON only.`,
+      prompt: `Resume:\n${resumeContext}\n\nJob Description:\n${jobDescription}\n\nRespond with JSON only.`,
+      providerOptions: {
+        openai: {
+          response_format: { type: 'json_object' },
+        },
+      },
     });
 
-    const analysisData: JdAnalysisOutput = parseJsonSafe(result.text);
+    const analysisData = extractJson(result.text, jdAnalysisOutputSchema);
 
     return NextResponse.json(analysisData);
   } catch (error) {

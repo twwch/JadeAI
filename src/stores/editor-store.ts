@@ -12,16 +12,19 @@ interface EditorStore {
   zoom: number;
   undoStack: ResumeSnapshot[];
   redoStack: ResumeSnapshot[];
+  pendingAiMessage: string | null;
 
   selectSection: (id: string | null) => void;
   selectItem: (id: string | null) => void;
   setDragging: (isDragging: boolean) => void;
   toggleAiChat: () => void;
+  setShowAiChat: (show: boolean) => void;
   toggleThemeEditor: () => void;
   setZoom: (zoom: number) => void;
   pushSnapshot: (sections: ResumeSection[]) => void;
   undo: () => ResumeSnapshot | null;
   redo: () => ResumeSnapshot | null;
+  setPendingAiMessage: (message: string | null) => void;
   reset: () => void;
 }
 
@@ -34,11 +37,13 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
   zoom: 100,
   undoStack: [],
   redoStack: [],
+  pendingAiMessage: null,
 
   selectSection: (id) => set({ selectedSectionId: id, selectedItemId: null }),
   selectItem: (id) => set({ selectedItemId: id }),
   setDragging: (isDragging) => set({ isDragging }),
   toggleAiChat: () => set((s) => ({ showAiChat: !s.showAiChat })),
+  setShowAiChat: (show) => set({ showAiChat: show }),
   toggleThemeEditor: () => set((s) => ({ showThemeEditor: !s.showThemeEditor })),
   setZoom: (zoom) => set({ zoom }),
 
@@ -74,6 +79,8 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
     return snapshot;
   },
 
+  setPendingAiMessage: (message) => set({ pendingAiMessage: message }),
+
   reset: () =>
     set({
       selectedSectionId: null,
@@ -84,5 +91,6 @@ export const useEditorStore = create<EditorStore>((set, get) => ({
       zoom: 100,
       undoStack: [],
       redoStack: [],
+      pendingAiMessage: null,
     }),
 }));
