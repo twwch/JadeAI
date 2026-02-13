@@ -40,7 +40,7 @@ export default function PreviewPage({ params }: { params: Promise<{ id: string }
         <Button
           size="sm"
           disabled={isExporting}
-          onClick={() => exportPdf(resume)}
+          onClick={() => exportPdf(id, resume.title)}
           className="cursor-pointer gap-1 bg-pink-500 hover:bg-pink-600"
         >
           <Download className="h-4 w-4" />

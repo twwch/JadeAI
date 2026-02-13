@@ -12,7 +12,6 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { useResumeStore } from '@/stores/resume-store';
-import { usePdfExport } from '@/hooks/use-pdf-export';
 import {
   FileDown,
   FileText,
@@ -48,8 +47,7 @@ const FORMAT_OPTIONS: {
 
 export function ExportDialog({ open, onOpenChange, resumeId }: ExportDialogProps) {
   const t = useTranslations('export');
-  const { currentResume, sections, isDirty, save } = useResumeStore();
-  const { exportPdf, isExporting: isPdfExporting } = usePdfExport();
+  const { currentResume, isDirty, save } = useResumeStore();
 
   const [selectedFormat, setSelectedFormat] = useState<ExportFormat>('pdf');
   const [state, setState] = useState<ExportState>('idle');
@@ -71,15 +69,6 @@ export function ExportDialog({ open, onOpenChange, resumeId }: ExportDialogProps
       // Save first if dirty
       if (isDirty) await save();
 
-      if (selectedFormat === 'pdf') {
-        if (!currentResume) throw new Error('No resume loaded');
-        await exportPdf({ ...currentResume, sections });
-        setState('success');
-        setTimeout(() => onOpenChange(false), 1500);
-        return;
-      }
-
-      // For other formats, call the API
       const fingerprint = localStorage.getItem('jade_fingerprint');
       const res = await fetch(`/api/resume/${resumeId}/export?format=${selectedFormat}`, {
         headers: {
@@ -99,6 +88,7 @@ export function ExportDialog({ open, onOpenChange, resumeId }: ExportDialogProps
 
       const title = currentResume?.title || 'resume';
       const extMap: Record<string, string> = {
+        pdf: 'pdf',
         docx: 'docx',
         html: 'html',
         txt: 'txt',
@@ -116,9 +106,9 @@ export function ExportDialog({ open, onOpenChange, resumeId }: ExportDialogProps
       setState('error');
       setErrorMessage(err.message || t('error'));
     }
-  }, [resumeId, selectedFormat, currentResume, sections, isDirty, save, exportPdf, onOpenChange, t]);
+  }, [resumeId, selectedFormat, currentResume, isDirty, save, onOpenChange, t]);
 
-  const isLoading = state === 'exporting' || isPdfExporting;
+  const isLoading = state === 'exporting';
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o && !isLoading) onOpenChange(false); }}>

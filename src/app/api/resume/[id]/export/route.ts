@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { resumeRepository } from '@/lib/db/repositories/resume.repository';
 import { resolveUser, getUserIdFromRequest } from '@/lib/auth/helpers';
+import { generatePdf } from '@/lib/pdf/generate-pdf';
 import type {
   PersonalInfoContent,
   WorkExperienceContent,
@@ -240,6 +241,7 @@ function buildClassicSectionContent(section: Section): string {
     return `<div class="space-y-3">${((c as EducationContent).items || []).map((it: any) => `<div>
       <div class="flex items-baseline justify-between"><div><span class="font-semibold text-zinc-800 text-sm">${esc(it.degree)} ${it.field ? `in ${esc(it.field)}` : ''}</span>${it.institution ? `<span class="text-sm text-zinc-600"> - ${esc(it.institution)}</span>` : ''}</div><span class="text-xs text-zinc-400">${esc(it.startDate)} - ${esc(it.endDate)}</span></div>
       ${it.gpa ? `<p class="text-sm text-zinc-500">GPA: ${esc(it.gpa)}</p>` : ''}
+      ${it.highlights?.length ? `<ul class="mt-1 list-disc pl-4">${buildHighlights(it.highlights, 'text-sm text-zinc-600')}</ul>` : ''}
     </div>`).join('')}</div>`;
   }
   if (section.type === 'skills') {
@@ -322,6 +324,8 @@ function buildModernSectionContent(section: Section): string {
       <h3 class="text-sm font-semibold text-zinc-800">${esc(it.institution)}</h3>
       <p class="text-sm text-zinc-600">${esc(it.degree)} ${it.field ? `- ${esc(it.field)}` : ''}</p>
       <span class="text-xs text-zinc-400">${esc(it.startDate)} - ${esc(it.endDate)}</span>
+      ${it.gpa ? `<p class="text-sm text-zinc-500">GPA: ${esc(it.gpa)}</p>` : ''}
+      ${it.highlights?.length ? `<ul class="mt-1 list-disc pl-4">${buildHighlights(it.highlights, 'text-sm text-zinc-600')}</ul>` : ''}
     </div>`).join('')}</div>`;
   }
   if (section.type === 'skills') {
@@ -388,6 +392,7 @@ function buildCreativeSectionContent(section: Section): string {
       <div class="flex items-baseline justify-between"><h3 class="text-sm font-bold text-zinc-800">${esc(it.institution)}</h3><span class="text-xs text-zinc-400">${esc(it.startDate)} – ${esc(it.endDate)}</span></div>
       <p class="text-sm text-zinc-600">${esc(it.degree)}${it.field ? ` in ${esc(it.field)}` : ''}</p>
       ${it.gpa ? `<p class="text-xs text-zinc-500">GPA: ${esc(it.gpa)}</p>` : ''}
+      ${it.highlights?.length ? `<ul class="mt-1.5 space-y-0.5">${buildHighlights(it.highlights, '', 'custom-dot')}</ul>` : ''}
     </div>`).join('')}</div>`;
   }
   if (section.type === 'skills') {
@@ -549,6 +554,8 @@ function buildMinimalSectionContent(section: Section): string {
       <p class="text-sm"><span class="font-medium text-zinc-800">${esc(it.institution)}</span></p>
       <p class="text-sm text-zinc-600">${esc(it.degree)} ${it.field ? `- ${esc(it.field)}` : ''}</p>
       <p class="text-xs text-zinc-400">${esc(it.startDate)} - ${esc(it.endDate)}</p>
+      ${it.gpa ? `<p class="text-sm text-zinc-500">GPA: ${esc(it.gpa)}</p>` : ''}
+      ${it.highlights?.length ? `<ul class="mt-1 list-disc pl-4">${buildHighlights(it.highlights, 'text-sm text-zinc-600')}</ul>` : ''}
     </div>`).join('')}</div>`;
   }
   if (section.type === 'skills') {
@@ -823,11 +830,23 @@ const TEMPLATE_BUILDERS: Record<string, (r: ResumeWithSections) => string> = {
   academic: buildAcademicHtml,
 };
 
-function generateHtml(resume: ResumeWithSections): string {
+function generateHtml(resume: ResumeWithSections, forPdf = false): string {
   const builder = TEMPLATE_BUILDERS[resume.template] || buildClassicHtml;
   const bodyHtml = builder(resume);
   const theme = { ...DEFAULT_THEME, ...((resume as any).themeConfig || {}) };
   const themeCSS = buildExportThemeCSS(theme);
+
+  const pdfOverrides = forPdf
+    ? `body { background: white; padding: 0; }
+       .resume-export > div { box-shadow: none !important; max-width: none !important; background: white !important; }
+       /* Smart pagination */
+       [data-section] { break-inside: avoid; }
+       .item, [data-section] > div > div { break-inside: avoid; }
+       .rounded-lg, .border-l-2 { break-inside: avoid; }
+       h2, h3 { break-after: avoid; }
+       ul, ol { break-inside: avoid; }
+       p { orphans: 3; widows: 3; }`
+    : '';
 
   return `<!DOCTYPE html>
 <html lang="${esc(resume.language || 'en')}">
@@ -838,11 +857,12 @@ function generateHtml(resume: ResumeWithSections): string {
   <script src="https://cdn.tailwindcss.com"><\/script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
     body { margin: 0; display: flex; justify-content: center; padding: 40px 20px; background: #f4f4f5; min-height: 100vh; }
     @media print { body { padding: 0; background: white; } .resume-export > div { box-shadow: none !important; max-width: none !important; } }
     ${themeCSS}
+    ${pdfOverrides}
   </style>
 </head>
 <body>
@@ -1082,9 +1102,20 @@ export async function GET(
           },
         });
       }
+      case 'pdf': {
+        const pdfHtml = generateHtml(resume, true);
+        const pdfBuffer = await generatePdf(pdfHtml);
+        return new NextResponse(new Uint8Array(pdfBuffer), {
+          status: 200,
+          headers: {
+            'Content-Type': 'application/pdf',
+            'Content-Disposition': `attachment; filename="${encodeURIComponent(title)}.pdf"`,
+          },
+        });
+      }
       default: {
         return NextResponse.json(
-          { error: `Unsupported format: ${format}. Supported: json, html, txt, docx` },
+          { error: `Unsupported format: ${format}. Supported: json, html, txt, docx, pdf` },
           { status: 400 }
         );
       }
