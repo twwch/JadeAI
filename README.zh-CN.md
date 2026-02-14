@@ -98,12 +98,18 @@
 ### Docker 部署（推荐）
 
 ```bash
+# 先生成一个密钥
+openssl rand -base64 32
+
 docker run -d -p 3000:3000 \
+  -e AUTH_SECRET=<你生成的密钥> \
   -v jadeai-data:/app/data \
   twwch/jadeai:latest
 ```
 
 打开 [http://localhost:3000](http://localhost:3000)。首次启动自动完成数据库迁移和数据初始化。
+
+> **`AUTH_SECRET`** 为必填项，用于会话加密。通过 `openssl rand -base64 32` 生成。
 
 > **AI 配置：** 无需服务端 AI 环境变量。每位用户在应用内的 **设置 > AI** 中自行配置 API Key、Base URL 和模型。
 
@@ -112,6 +118,7 @@ docker run -d -p 3000:3000 \
 
 ```bash
 docker run -d -p 3000:3000 \
+  -e AUTH_SECRET=<你生成的密钥> \
   -e DB_TYPE=postgresql \
   -e DATABASE_URL=postgresql://user:pass@host:5432/jadeai \
   twwch/jadeai:latest

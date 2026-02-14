@@ -98,12 +98,18 @@ Build professional resumes with drag-and-drop editing, real-time AI optimization
 ### Docker (Recommended)
 
 ```bash
+# Generate a secret key first
+openssl rand -base64 32
+
 docker run -d -p 3000:3000 \
+  -e AUTH_SECRET=<your-generated-secret> \
   -v jadeai-data:/app/data \
   twwch/jadeai:latest
 ```
 
 Open [http://localhost:3000](http://localhost:3000). Database auto-migrates and seeds on first start.
+
+> **`AUTH_SECRET`** is required for session encryption. Generate one with `openssl rand -base64 32`.
 
 > **AI Configuration:** No server-side AI env vars needed. Each user configures their own API Key, Base URL, and Model in **Settings > AI** within the app.
 
@@ -112,6 +118,7 @@ Open [http://localhost:3000](http://localhost:3000). Database auto-migrates and 
 
 ```bash
 docker run -d -p 3000:3000 \
+  -e AUTH_SECRET=<your-generated-secret> \
   -e DB_TYPE=postgresql \
   -e DATABASE_URL=postgresql://user:pass@host:5432/jadeai \
   twwch/jadeai:latest
