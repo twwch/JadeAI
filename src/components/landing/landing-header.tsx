@@ -5,7 +5,7 @@ import { useTranslations } from 'next-intl';
 import { useSession } from 'next-auth/react';
 import Image from 'next/image';
 import { Link } from '@/i18n/routing';
-import { Menu } from 'lucide-react';
+import { Menu, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { LocaleSwitcher } from '@/components/layout/locale-switcher';
 import {
@@ -16,12 +16,32 @@ import {
 } from '@/components/ui/sheet';
 
 const AUTH_ENABLED = process.env.NEXT_PUBLIC_AUTH_ENABLED === 'true';
+const GITHUB_REPO = 'twwch/JadeAI';
+
+function useGitHubStars() {
+  const [stars, setStars] = useState<number | null>(null);
+  useEffect(() => {
+    fetch(`https://api.github.com/repos/${GITHUB_REPO}`)
+      .then((r) => r.json())
+      .then((d) => {
+        if (typeof d.stargazers_count === 'number') setStars(d.stargazers_count);
+      })
+      .catch(() => {});
+  }, []);
+  return stars;
+}
+
+function formatStars(n: number): string {
+  if (n >= 1000) return `${(n / 1000).toFixed(1).replace(/\.0$/, '')}k`;
+  return String(n);
+}
 
 export function LandingHeader() {
   const t = useTranslations('landing.header');
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const { data: session } = useSession();
+  const stars = useGitHubStars();
 
   const isLoggedIn = AUTH_ENABLED && !!session?.user;
   const ctaLabel = isLoggedIn ? t('dashboard') : t('getStarted');
@@ -61,6 +81,21 @@ export function LandingHeader() {
         </nav>
 
         <div className="flex items-center gap-3">
+          <a
+            href={`https://github.com/${GITHUB_REPO}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hidden items-center gap-1.5 rounded-full bg-pink-50 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-pink-100 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700 sm:flex"
+          >
+            <Star className="h-4 w-4 text-amber-400" fill="currentColor" />
+            <span>Star on GitHub</span>
+            {stars !== null && (
+              <>
+                <span className="mx-0.5 text-zinc-300 dark:text-zinc-600">|</span>
+                <span>{formatStars(stars)}</span>
+              </>
+            )}
+          </a>
           <LocaleSwitcher />
           <Button
             asChild
