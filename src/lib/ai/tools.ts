@@ -1,11 +1,11 @@
-import { tool, generateText, Output } from 'ai';
+import { tool, generateText } from 'ai';
 import { z } from 'zod/v4';
 import { resumeRepository } from '@/lib/db/repositories/resume.repository';
-import { getModel } from '@/lib/ai/provider';
+import { getModel, type AIConfig } from '@/lib/ai/provider';
 import { jdAnalysisOutputSchema } from '@/lib/ai/jd-analysis-schema';
-import { translateOutputSchema } from '@/lib/ai/translate-schema';
+import { extractJson } from '@/lib/ai/extract-json';
 
-export function createExecutableTools(resumeId: string) {
+export function createExecutableTools(resumeId: string, aiConfig: AIConfig) {
   return {
     updateSection: tool({
       description: `Update the content of a specific resume section. Section content structures:
@@ -170,18 +170,20 @@ Use field="items" or field="categories" to update list sections. Each item MUST 
         const resume = await resumeRepository.findById(resumeId);
         if (!resume) return { success: false, error: 'Resume not found' };
 
-        const model = getModel();
+        const model = getModel(aiConfig);
         const resumeContext = JSON.stringify(resume.sections);
 
         const result = await generateText({
           model,
           maxOutputTokens: 8192,
-          output: Output.object({ schema: jdAnalysisOutputSchema }),
-          system: `You are an expert resume analyst. Analyze the match between the resume and job description. Be specific and actionable.`,
-          prompt: `## Resume Data\n${resumeContext}\n\n## Job Description\n${jobDescription}\n\nAnalyze the match and provide a comprehensive analysis.`,
+          system: `You are an expert resume analyst. Analyze the match between the resume and job description. Be specific and actionable.
+CRITICAL: You are a JSON API. Your entire response must be a single valid JSON object starting with { and ending with }. Do NOT use markdown syntax. Do NOT wrap in code fences.`,
+          prompt: `## Resume Data\n${resumeContext}\n\n## Job Description\n${jobDescription}\n\nReturn a JSON object with: overallScore (0-100), keywordMatches (string[]), missingKeywords (string[]), suggestions ([{section, current, suggested}]), atsScore (0-100), summary (string).`,
+          providerOptions: { openai: { response_format: { type: 'json_object' } } },
         });
 
-        return { success: true, analysis: result.output };
+        const analysis = extractJson(result.text, jdAnalysisOutputSchema);
+        return { success: true, analysis };
       },
     }),
 
@@ -194,38 +196,72 @@ Use field="items" or field="categories" to update list sections. Each item MUST 
         const resume = await resumeRepository.findById(resumeId);
         if (!resume) return { success: false, error: 'Resume not found' };
 
-        const sectionsData = resume.sections.map((s: any) => ({
+        const model = getModel(aiConfig);
+        const langName = targetLanguage === 'zh' ? 'Simplified Chinese' : 'English';
+
+        const singleSectionSchema = z.object({
+          sectionId: z.string(),
+          title: z.string(),
+          content: z.any(),
+        });
+
+        // Translate each section concurrently (max 4 at a time)
+        const sections = resume.sections.map((s: any) => ({
           sectionId: s.id,
           type: s.type,
           title: s.title,
           content: s.content,
         }));
 
-        const model = getModel();
+        const CONCURRENCY = 4;
+        let succeeded = 0;
+        let failed = 0;
 
-        const translatePrompt = targetLanguage === 'zh'
-          ? `You are a professional resume translator. Translate from English to Simplified Chinese. Keep technical terms in English. Preserve JSON structure and field names. Only translate values. Keep IDs, URLs, emails, phone numbers unchanged.`
-          : `You are a professional resume translator. Translate from Chinese to English. Use strong action verbs. Preserve JSON structure and field names. Only translate values. Keep IDs, URLs, emails, phone numbers unchanged.`;
-
-        const result = await generateText({
-          model,
-          maxOutputTokens: 16384,
-          output: Output.object({ schema: translateOutputSchema }),
-          system: translatePrompt,
-          prompt: `Translate the following resume sections:\n${JSON.stringify(sectionsData, null, 2)}`,
-        });
-
-        const translatedOutput = result.output!;
-
-        // Update each section in the database
-        for (const translatedSection of translatedOutput.sections) {
-          const originalSection = resume.sections.find((s: any) => s.id === translatedSection.sectionId);
-          if (!originalSection) continue;
-
-          await resumeRepository.updateSection(translatedSection.sectionId, {
-            title: translatedSection.title,
-            content: translatedSection.content,
+        const translateOne = async (section: typeof sections[number]) => {
+          const result = await generateText({
+            model,
+            maxOutputTokens: 4096,
+            system: `You are a professional resume translator. Translate the given resume section into ${langName}.
+Rules:
+- Use professional, formal ${langName} appropriate for resumes
+- Technical terms and programming languages stay in English
+- Preserve the exact JSON structure and all field names — only translate string values
+- Keep all IDs, URLs, emails, phone numbers unchanged
+- CRITICAL: Return a single valid JSON object with keys: sectionId, title, content. No markdown, no code fences.`,
+            prompt: `Translate this resume section. Return JSON with keys: sectionId, title, content.\n\n${JSON.stringify(section)}`,
+            providerOptions: { openai: { response_format: { type: 'json_object' } } },
           });
+
+          return extractJson(result.text, singleSectionSchema);
+        };
+
+        // Run with concurrency limit
+        const results: ({ ok: true; data: z.infer<typeof singleSectionSchema> } | { ok: false; error: unknown })[] = new Array(sections.length);
+        let nextIdx = 0;
+
+        async function worker() {
+          while (nextIdx < sections.length) {
+            const i = nextIdx++;
+            try {
+              const data = await translateOne(sections[i]);
+              results[i] = { ok: true, data };
+            } catch (e) {
+              results[i] = { ok: false, error: e };
+            }
+          }
+        }
+
+        await Promise.all(Array.from({ length: Math.min(CONCURRENCY, sections.length) }, () => worker()));
+
+        // Apply results to DB
+        for (const r of results) {
+          if (!r.ok) { failed++; continue; }
+          const translated = r.data;
+          await resumeRepository.updateSection(translated.sectionId, {
+            title: translated.title,
+            content: translated.content,
+          });
+          succeeded++;
         }
 
         // Update resume language
@@ -234,7 +270,8 @@ Use field="items" or field="categories" to update list sections. Each item MUST 
         return {
           success: true,
           language: targetLanguage,
-          translatedSections: translatedOutput.sections.length,
+          translatedSections: succeeded,
+          failedSections: failed,
         };
       },
     }),

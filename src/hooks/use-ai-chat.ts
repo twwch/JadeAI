@@ -5,6 +5,7 @@ import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport } from 'ai';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useResumeStore } from '@/stores/resume-store';
+import { useSettingsStore, getAIHeaders } from '@/stores/settings-store';
 
 interface UseAIChatOptions {
   resumeId: string;
@@ -16,6 +17,8 @@ interface UseAIChatOptions {
 export function useAIChat({ resumeId, sessionId, initialMessages, selectedModel }: UseAIChatOptions) {
   const fingerprint = typeof window !== 'undefined' ? localStorage.getItem('jade_fingerprint') : null;
   const [input, setInput] = useState('');
+  const [localMessages, setLocalMessages] = useState<UIMessage[]>([]);
+  const { aiApiKey, aiBaseURL, aiModel } = useSettingsStore();
 
   const modelRef = useRef(selectedModel);
   modelRef.current = selectedModel;
@@ -28,9 +31,9 @@ export function useAIChat({ resumeId, sessionId, initialMessages, selectedModel 
       new DefaultChatTransport({
         api: '/api/ai/chat',
         body: () => ({ resumeId, model: modelRef.current, sessionId: sessionIdRef.current }),
-        headers: fingerprint ? { 'x-fingerprint': fingerprint } : {},
+        headers: { ...(fingerprint ? { 'x-fingerprint': fingerprint } : {}), ...getAIHeaders() },
       }),
-    [resumeId, fingerprint]
+    [resumeId, fingerprint, aiApiKey, aiBaseURL, aiModel]
   );
 
   const { messages, sendMessage, status, error, setMessages } = useChat({
@@ -99,16 +102,47 @@ export function useAIChat({ resumeId, sessionId, initialMessages, selectedModel 
   const handleSubmit = useCallback((e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!input.trim()) return;
+
+    // Check if API key is configured
+    if (!useSettingsStore.getState().aiApiKey) {
+      const userMsg: UIMessage = {
+        id: crypto.randomUUID(),
+        role: 'user',
+        parts: [{ type: 'text', text: input }],
+      };
+      const errorMsg: UIMessage = {
+        id: crypto.randomUUID(),
+        role: 'assistant',
+        parts: [{ type: 'text', text: '__API_KEY_MISSING__' }],
+      };
+      // Keep these messages separate from useChat state so they never get sent to the server
+      setLocalMessages((prev) => [...prev, userMsg, errorMsg]);
+      setInput('');
+      return;
+    }
+
+    // Clear local-only messages when user starts a real conversation
+    if (localMessages.length > 0) {
+      setLocalMessages([]);
+    }
+
     sendMessage({ text: input });
     setInput('');
-  }, [input, sendMessage]);
+  }, [input, sendMessage, localMessages]);
+
+  // Merge real chat messages with local-only display messages
+  const allMessages = useMemo(
+    () => (localMessages.length > 0 ? [...messages, ...localMessages] : messages),
+    [messages, localMessages]
+  );
 
   const clearMessages = useCallback(() => {
     setMessages([]);
+    setLocalMessages([]);
   }, [setMessages]);
 
   return {
-    messages,
+    messages: allMessages,
     input,
     handleInputChange,
     handleSubmit,

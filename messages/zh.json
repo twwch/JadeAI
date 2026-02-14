@@ -162,7 +162,11 @@
     "toolSuggestSkills": "已推荐技能",
     "loadMore": "加载更多",
     "loadingMore": "加载中...",
-    "bubbleTooltip": "与 AI 助手对话"
+    "bubbleTooltip": "与 AI 助手对话",
+    "apiKeyMissing": "API Key 未配置",
+    "apiKeyMissingHint": "请先在设置中配置 AI 服务的 API Key，才能使用 AI 功能。",
+    "apiKeyMissingBubble": "API Key 未配置，请前往设置配置",
+    "goToSettings": "前往设置"
   },
   "pdf": {
     "exporting": "正在生成 PDF...",
@@ -182,10 +186,11 @@
       "provider": "AI 服务商",
       "apiKey": "API Key",
       "apiKeyPlaceholder": "输入你的 API Key...",
-      "apiKeyHint": "API Key 仅保存在本地浏览器中，不会上传到服务器。",
+      "apiKeyHint": "API Key 保存在本地，每次请求直接发送给 AI 服务商。",
       "baseURL": "API 地址",
       "model": "默认模型",
-      "modelPlaceholder": "输入模型名称..."
+      "modelPlaceholder": "输入模型名称...",
+      "noModelsFound": "未找到模型，请在下方手动输入模型名称。"
     },
     "appearance": {
       "title": "外观",

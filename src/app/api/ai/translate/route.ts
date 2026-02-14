@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
-import { generateText } from 'ai';
-import { getModel } from '@/lib/ai/provider';
+import { generateText, type LanguageModel } from 'ai';
+import { getModel, extractAIConfig, AIConfigError } from '@/lib/ai/provider';
 import { resolveUser, getUserIdFromRequest } from '@/lib/auth/helpers';
 import { resumeRepository } from '@/lib/db/repositories/resume.repository';
 import { translateInputSchema } from '@/lib/ai/translate-schema';
@@ -53,7 +53,7 @@ Rules:
 async function translateSection(
   section: { sectionId: string; type: string; title: string; content: unknown },
   targetLanguage: string,
-  model: ReturnType<typeof getModel>
+  model: LanguageModel
 ) {
   const result = await generateText({
     model,
@@ -161,7 +161,8 @@ export async function POST(request: NextRequest) {
       };
     });
 
-    const model = getModel();
+    const aiConfig = extractAIConfig(request);
+    const model = getModel(aiConfig);
     const encoder = new TextEncoder();
 
     const stream = new ReadableStream({
@@ -259,6 +260,9 @@ export async function POST(request: NextRequest) {
       },
     });
   } catch (error) {
+    if (error instanceof AIConfigError) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 401 });
+    }
     console.error('POST /api/ai/translate error:', error);
     return new Response(JSON.stringify({ error: 'Failed to translate resume' }), { status: 500 });
   }

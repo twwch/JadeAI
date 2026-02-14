@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { useResumeStore } from '@/stores/resume-store';
 import { LanguageSelect } from '@/components/ui/language-select';
 import { Languages, Loader2, CheckCircle2, AlertCircle } from 'lucide-react';
+import { getAIHeaders } from '@/stores/settings-store';
 
 interface TranslateDialogProps {
   open: boolean;
@@ -102,6 +103,7 @@ export function TranslateDialog({ open, onOpenChange, resumeId }: TranslateDialo
         headers: {
           'Content-Type': 'application/json',
           ...(fingerprint ? { 'x-fingerprint': fingerprint } : {}),
+          ...getAIHeaders(),
         },
         body: JSON.stringify({ resumeId, targetLanguage }),
         signal: controller.signal,

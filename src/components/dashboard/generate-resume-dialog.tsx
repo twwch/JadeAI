@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { LanguageSelect } from '@/components/ui/language-select';
 import { TEMPLATES } from '@/lib/constants';
 import { TemplateThumbnail } from './template-thumbnail';
+import { getAIHeaders } from '@/stores/settings-store';
 
 interface GenerateResumeDialogProps {
   open: boolean;
@@ -79,6 +80,7 @@ export function GenerateResumeDialog({ open, onOpenChange, onCreated }: Generate
         headers: {
           'Content-Type': 'application/json',
           ...(fingerprint ? { 'x-fingerprint': fingerprint } : {}),
+          ...getAIHeaders(),
         },
         body: JSON.stringify({
           jobTitle: jobTitle.trim(),

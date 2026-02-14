@@ -260,3 +260,12 @@
 .ai-markdown hr {
   @apply my-2 border-zinc-200 dark:border-zinc-700;
 }
+.ai-markdown table {
+  @apply mb-2 w-full border-collapse text-[12px] last:mb-0;
+}
+.ai-markdown th {
+  @apply border border-zinc-200 bg-zinc-100 px-2 py-1 text-left font-semibold text-zinc-800 dark:border-zinc-700 dark:bg-zinc-800 dark:text-zinc-200;
+}
+.ai-markdown td {
+  @apply border border-zinc-200 px-2 py-1 text-zinc-600 dark:border-zinc-700 dark:text-zinc-400;
+}

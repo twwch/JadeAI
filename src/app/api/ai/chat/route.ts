@@ -1,6 +1,6 @@
 import { NextRequest } from 'next/server';
 import { streamText, convertToModelMessages, stepCountIs } from 'ai';
-import { getModel } from '@/lib/ai/provider';
+import { getModel, extractAIConfig, AIConfigError } from '@/lib/ai/provider';
 import { resolveUser, getUserIdFromRequest } from '@/lib/auth/helpers';
 import { resumeRepository } from '@/lib/db/repositories/resume.repository';
 import { chatRepository } from '@/lib/db/repositories/chat.repository';
@@ -51,13 +51,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const model = getModel(modelId);
+    const aiConfig = extractAIConfig(request);
+    const model = getModel(aiConfig, modelId);
     const modelMessages = await convertToModelMessages(messages);
 
     // Truncate to last N rounds for LLM context
     const truncatedMessages = modelMessages.slice(-MAX_MESSAGES);
 
-    const tools = resumeId ? createExecutableTools(resumeId) : undefined;
+    const tools = resumeId ? createExecutableTools(resumeId, aiConfig) : undefined;
 
     const result = streamText({
       model,
@@ -101,6 +102,9 @@ export async function POST(request: NextRequest) {
 
     return result.toUIMessageStreamResponse();
   } catch (error) {
+    if (error instanceof AIConfigError) {
+      return new Response(JSON.stringify({ error: error.message }), { status: 401 });
+    }
     console.error('POST /api/ai/chat error:', error);
     return new Response('Internal server error', { status: 500 });
   }

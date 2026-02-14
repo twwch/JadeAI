@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from 'ai';
-import { getModel } from '@/lib/ai/provider';
+import { getModel, extractAIConfig, AIConfigError } from '@/lib/ai/provider';
 import { resolveUser, getUserIdFromRequest } from '@/lib/auth/helpers';
 import { resumeRepository } from '@/lib/db/repositories/resume.repository';
 import { grammarCheckInputSchema, grammarCheckOutputSchema } from '@/lib/ai/grammar-check-schema';
@@ -77,7 +77,8 @@ export async function POST(request: NextRequest) {
       content: s.content,
     }));
 
-    const model = getModel();
+    const aiConfig = extractAIConfig(request);
+    const model = getModel(aiConfig);
 
     const result = await generateText({
       model,
@@ -96,6 +97,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(checkResult);
   } catch (error) {
+    if (error instanceof AIConfigError) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
     console.error('POST /api/ai/grammar-check error:', error);
     return NextResponse.json({ error: 'Failed to check grammar' }, { status: 500 });
   }

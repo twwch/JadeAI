@@ -99,14 +99,13 @@
 
 ```bash
 docker run -d -p 3000:3000 \
-  -e AI_API_KEY=sk-... \
-  -e AI_BASE_URL=https://api.openai.com/v1 \
-  -e AI_MODEL=gpt-4o \
   -v jadeai-data:/app/data \
   twwch/jadeai:latest
 ```
 
 打开 [http://localhost:3000](http://localhost:3000)。首次启动自动完成数据库迁移和数据初始化。
+
+> **AI 配置：** 无需服务端 AI 环境变量。每位用户在应用内的 **设置 > AI** 中自行配置 API Key、Base URL 和模型。
 
 <details>
 <summary>使用 PostgreSQL</summary>
@@ -115,7 +114,6 @@ docker run -d -p 3000:3000 \
 docker run -d -p 3000:3000 \
   -e DB_TYPE=postgresql \
   -e DATABASE_URL=postgresql://user:pass@host:5432/jadeai \
-  -e AI_API_KEY=sk-... \
   twwch/jadeai:latest
 ```
 
@@ -130,7 +128,6 @@ docker run -d -p 3000:3000 \
   -e AUTH_SECRET=your-secret \
   -e GOOGLE_CLIENT_ID=xxx \
   -e GOOGLE_CLIENT_SECRET=xxx \
-  -e AI_API_KEY=sk-... \
   -v jadeai-data:/app/data \
   twwch/jadeai:latest
 ```
@@ -159,17 +156,14 @@ cp .env.example .env.local
 编辑 `.env.local`：
 
 ```bash
-# AI（必填 — 服务端默认配置，用户也可在设置中自行配置）
-AI_API_KEY=sk-...
-AI_BASE_URL=https://api.openai.com/v1
-AI_MODEL=gpt-4o
-
 # 数据库（默认 SQLite，无需额外配置）
 DB_TYPE=sqlite
 
 # 认证（默认指纹模式，无需额外配置）
 NEXT_PUBLIC_AUTH_ENABLED=false
 ```
+
+> **AI 配置：** 无需服务端环境变量。每位用户在应用内的 **设置 > AI** 中自行配置 API Key、Base URL 和模型。
 
 查看 `.env.example` 了解所有可用选项（Google OAuth、PostgreSQL 等）。
 

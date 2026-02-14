@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useEditorStore } from '@/stores/editor-store';
+import { useSettingsStore, getAIHeaders } from '@/stores/settings-store';
 import { useAIChat } from '@/hooks/use-ai-chat';
 import { useMessagePagination } from '@/hooks/use-message-pagination';
 import { AIMessage } from './ai-message';
@@ -20,6 +21,7 @@ interface ChatSession {
 
 interface AIChatContentProps {
   resumeId: string;
+  hideTitle?: boolean;
 }
 
 function getHeaders(): Record<string, string> {
@@ -39,10 +41,12 @@ function formatTime(date: Date | number | null) {
 }
 
 /** Headless chat body — reusable in both side panel and floating bubble */
-export function AIChatContent({ resumeId }: AIChatContentProps) {
+export function AIChatContent({ resumeId, hideTitle }: AIChatContentProps) {
   const t = useTranslations('ai');
   const [models, setModels] = useState<string[]>([]);
-  const [selectedModel, setSelectedModel] = useState<string>();
+  const [selectedModel, setSelectedModel] = useState<string | undefined>(
+    () => useSettingsStore.getState().aiModel || undefined
+  );
   const scrollRef = useRef<HTMLDivElement>(null);
   const isNearBottomRef = useRef(true);
 
@@ -54,16 +58,29 @@ export function AIChatContent({ resumeId }: AIChatContentProps) {
 
   const { historicalMessages, hasMore, isLoadingMore, loadInitial, loadMore, reset: resetPagination } = useMessagePagination();
 
-  // Fetch models
+  const settingsModel = useSettingsStore((s) => s.aiModel);
+
+  // Fetch models from API, always include user's configured model
   useEffect(() => {
-    fetch('/api/ai/models')
+    fetch('/api/ai/models', { headers: getAIHeaders() })
       .then((res) => res.json())
-      .then((data: { models: { id: string }[]; fallbackModel: string }) => {
+      .then((data: { models: { id: string }[] }) => {
         const ids = data.models.map((m) => m.id);
+        // Ensure user's configured model is always in the list
+        if (settingsModel && !ids.includes(settingsModel)) {
+          ids.unshift(settingsModel);
+        }
         setModels(ids);
-        setSelectedModel((prev) => prev ?? data.fallbackModel ?? ids[0]);
+        setSelectedModel((prev) => prev ?? settingsModel ?? ids[0]);
       })
-      .catch(() => {});
+      .catch(() => {
+        // Even on error, show user's configured model
+        if (settingsModel) {
+          setModels([settingsModel]);
+          setSelectedModel((prev) => prev ?? settingsModel);
+        }
+      });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fetch sessions on mount
@@ -125,23 +142,26 @@ export function AIChatContent({ resumeId }: AIChatContentProps) {
     const headers = getHeaders();
     try {
       await fetch(`/api/ai/chat/sessions/${sessionId}`, { method: 'DELETE', headers });
-      setSessions((prev) => {
-        const remaining = prev.filter((s) => s.id !== sessionId);
-        if (sessionId === activeSessionId) {
-          if (remaining.length > 0) {
-            const nextId = remaining[0].id;
-            setActiveSessionId(nextId);
-            loadInitial(nextId).then((msgs) => setInitialMessages(msgs));
-          } else {
-            createNewSession();
-          }
-        }
-        return remaining;
-      });
     } catch (err) {
       console.error('Failed to delete session:', err);
+      return;
     }
-  }, [activeSessionId, loadInitial, createNewSession]);
+
+    // Remove from state (pure updater — no side effects)
+    setSessions((prev) => prev.filter((s) => s.id !== sessionId));
+
+    // Handle active session switch outside the updater to avoid Strict Mode double-invocation
+    if (sessionId === activeSessionId) {
+      const remaining = sessions.filter((s) => s.id !== sessionId);
+      if (remaining.length > 0) {
+        const nextId = remaining[0].id;
+        setActiveSessionId(nextId);
+        loadInitial(nextId).then((msgs) => setInitialMessages(msgs));
+      } else {
+        await createNewSession();
+      }
+    }
+  }, [activeSessionId, sessions, loadInitial, createNewSession]);
 
   const { messages: chatMessages, input, handleInputChange, handleSubmit: originalHandleSubmit, isLoading, status, sendMessage } = useAIChat({
     resumeId,
@@ -206,11 +226,13 @@ export function AIChatContent({ resumeId }: AIChatContentProps) {
   return (
     <>
       {/* Header bar */}
-      <div className="flex items-center justify-between border-b px-4 py-3">
-        <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-pink-500" />
-          <h3 className="text-sm font-semibold text-zinc-900">{t('panelTitle')}</h3>
-        </div>
+      <div className={`flex items-center ${hideTitle ? 'justify-end' : 'justify-between'} border-b px-4 py-3`}>
+        {!hideTitle && (
+          <div className="flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-pink-500" />
+            <h3 className="text-sm font-semibold text-zinc-900">{t('panelTitle')}</h3>
+          </div>
+        )}
         <div className="flex items-center gap-1">
           {/* History popover */}
           <Popover open={historyOpen} onOpenChange={setHistoryOpen}>

@@ -15,6 +15,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useEditorStore } from '@/stores/editor-store';
+import { getAIHeaders } from '@/stores/settings-store';
 
 interface JdAnalysisResult {
   overallScore: number;
@@ -111,6 +112,7 @@ export function JdAnalysisDialog({ open, onOpenChange, resumeId }: JdAnalysisDia
         headers: {
           'Content-Type': 'application/json',
           ...(fingerprint ? { 'x-fingerprint': fingerprint } : {}),
+          ...getAIHeaders(),
         },
         body: JSON.stringify({ resumeId, jobDescription }),
       });

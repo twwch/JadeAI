@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { TEMPLATES } from '@/lib/constants';
 import { cn } from '@/lib/utils';
+import { getAIHeaders } from '@/stores/settings-store';
 import { Upload, FileText, Image, X, Loader2, Check } from 'lucide-react';
 import { TemplateThumbnail } from './template-thumbnail';
 
@@ -105,7 +106,7 @@ export function CreateResumeDialog({ open, onClose, onCreate }: CreateResumeDial
 
       const res = await fetch('/api/resume/parse', {
         method: 'POST',
-        headers: fingerprint ? { 'x-fingerprint': fingerprint } : {},
+        headers: { ...(fingerprint ? { 'x-fingerprint': fingerprint } : {}), ...getAIHeaders() },
         body: formData,
       });
 

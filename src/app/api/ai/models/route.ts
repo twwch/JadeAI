@@ -1,34 +1,27 @@
-import { config } from '@/lib/config';
+import { NextRequest } from 'next/server';
 
-interface ModelEntry {
-  id: string;
-}
+export async function GET(request: NextRequest) {
+  const apiKey = request.headers.get('x-api-key') || '';
+  const baseURL = request.headers.get('x-base-url') || 'https://api.openai.com/v1';
 
-let cachedModels: ModelEntry[] | null = null;
-let cacheTimestamp = 0;
-const CACHE_TTL = 60_000;
-
-export async function GET() {
-  const now = Date.now();
-  if (cachedModels && now - cacheTimestamp < CACHE_TTL) {
-    return Response.json({ models: cachedModels, fallbackModel: config.ai.model });
+  if (!apiKey) {
+    return Response.json({ models: [] });
   }
 
   try {
-    const res = await fetch(`${config.ai.baseURL}/models`, {
-      headers: { Authorization: `Bearer ${config.ai.apiKey}` },
+    const res = await fetch(`${baseURL}/models`, {
+      headers: { Authorization: `Bearer ${apiKey}` },
     });
 
-    if (!res.ok) throw new Error(`${res.status}`);
+    if (!res.ok) {
+      return Response.json({ models: [] });
+    }
 
     const data = await res.json();
-    const models: ModelEntry[] = (data.data ?? data).map((m: { id: string }) => ({ id: m.id }));
+    const models = (data.data ?? data).map((m: { id: string }) => ({ id: m.id }));
 
-    cachedModels = models;
-    cacheTimestamp = now;
-
-    return Response.json({ models, fallbackModel: config.ai.model });
+    return Response.json({ models });
   } catch {
-    return Response.json({ models: [{ id: config.ai.model }], fallbackModel: config.ai.model });
+    return Response.json({ models: [] });
   }
 }

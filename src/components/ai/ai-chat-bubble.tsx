@@ -1,13 +1,14 @@
 'use client';
 
 import { useRef, useCallback, useState, useMemo } from 'react';
-import { MessageSquare, Minus } from 'lucide-react';
+import { MessageSquare, Minus, AlertTriangle } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { useEditorStore } from '@/stores/editor-store';
+import { useSettingsStore } from '@/stores/settings-store';
 import { AIChatContent } from './ai-chat-panel';
 
-const WIN_W = 400;
-const WIN_H = 520;
+const WIN_W = 440;
+const WIN_H = 620;
 const BUBBLE_SIZE = 56; // h-14 = 56px
 const GAP = 12;
 const MARGIN = 8;
@@ -51,6 +52,7 @@ function calcWindowPos(bubbleRight: number, bubbleBottom: number): { left: numbe
 export function AIChatBubble({ resumeId }: AIChatBubbleProps) {
   const t = useTranslations('ai');
   const { showAiChat, toggleAiChat } = useEditorStore();
+  const hasApiKey = useSettingsStore((s) => !!s.aiApiKey);
 
   // Bubble position (draggable, right/bottom offsets)
   const [bubblePos, setBubblePos] = useState({ x: 24, y: 24 });
@@ -174,7 +176,7 @@ export function AIChatBubble({ resumeId }: AIChatBubbleProps) {
 
         {/* Chat content */}
         <div className="flex flex-1 flex-col overflow-hidden">
-          <AIChatContent resumeId={resumeId} />
+          <AIChatContent resumeId={resumeId} hideTitle />
         </div>
       </div>
 
@@ -188,17 +190,22 @@ export function AIChatBubble({ resumeId }: AIChatBubbleProps) {
         {/* Tooltip */}
         {showTooltip && !showAiChat && (
           <div className="absolute -top-10 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-lg bg-zinc-800 px-3 py-1.5 text-xs text-white shadow-lg">
-            {t('bubbleTooltip')}
+            {hasApiKey ? t('bubbleTooltip') : t('apiKeyMissingBubble')}
             <div className="absolute -bottom-1 left-1/2 h-2 w-2 -translate-x-1/2 rotate-45 bg-zinc-800" />
           </div>
         )}
         <button
           data-tour="ai-chat"
-          className="flex h-14 w-14 cursor-grab items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-lg transition-transform hover:scale-110 active:cursor-grabbing active:scale-95"
+          className="relative flex h-14 w-14 cursor-grab items-center justify-center rounded-full bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-lg transition-transform hover:scale-110 active:cursor-grabbing active:scale-95"
           onMouseDown={onBubbleMouseDown}
           onClick={onBubbleClick}
         >
           <MessageSquare className="h-6 w-6" />
+          {!hasApiKey && (
+            <span className="absolute -right-0.5 -top-0.5 flex h-5 w-5 items-center justify-center rounded-full bg-amber-400 shadow-sm">
+              <AlertTriangle className="h-3 w-3 text-amber-900" />
+            </span>
+          )}
         </button>
       </div>
     </>

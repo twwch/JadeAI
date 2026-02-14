@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from 'ai';
-import { getModel } from '@/lib/ai/provider';
+import { getModel, extractAIConfig, AIConfigError } from '@/lib/ai/provider';
 import { resolveUser, getUserIdFromRequest } from '@/lib/auth/helpers';
 import { resumeRepository } from '@/lib/db/repositories/resume.repository';
 import type { ParsedResume } from '@/lib/ai/parse-schema';
@@ -63,7 +63,8 @@ export async function POST(request: NextRequest) {
     const base64 = buffer.toString('base64');
     const dataUrl = `data:${file.type};base64,${base64}`;
 
-    const model = getModel();
+    const aiConfig = extractAIConfig(request);
+    const model = getModel(aiConfig);
 
     // Single call — generateText with explicit schema in prompt
     const result = await generateText({
@@ -123,6 +124,9 @@ export async function POST(request: NextRequest) {
     const fullResume = await resumeRepository.findById(resume.id);
     return NextResponse.json(fullResume, { status: 201 });
   } catch (error) {
+    if (error instanceof AIConfigError) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
     console.error('POST /api/resume/parse error:', error);
     return NextResponse.json({ error: 'Failed to parse resume' }, { status: 500 });
   }

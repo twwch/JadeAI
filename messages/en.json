@@ -162,7 +162,11 @@
     "toolSuggestSkills": "Suggested skills",
     "loadMore": "Load more",
     "loadingMore": "Loading...",
-    "bubbleTooltip": "Chat with AI Assistant"
+    "bubbleTooltip": "Chat with AI Assistant",
+    "apiKeyMissing": "API Key Not Configured",
+    "apiKeyMissingHint": "Please configure your AI API Key in Settings before using AI features.",
+    "apiKeyMissingBubble": "API Key not configured. Go to Settings.",
+    "goToSettings": "Go to Settings"
   },
   "pdf": {
     "exporting": "Generating PDF...",
@@ -182,10 +186,11 @@
       "provider": "AI Provider",
       "apiKey": "API Key",
       "apiKeyPlaceholder": "Enter your API Key...",
-      "apiKeyHint": "Your API Key is stored locally in your browser and never sent to our servers.",
+      "apiKeyHint": "Your API Key is stored locally and sent directly to the AI provider per request.",
       "baseURL": "Base URL",
       "model": "Default Model",
-      "modelPlaceholder": "Enter model name..."
+      "modelPlaceholder": "Enter model name...",
+      "noModelsFound": "No models found. Enter a model name manually below."
     },
     "appearance": {
       "title": "Appearance",

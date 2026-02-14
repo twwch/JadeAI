@@ -1,10 +1,12 @@
 'use client';
 
-import { Bot, User, CheckCircle2, XCircle, ChevronDown, ChevronRight, Terminal, Play } from 'lucide-react';
+import { Bot, User, CheckCircle2, XCircle, ChevronDown, ChevronRight, Terminal, Play, AlertTriangle, Settings } from 'lucide-react';
 import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { useState } from 'react';
 import { useTranslations } from 'next-intl';
 import type { UIMessage } from 'ai';
+import { useUIStore } from '@/stores/ui-store';
 
 interface AIMessageProps {
   message: UIMessage;
@@ -111,6 +113,34 @@ function ToolCallCard({ part }: { part: any }) {
   );
 }
 
+function APIKeyMissingCard() {
+  const t = useTranslations('ai');
+  const { openModal, setSettingsTab } = useUIStore();
+
+  return (
+    <div className="flex flex-col gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 dark:border-amber-800 dark:bg-amber-950/30">
+      <div className="flex items-center gap-2 text-amber-700 dark:text-amber-400">
+        <AlertTriangle className="h-4 w-4 shrink-0" />
+        <span className="text-[13px] font-medium">{t('apiKeyMissing')}</span>
+      </div>
+      <p className="text-[12px] leading-relaxed text-amber-600 dark:text-amber-400/80">
+        {t('apiKeyMissingHint')}
+      </p>
+      <button
+        type="button"
+        className="inline-flex w-fit cursor-pointer items-center gap-1.5 rounded-lg bg-amber-100 px-3 py-1.5 text-[12px] font-medium text-amber-700 transition-colors hover:bg-amber-200 dark:bg-amber-900/50 dark:text-amber-300 dark:hover:bg-amber-900"
+        onClick={() => {
+          setSettingsTab('ai');
+          openModal('settings');
+        }}
+      >
+        <Settings className="h-3.5 w-3.5" />
+        {t('goToSettings')}
+      </button>
+    </div>
+  );
+}
+
 export function AIMessage({ message }: AIMessageProps) {
   const isUser = message.role === 'user';
 
@@ -148,9 +178,12 @@ export function AIMessage({ message }: AIMessageProps) {
             if (part.type === 'text') {
               const text = (part as { type: 'text'; text: string }).text;
               if (!text) return null;
+              if (text === '__API_KEY_MISSING__') {
+                return <APIKeyMissingCard key={i} />;
+              }
               return (
                 <div key={i} className="ai-markdown">
-                  <ReactMarkdown>{text}</ReactMarkdown>
+                  <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
                 </div>
               );
             }

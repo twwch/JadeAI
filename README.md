@@ -99,14 +99,13 @@ Build professional resumes with drag-and-drop editing, real-time AI optimization
 
 ```bash
 docker run -d -p 3000:3000 \
-  -e AI_API_KEY=sk-... \
-  -e AI_BASE_URL=https://api.openai.com/v1 \
-  -e AI_MODEL=gpt-4o \
   -v jadeai-data:/app/data \
   twwch/jadeai:latest
 ```
 
 Open [http://localhost:3000](http://localhost:3000). Database auto-migrates and seeds on first start.
+
+> **AI Configuration:** No server-side AI env vars needed. Each user configures their own API Key, Base URL, and Model in **Settings > AI** within the app.
 
 <details>
 <summary>With PostgreSQL</summary>
@@ -115,7 +114,6 @@ Open [http://localhost:3000](http://localhost:3000). Database auto-migrates and 
 docker run -d -p 3000:3000 \
   -e DB_TYPE=postgresql \
   -e DATABASE_URL=postgresql://user:pass@host:5432/jadeai \
-  -e AI_API_KEY=sk-... \
   twwch/jadeai:latest
 ```
 
@@ -130,7 +128,6 @@ docker run -d -p 3000:3000 \
   -e AUTH_SECRET=your-secret \
   -e GOOGLE_CLIENT_ID=xxx \
   -e GOOGLE_CLIENT_SECRET=xxx \
-  -e AI_API_KEY=sk-... \
   -v jadeai-data:/app/data \
   twwch/jadeai:latest
 ```
@@ -159,17 +156,14 @@ cp .env.example .env.local
 Edit `.env.local`:
 
 ```bash
-# AI (required — server-side default, users can also configure in Settings)
-AI_API_KEY=sk-...
-AI_BASE_URL=https://api.openai.com/v1
-AI_MODEL=gpt-4o
-
 # Database (defaults to SQLite, no config needed)
 DB_TYPE=sqlite
 
 # Auth (defaults to fingerprint mode, no config needed)
 NEXT_PUBLIC_AUTH_ENABLED=false
 ```
+
+> **AI Configuration:** No server-side env vars needed. Each user configures their own API Key, Base URL, and Model in **Settings > AI** within the app.
 
 See `.env.example` for all available options (Google OAuth, PostgreSQL, etc.).
 

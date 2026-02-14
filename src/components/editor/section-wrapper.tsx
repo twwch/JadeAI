@@ -68,12 +68,12 @@ export function SectionWrapper({ section, onUpdate, onRemove }: SectionWrapperPr
 
   return (
     <div
-      className={`rounded-lg border border-transparent transition-all duration-200 ${
-        isSelected ? 'border-pink-300 bg-white dark:bg-zinc-800/50' : 'hover:bg-white/60 dark:hover:bg-zinc-800/30'
+      className={`rounded-xl border bg-white shadow-sm transition-all duration-200 dark:bg-zinc-900 ${
+        isSelected ? 'border-pink-300 shadow-pink-100/50 dark:shadow-pink-900/20' : 'border-zinc-200 hover:border-zinc-300 dark:border-zinc-700 dark:hover:border-zinc-600'
       } ${!section.visible ? 'opacity-50' : ''}`}
       onClick={() => selectSection(section.id)}
     >
-      <div className="flex flex-row items-center justify-between pb-2 pt-3 px-4">
+      <div className="flex flex-row items-center justify-between border-b border-zinc-100 px-4 py-2.5 dark:border-zinc-800">
         <div className="flex items-center gap-2">
           <GripVertical
             className="h-4 w-4 cursor-grab text-zinc-300 active:cursor-grabbing"
@@ -143,7 +143,7 @@ export function SectionWrapper({ section, onUpdate, onRemove }: SectionWrapperPr
           </Button>
         </div>
       </div>
-      <div className="px-4 pb-4">
+      <div className="px-4 pb-4 pt-3">
         {SectionComponent ? (
           <SectionComponent section={section} onUpdate={onUpdate} />
         ) : (

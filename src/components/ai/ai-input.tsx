@@ -41,21 +41,24 @@ export function AIInput({ input, onChange, onSubmit, isLoading, models, selected
         <div className="flex items-center justify-between px-3 pb-2.5">
           {/* Model selector */}
           <div>
-            {models.length > 0 && (
-              <Select value={selectedModel} onValueChange={onModelChange}>
-                <SelectTrigger className="h-7 gap-1 rounded-full border-zinc-200 bg-white px-2.5 text-[11px] font-medium text-zinc-600 shadow-none">
-                  <span className="mr-0.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
-                  <SelectValue placeholder="Model" />
-                </SelectTrigger>
-                <SelectContent>
-                  {models.map((id) => (
-                    <SelectItem key={id} value={id} className="text-xs">
-                      {id}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
+            <Select value={selectedModel} onValueChange={onModelChange}>
+              <SelectTrigger className="h-7 max-w-[180px] gap-1 rounded-full border-zinc-200 bg-white px-2.5 text-[11px] font-medium text-zinc-600 shadow-none">
+                <span className="mr-0.5 inline-block h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                <SelectValue placeholder="Model" />
+              </SelectTrigger>
+              <SelectContent>
+                {models.map((id) => (
+                  <SelectItem key={id} value={id} className="text-xs">
+                    {id}
+                  </SelectItem>
+                ))}
+                {models.length === 0 && selectedModel && (
+                  <SelectItem value={selectedModel} className="text-xs">
+                    {selectedModel}
+                  </SelectItem>
+                )}
+              </SelectContent>
+            </Select>
           </div>
 
           {/* Send button */}

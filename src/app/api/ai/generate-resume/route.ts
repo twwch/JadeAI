@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { generateText } from 'ai';
-import { getModel } from '@/lib/ai/provider';
+import { getModel, extractAIConfig, AIConfigError } from '@/lib/ai/provider';
 import { resolveUser, getUserIdFromRequest } from '@/lib/auth/helpers';
 import { resumeRepository } from '@/lib/db/repositories/resume.repository';
 import { generateResumeInputSchema, type GenerateResumeOutput } from '@/lib/ai/generate-resume-schema';
@@ -76,7 +76,8 @@ export async function POST(request: NextRequest) {
     const { jobTitle, yearsOfExperience, skills, industry, experience, template, language } = parsed.data;
     const lang = language || 'zh';
 
-    const model = getModel();
+    const aiConfig = extractAIConfig(request);
+    const model = getModel(aiConfig);
 
     const skillsContext = skills && skills.length > 0
       ? `\nKey skills to incorporate: ${skills.join(', ')}`
@@ -156,6 +157,9 @@ Respond with JSON only.`,
       sections: completeResume?.sections || [],
     });
   } catch (error) {
+    if (error instanceof AIConfigError) {
+      return NextResponse.json({ error: error.message }, { status: 401 });
+    }
     console.error('POST /api/ai/generate-resume error:', error);
     return NextResponse.json({ error: 'Failed to generate resume' }, { status: 500 });
   }

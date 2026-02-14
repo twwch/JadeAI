@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useEditorStore } from '@/stores/editor-store';
+import { getAIHeaders } from '@/stores/settings-store';
 
 interface GrammarIssue {
   sectionId: string;
@@ -144,6 +145,7 @@ export function GrammarCheckDialog({ open, onOpenChange, resumeId }: GrammarChec
         headers: {
           'Content-Type': 'application/json',
           ...(fingerprint ? { 'x-fingerprint': fingerprint } : {}),
+          ...getAIHeaders(),
         },
         body: JSON.stringify({ resumeId }),
       });
