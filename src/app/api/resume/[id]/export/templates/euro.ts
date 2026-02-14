@@ -1,5 +1,4 @@
 import { esc, getPersonalInfo, visibleSections, buildHighlights, type ResumeWithSections, type Section } from '../utils';
-import { buildClassicSectionContent } from './classic';
 
 function buildEuroSectionContent(s: Section): string {
   const c = s.content as any;
@@ -14,7 +13,7 @@ function buildEuroSectionContent(s: Section): string {
         <span class="shrink-0 text-xs text-zinc-400">${esc(it.startDate)} – ${it.current ? 'Present' : esc(it.endDate || '')}</span>
       </div>
       ${it.description ? `<p class="mt-1 text-sm text-zinc-600">${esc(it.description)}</p>` : ''}
-      ${buildHighlights(it.highlights, 'text-sm text-zinc-600')}
+      ${it.highlights?.length ? `<ul class="mt-1 list-disc pl-4">${buildHighlights(it.highlights, 'text-sm text-zinc-600')}</ul>` : ''}
     </div>`).join('')}</div>`;
   }
 
@@ -30,7 +29,7 @@ function buildEuroSectionContent(s: Section): string {
 
   if (s.type === 'skills') {
     return `<div class="space-y-1">${(c.categories || []).map((cat: any) =>
-      `<div class="flex text-sm"><span class="w-28 shrink-0 font-medium" style="color:${BL}">${esc(cat.name)}:</span><span class="text-zinc-600">${(cat.skills || []).map(esc).join(', ')}</span></div>`
+      `<div class="flex text-sm"><span class="w-28 shrink-0 font-medium" style="color:${BL}">${esc(cat.name)}:</span><span class="text-zinc-600">${esc((cat.skills || []).join(', '))}</span></div>`
     ).join('')}</div>`;
   }
 
@@ -41,7 +40,7 @@ function buildEuroSectionContent(s: Section): string {
     </div>`).join('')}</div>`;
   }
 
-  return buildClassicSectionContent(s);
+  return '';
 }
 
 export function buildEuroHtml(resume: ResumeWithSections): string {

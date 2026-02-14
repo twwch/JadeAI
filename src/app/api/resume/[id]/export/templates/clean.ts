@@ -1,5 +1,4 @@
 import { esc, getPersonalInfo, visibleSections, buildHighlights, type ResumeWithSections, type Section } from '../utils';
-import { buildClassicSectionContent } from './classic';
 
 function buildCleanSectionContent(s: Section): string {
   const c = s.content as any;
@@ -14,7 +13,7 @@ function buildCleanSectionContent(s: Section): string {
         <span class="shrink-0 text-xs text-zinc-400">${esc(it.startDate)} – ${it.current ? 'Present' : esc(it.endDate || '')}</span>
       </div>
       ${it.description ? `<p class="mt-1 text-sm text-zinc-600">${esc(it.description)}</p>` : ''}
-      ${buildHighlights(it.highlights, 'text-sm text-zinc-600')}
+      ${it.highlights?.length ? `<ul class="mt-1 list-disc pl-4">${buildHighlights(it.highlights, 'text-sm text-zinc-600')}</ul>` : ''}
     </div>`).join('')}</div>`;
   }
 
@@ -43,7 +42,7 @@ function buildCleanSectionContent(s: Section): string {
     </div>`).join('')}</div>`;
   }
 
-  return buildClassicSectionContent(s);
+  return '';
 }
 
 export function buildCleanHtml(resume: ResumeWithSections): string {

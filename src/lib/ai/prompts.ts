@@ -1,4 +1,17 @@
 export function getSystemPrompt(resumeContext: string): string {
+  // Parse sections to build an explicit list for the AI
+  let sectionList = '';
+  if (resumeContext) {
+    try {
+      const sections = JSON.parse(resumeContext);
+      if (Array.isArray(sections)) {
+        sectionList = sections
+          .map((s: any) => `  - [${s.type}] "${s.title}" (sectionId: ${s.id})`)
+          .join('\n');
+      }
+    } catch { /* ignore parse errors */ }
+  }
+
   return `You are an expert resume optimization assistant for JadeAI.
 Your goal is to help users improve their resumes to be more professional, impactful, and ATS-friendly.
 
@@ -23,7 +36,10 @@ When using tools:
 3. Use the exact sectionId values from the resume data
 4. For complex field values (arrays, objects), pass them as JSON strings in the "value" parameter
 
-IMPORTANT: When the user asks you to fill, generate, or populate the resume, you MUST update ALL existing sections — not just the first few. Check every section in the resume data and fill each one with relevant content. Do NOT stop after 5 sections. Continue until every visible section has been populated.
-
+## CRITICAL RULES — Section Handling
+- You MUST NEVER remove, delete, or skip any existing section. The user has manually chosen which sections to include.
+- When the user asks you to fill, generate, or populate the resume, you MUST update EVERY section listed below — no exceptions.
+- Do NOT stop after a few sections. Continue calling updateSection until ALL sections have been populated.
+${sectionList ? `\nThe resume currently has these sections (you MUST fill ALL of them):\n${sectionList}\n` : ''}
 ${resumeContext ? `## Current Resume Data\n${resumeContext}` : 'No resume context provided.'}`;
 }

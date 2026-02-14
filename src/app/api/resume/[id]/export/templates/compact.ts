@@ -8,8 +8,6 @@ import type {
   LanguagesContent,
 } from '@/types/resume';
 import { esc, getPersonalInfo, visibleSections, buildHighlights, type ResumeWithSections, type Section } from '../utils';
-import { buildClassicSectionContent } from './classic';
-import { buildTwoColumnLeftContent } from './two-column';
 
 function buildCompactRightContent(section: Section): string {
   const c = section.content as any;
@@ -33,7 +31,13 @@ function buildCompactRightContent(section: Section): string {
       ${it.description ? `<p class="mt-0.5 text-xs text-zinc-600">${esc(it.description)}</p>` : ''}
     </div>`).join('')}</div>`;
   }
-  return buildClassicSectionContent(section);
+  if (c.items) {
+    return `<div class="space-y-1.5">${c.items.map((it: any) => `<div>
+      <span class="text-xs font-medium text-zinc-700">${esc(it.name || it.title || it.language)}</span>
+      ${it.description ? `<p class="text-xs text-zinc-600">${esc(it.description)}</p>` : ''}
+    </div>`).join('')}</div>`;
+  }
+  return '';
 }
 
 function buildCompactLeftContent(section: Section): string {
@@ -53,7 +57,13 @@ function buildCompactLeftContent(section: Section): string {
       `<div><p class="text-[10px] font-semibold text-zinc-700">${esc(it.name)}</p><p class="text-[9px] text-zinc-400">${esc(it.issuer)}${it.date ? ` (${esc(it.date)})` : ''}</p></div>`
     ).join('')}</div>`;
   }
-  return buildTwoColumnLeftContent(section);
+  if (c.items) {
+    return `<div class="space-y-1">${c.items.map((it: any) => `<div>
+      <span class="text-[10px] font-medium text-zinc-700">${esc(it.name || it.title || it.language)}</span>
+      ${it.description ? `<p class="text-[9px] text-zinc-400">${esc(it.description)}</p>` : ''}
+    </div>`).join('')}</div>`;
+  }
+  return '';
 }
 
 export function buildCompactHtml(resume: ResumeWithSections): string {
@@ -62,7 +72,13 @@ export function buildCompactHtml(resume: ResumeWithSections): string {
   const sections = visibleSections(resume);
   const leftSections = sections.filter(s => LEFT_TYPES.has(s.type));
   const rightSections = sections.filter(s => !LEFT_TYPES.has(s.type));
-  const contacts = [pi.jobTitle, pi.email, pi.phone, pi.location, pi.website].filter(Boolean);
+
+  const contactParts: string[] = [];
+  if (pi.jobTitle) contactParts.push(`<span class="font-medium text-zinc-700">${esc(pi.jobTitle)}</span>`);
+  if (pi.email) { contactParts.push(`<span class="text-zinc-300">|</span>`); contactParts.push(`<span>${esc(pi.email)}</span>`); }
+  if (pi.phone) { contactParts.push(`<span class="text-zinc-300">|</span>`); contactParts.push(`<span>${esc(pi.phone)}</span>`); }
+  if (pi.location) { contactParts.push(`<span class="text-zinc-300">|</span>`); contactParts.push(`<span>${esc(pi.location)}</span>`); }
+  if (pi.website) { contactParts.push(`<span class="text-zinc-300">|</span>`); contactParts.push(`<span>${esc(pi.website)}</span>`); }
 
   return `<div class="mx-auto max-w-[210mm] bg-white shadow-lg" style="font-family:Inter,sans-serif">
     <div class="border-b border-zinc-200 px-6 py-4">
@@ -70,7 +86,7 @@ export function buildCompactHtml(resume: ResumeWithSections): string {
         ${pi.avatar ? `<img src="${esc(pi.avatar)}" alt="" class="h-12 w-12 shrink-0 rounded-full object-cover"/>` : ''}
         <div class="flex-1">
           <h1 class="text-xl font-bold text-zinc-900">${esc(pi.fullName || 'Your Name')}</h1>
-          <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-zinc-500">${contacts.map((c, i) => `${i > 0 ? '<span class="text-zinc-300">|</span>' : ''}<span>${esc(c)}</span>`).join('')}</div>
+          <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-zinc-500">${contactParts.join('')}</div>
         </div>
       </div>
     </div>

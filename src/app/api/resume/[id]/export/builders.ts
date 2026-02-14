@@ -20,6 +20,42 @@ import { buildEuroHtml } from './templates/euro';
 import { buildCleanHtml } from './templates/clean';
 import { buildBoldHtml } from './templates/bold';
 import { buildTimelineHtml } from './templates/timeline';
+// Batch 1
+import { buildNordicHtml } from './templates/nordic';
+import { buildCorporateHtml } from './templates/corporate';
+import { buildConsultantHtml } from './templates/consultant';
+import { buildFinanceHtml } from './templates/finance';
+import { buildMedicalHtml } from './templates/medical';
+// Batch 2
+import { buildGradientHtml } from './templates/gradient';
+import { buildMetroHtml } from './templates/metro';
+import { buildMaterialHtml } from './templates/material';
+import { buildCoderHtml } from './templates/coder';
+import { buildBlocksHtml } from './templates/blocks';
+// Batch 3
+import { buildMagazineHtml } from './templates/magazine';
+import { buildArtisticHtml } from './templates/artistic';
+import { buildRetroHtml } from './templates/retro';
+import { buildNeonHtml } from './templates/neon';
+import { buildWatercolorHtml } from './templates/watercolor';
+// Batch 4
+import { buildSwissHtml } from './templates/swiss';
+import { buildJapaneseHtml } from './templates/japanese';
+import { buildBerlinHtml } from './templates/berlin';
+import { buildLuxeHtml } from './templates/luxe';
+import { buildRoseHtml } from './templates/rose';
+// Batch 5
+import { buildArchitectHtml } from './templates/architect';
+import { buildLegalHtml } from './templates/legal';
+import { buildTeacherHtml } from './templates/teacher';
+import { buildScientistHtml } from './templates/scientist';
+import { buildEngineerHtml } from './templates/engineer';
+// Batch 6
+import { buildSidebarHtml } from './templates/sidebar';
+import { buildCardHtml } from './templates/card';
+import { buildZigzagHtml } from './templates/zigzag';
+import { buildRibbonHtml } from './templates/ribbon';
+import { buildMosaicHtml } from './templates/mosaic';
 
 const TEMPLATE_BUILDERS: Record<string, (r: ResumeWithSections) => string> = {
   classic: buildClassicHtml,
@@ -42,6 +78,42 @@ const TEMPLATE_BUILDERS: Record<string, (r: ResumeWithSections) => string> = {
   clean: buildCleanHtml,
   bold: buildBoldHtml,
   timeline: buildTimelineHtml,
+  // Batch 1
+  nordic: buildNordicHtml,
+  corporate: buildCorporateHtml,
+  consultant: buildConsultantHtml,
+  finance: buildFinanceHtml,
+  medical: buildMedicalHtml,
+  // Batch 2
+  gradient: buildGradientHtml,
+  metro: buildMetroHtml,
+  material: buildMaterialHtml,
+  coder: buildCoderHtml,
+  blocks: buildBlocksHtml,
+  // Batch 3
+  magazine: buildMagazineHtml,
+  artistic: buildArtisticHtml,
+  retro: buildRetroHtml,
+  neon: buildNeonHtml,
+  watercolor: buildWatercolorHtml,
+  // Batch 4
+  swiss: buildSwissHtml,
+  japanese: buildJapaneseHtml,
+  berlin: buildBerlinHtml,
+  luxe: buildLuxeHtml,
+  rose: buildRoseHtml,
+  // Batch 5
+  architect: buildArchitectHtml,
+  legal: buildLegalHtml,
+  teacher: buildTeacherHtml,
+  scientist: buildScientistHtml,
+  engineer: buildEngineerHtml,
+  // Batch 6
+  sidebar: buildSidebarHtml,
+  card: buildCardHtml,
+  zigzag: buildZigzagHtml,
+  ribbon: buildRibbonHtml,
+  mosaic: buildMosaicHtml,
 };
 
 export function generateHtml(resume: ResumeWithSections, forPdf = false): string {
@@ -57,7 +129,7 @@ export function generateHtml(resume: ResumeWithSections, forPdf = false): string
        ${isBackground ? '@page :first { margin-top: 0; }' : ''}
        body { background: white !important; padding: 0 !important; display: block !important; }
        .resume-export { width: 100%; }
-       .resume-export > div { box-shadow: none !important; background: white !important; ${isBackground ? 'max-width: none !important; width: 100% !important;' : ''} }
+       .resume-export > div { box-shadow: none !important; ${isBackground ? 'max-width: none !important; width: 100% !important;' : 'background: white !important;'} }
        /* Smart pagination */
        [data-section] { break-inside: avoid; }
        .item, [data-section] > div > div { break-inside: avoid; }

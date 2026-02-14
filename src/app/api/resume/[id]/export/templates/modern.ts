@@ -5,7 +5,6 @@ import type {
   SkillsContent,
 } from '@/types/resume';
 import { esc, getPersonalInfo, visibleSections, buildHighlights, type ResumeWithSections, type Section } from '../utils';
-import { buildClassicSectionContent } from './classic';
 
 function buildModernSectionContent(section: Section): string {
   const c = section.content as any;
@@ -23,8 +22,6 @@ function buildModernSectionContent(section: Section): string {
       <h3 class="text-sm font-semibold text-zinc-800">${esc(it.institution)}</h3>
       <p class="text-sm text-zinc-600">${esc(it.degree)} ${it.field ? `- ${esc(it.field)}` : ''}</p>
       <span class="text-xs text-zinc-400">${esc(it.startDate)} - ${esc(it.endDate)}</span>
-      ${it.gpa ? `<p class="text-sm text-zinc-500">GPA: ${esc(it.gpa)}</p>` : ''}
-      ${it.highlights?.length ? `<ul class="mt-1 list-disc pl-4">${buildHighlights(it.highlights, 'text-sm text-zinc-600')}</ul>` : ''}
     </div>`).join('')}</div>`;
   }
   if (section.type === 'skills') {
@@ -33,7 +30,10 @@ function buildModernSectionContent(section: Section): string {
       `<span class="rounded-full border border-zinc-200 bg-zinc-50 px-3 py-1 text-xs font-medium text-zinc-700">${esc(skill)}</span>`
     ).join('')}</div>`;
   }
-  return buildClassicSectionContent(section);
+  if (c.items) {
+    return `<div class="space-y-2">${c.items.map((it: any) => `<div class="border-l-2 border-zinc-200 pl-4"><span class="text-sm font-medium text-zinc-700">${esc(it.name || it.title || it.language)}</span>${it.description ? `<p class="text-sm text-zinc-600">${esc(it.description)}</p>` : ''}</div>`).join('')}</div>`;
+  }
+  return '';
 }
 
 export function buildModernHtml(resume: ResumeWithSections): string {

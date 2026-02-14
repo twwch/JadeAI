@@ -5,7 +5,6 @@ import type {
   SkillsContent,
 } from '@/types/resume';
 import { esc, getPersonalInfo, visibleSections, buildHighlights, type ResumeWithSections, type Section } from '../utils';
-import { buildClassicSectionContent } from './classic';
 
 function buildFormalSectionContent(section: Section): string {
   const c = section.content as any;
@@ -30,7 +29,10 @@ function buildFormalSectionContent(section: Section): string {
       `<div class="flex text-sm"><span class="w-32 shrink-0 font-semibold" style="color:${DG}">${esc(cat.name)}:</span><span class="text-zinc-600">${esc((cat.skills || []).join(', '))}</span></div>`
     ).join('')}</div>`;
   }
-  return buildClassicSectionContent(section);
+  if (c.items) {
+    return `<div class="space-y-2">${c.items.map((it: any) => `<div><span class="text-sm font-medium" style="color:${DG}">${esc(it.name || it.title || it.language)}</span>${it.description ? `<p class="text-sm text-zinc-600">${esc(it.description)}</p>` : ''}</div>`).join('')}</div>`;
+  }
+  return '';
 }
 
 export function buildFormalHtml(resume: ResumeWithSections): string {

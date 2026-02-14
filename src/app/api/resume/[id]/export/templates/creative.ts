@@ -30,7 +30,7 @@ function buildCreativeSectionContent(section: Section): string {
       <div class="flex items-baseline justify-between"><h3 class="text-sm font-bold text-zinc-800">${esc(it.institution)}</h3><span class="text-xs text-zinc-400">${esc(it.startDate)} – ${esc(it.endDate)}</span></div>
       <p class="text-sm text-zinc-600">${esc(it.degree)}${it.field ? ` in ${esc(it.field)}` : ''}</p>
       ${it.gpa ? `<p class="text-xs text-zinc-500">GPA: ${esc(it.gpa)}</p>` : ''}
-      ${it.highlights?.length ? `<ul class="mt-1.5 space-y-0.5">${buildHighlights(it.highlights, '', 'custom-dot')}</ul>` : ''}
+      ${it.highlights?.length ? `<ul class="mt-1 space-y-0.5">${buildHighlights(it.highlights, '', 'custom-dot')}</ul>` : ''}
     </div>`).join('')}</div>`;
   }
   if (section.type === 'skills') {
@@ -89,7 +89,7 @@ export function buildCreativeHtml(resume: ResumeWithSections): string {
         <div>
           <h1 class="text-3xl font-extrabold tracking-tight">${esc(pi.fullName || 'Your Name')}</h1>
           ${pi.jobTitle ? `<p class="mt-1 text-lg font-light text-white/80">${esc(pi.jobTitle)}</p>` : ''}
-          ${contacts.length ? `<div class="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-white/70">${contacts.map((c, i) => `<span>${esc(c)}${i < contacts.length - 1 ? '<span class="mx-0.5 text-white/30">|</span>' : ''}</span>`).join('')}</div>` : ''}
+          ${contacts.length ? `<div class="mt-3 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-white/70">${contacts.map((c, i) => `<span class="flex items-center gap-1.5">${esc(c)}${i < contacts.length - 1 ? '<span class="text-white/30">|</span>' : ''}</span>`).join('')}</div>` : ''}
         </div>
       </div>
     </div>

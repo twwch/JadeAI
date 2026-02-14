@@ -1,5 +1,4 @@
 import { esc, getPersonalInfo, visibleSections, type ResumeWithSections, type Section } from '../utils';
-import { buildClassicSectionContent } from './classic';
 
 function buildBoldSectionContent(s: Section): string {
   const c = s.content as any;
@@ -42,7 +41,7 @@ function buildBoldSectionContent(s: Section): string {
     </div>`).join('')}</div>`;
   }
 
-  return buildClassicSectionContent(s);
+  return '';
 }
 
 export function buildBoldHtml(resume: ResumeWithSections): string {
@@ -53,7 +52,7 @@ export function buildBoldHtml(resume: ResumeWithSections): string {
   return `<div class="mx-auto max-w-[210mm] bg-white shadow-lg" style="font-family:Inter,sans-serif">
     <div class="bg-black px-8 py-8 text-white">
       <div class="flex items-center gap-5">
-        ${pi.avatar ? `<img src="${esc(pi.avatar)}" alt="" class="h-20 w-20 shrink-0 rounded-full border-white object-cover" style="border-width:3px"/>` : ''}
+        ${pi.avatar ? `<img src="${esc(pi.avatar)}" alt="" class="h-20 w-20 shrink-0 rounded-full border-3 border-white object-cover"/>` : ''}
         <div>
           <h1 class="text-4xl font-black tracking-tight">${esc(pi.fullName || 'Your Name')}</h1>
           ${pi.jobTitle ? `<p class="mt-1 text-lg font-light text-zinc-400">${esc(pi.jobTitle)}</p>` : ''}

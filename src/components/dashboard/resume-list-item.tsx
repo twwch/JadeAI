@@ -41,6 +41,42 @@ const templateLabelKeys: Record<string, string> = {
   clean: 'dashboard.templateClean',
   bold: 'dashboard.templateBold',
   timeline: 'dashboard.templateTimeline',
+  // Batch 1
+  nordic: 'dashboard.templateNordic',
+  corporate: 'dashboard.templateCorporate',
+  consultant: 'dashboard.templateConsultant',
+  finance: 'dashboard.templateFinance',
+  medical: 'dashboard.templateMedical',
+  // Batch 2
+  gradient: 'dashboard.templateGradient',
+  metro: 'dashboard.templateMetro',
+  material: 'dashboard.templateMaterial',
+  coder: 'dashboard.templateCoder',
+  blocks: 'dashboard.templateBlocks',
+  // Batch 3
+  magazine: 'dashboard.templateMagazine',
+  artistic: 'dashboard.templateArtistic',
+  retro: 'dashboard.templateRetro',
+  neon: 'dashboard.templateNeon',
+  watercolor: 'dashboard.templateWatercolor',
+  // Batch 4
+  swiss: 'dashboard.templateSwiss',
+  japanese: 'dashboard.templateJapanese',
+  berlin: 'dashboard.templateBerlin',
+  luxe: 'dashboard.templateLuxe',
+  rose: 'dashboard.templateRose',
+  // Batch 5
+  architect: 'dashboard.templateArchitect',
+  legal: 'dashboard.templateLegal',
+  teacher: 'dashboard.templateTeacher',
+  scientist: 'dashboard.templateScientist',
+  engineer: 'dashboard.templateEngineer',
+  // Batch 6
+  sidebar: 'dashboard.templateSidebar',
+  card: 'dashboard.templateCard',
+  zigzag: 'dashboard.templateZigzag',
+  ribbon: 'dashboard.templateRibbon',
+  mosaic: 'dashboard.templateMosaic',
 };
 
 export function ResumeListItem({ resume, onDelete, onDuplicate, onRename }: ResumeListItemProps) {

@@ -5,10 +5,10 @@ import type {
   SkillsContent,
 } from '@/types/resume';
 import { esc, getPersonalInfo, visibleSections, buildHighlights, type ResumeWithSections, type Section } from '../utils';
-import { buildClassicSectionContent } from './classic';
 
-function buildInfographicSectionContent(section: Section, color: string): string {
+function buildInfographicSectionContent(section: Section, color: string, colorIndex: number): string {
   const c = section.content as any;
+  const COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899'];
   if (section.type === 'summary') return `<p class="rounded-lg border-l-4 bg-zinc-50 p-4 text-sm leading-relaxed text-zinc-600" style="border-color:${color}">${esc((c as SummaryContent).text)}</p>`;
   if (section.type === 'work_experience') {
     return `<div class="space-y-4">${((c as WorkExperienceContent).items || []).map((it: any) => `<div class="rounded-lg border border-zinc-100 p-4">
@@ -25,15 +25,17 @@ function buildInfographicSectionContent(section: Section, color: string): string
     </div>`).join('')}</div>`;
   }
   if (section.type === 'skills') {
-    const COLORS = ['#3b82f6', '#ef4444', '#f59e0b', '#10b981', '#8b5cf6', '#ec4899'];
     return `<div class="space-y-2">${((c as SkillsContent).categories || []).map((cat: any, ci: number) => `<div>
       <p class="mb-1 text-xs font-bold text-zinc-500">${esc(cat.name)}</p>
       <div class="flex flex-wrap gap-1.5">${(cat.skills || []).map((skill: string) =>
-        `<span class="rounded-full px-2.5 py-0.5 text-xs font-medium text-white" style="background:${COLORS[ci % COLORS.length]}">${esc(skill)}</span>`
+        `<span class="rounded-full px-2.5 py-0.5 text-xs font-medium text-white" style="background:${COLORS[(colorIndex + ci) % COLORS.length]}">${esc(skill)}</span>`
       ).join('')}</div>
     </div>`).join('')}</div>`;
   }
-  return buildClassicSectionContent(section);
+  if (c.items) {
+    return `<div class="space-y-2">${c.items.map((it: any) => `<div class="rounded-lg border border-zinc-100 p-3"><span class="text-sm font-medium text-zinc-800">${esc(it.name || it.title || it.language)}</span>${it.description ? `<p class="text-sm text-zinc-600">${esc(it.description)}</p>` : ''}</div>`).join('')}</div>`;
+  }
+  return '';
 }
 
 export function buildInfographicHtml(resume: ResumeWithSections): string {
@@ -59,7 +61,7 @@ export function buildInfographicHtml(resume: ResumeWithSections): string {
           <span class="inline-flex h-6 w-6 items-center justify-center rounded-full text-[10px] text-white" style="background:${COLORS[idx % COLORS.length]}">${idx + 1}</span>
           <span style="color:${COLORS[idx % COLORS.length]}">${esc(s.title)}</span>
         </h2>
-        ${buildInfographicSectionContent(s, COLORS[idx % COLORS.length])}
+        ${buildInfographicSectionContent(s, COLORS[idx % COLORS.length], idx)}
       </div>`).join('')}
     </div>
   </div>`;

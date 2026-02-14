@@ -22,13 +22,30 @@ export const DEFAULT_SECTIONS: { type: SectionType; titleZh: string; titleEn: st
   { type: 'skills', titleZh: '技能特长', titleEn: 'Skills' },
 ];
 
-export const TEMPLATES = ['classic', 'modern', 'minimal', 'professional', 'two-column', 'creative', 'ats', 'academic', 'elegant', 'executive', 'developer', 'designer', 'startup', 'formal', 'infographic', 'compact', 'euro', 'clean', 'bold', 'timeline'] as const;
+export const TEMPLATES = [
+  'classic', 'modern', 'minimal', 'professional', 'two-column', 'creative', 'ats', 'academic', 'elegant', 'executive',
+  'developer', 'designer', 'startup', 'formal', 'infographic', 'compact', 'euro', 'clean', 'bold', 'timeline',
+  // Batch 1: Industry/Professional
+  'nordic', 'corporate', 'consultant', 'finance', 'medical',
+  // Batch 2: Modern/Tech
+  'gradient', 'metro', 'material', 'coder', 'blocks',
+  // Batch 3: Creative/Artistic
+  'magazine', 'artistic', 'retro', 'neon', 'watercolor',
+  // Batch 4: Style/Culture
+  'swiss', 'japanese', 'berlin', 'luxe', 'rose',
+  // Batch 5: Specialized
+  'architect', 'legal', 'teacher', 'scientist', 'engineer',
+  // Batch 6: Layout Variants
+  'sidebar', 'card', 'zigzag', 'ribbon', 'mosaic',
+] as const;
 export type Template = (typeof TEMPLATES)[number];
 
 /** Templates with full-bleed background headers — no outer padding needed */
 export const BACKGROUND_TEMPLATES: ReadonlySet<string> = new Set([
   'modern', 'creative', 'two-column', 'executive', 'developer',
   'designer', 'startup', 'infographic', 'compact', 'bold',
+  'corporate', 'finance', 'gradient', 'material', 'coder',
+  'artistic', 'neon', 'berlin', 'engineer', 'sidebar', 'ribbon',
 ]);
 
 export const AUTOSAVE_DELAY = 500;

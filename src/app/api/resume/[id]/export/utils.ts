@@ -100,19 +100,27 @@ export function buildExportThemeCSS(theme: typeof DEFAULT_THEME, template: strin
       font-size: ${fs.body} !important;
       line-height: ${theme.lineSpacing} !important;
     }
-    ${sel} h1 { color: ${theme.primaryColor} !important; font-size: ${fs.h1} !important; }
-    ${sel} h2 { color: ${theme.primaryColor} !important; font-size: ${fs.h2} !important; border-color: ${theme.accentColor} !important; }
-    ${sel} h3 { color: ${theme.primaryColor} !important; font-size: ${fs.h3} !important; }
+    ${sel} h1:not([style*="color"]) { color: ${theme.primaryColor} !important; font-size: ${fs.h1} !important; }
+    ${sel} h1[style*="color"] { font-size: ${fs.h1} !important; }
+    ${sel} h2:not([style*="color"]) { color: ${theme.primaryColor} !important; font-size: ${fs.h2} !important; border-color: ${theme.accentColor} !important; }
+    ${sel} h2[style*="color"] { font-size: ${fs.h2} !important; border-color: ${theme.accentColor} !important; }
+    ${sel} h3:not([style*="color"]) { color: ${theme.primaryColor} !important; font-size: ${fs.h3} !important; }
+    ${sel} h3[style*="color"] { font-size: ${fs.h3} !important; }
     ${sel} [class*="border-b-2"], ${sel} [class*="border-b-"] { border-color: ${theme.accentColor} !important; }
     ${sel} [data-section] { margin-bottom: ${theme.sectionSpacing}px !important; }
     ${primaryIsDark ? `
-    ${sel} [style*="background"][style*="#"] h1,
-    ${sel} [style*="background"][style*="#"] h2,
-    ${sel} [style*="background"][style*="#"] h3,
-    ${sel} [style*="background"][style*="linear-gradient"] h1,
-    ${sel} [style*="background"][style*="linear-gradient"] h2,
-    ${sel} [style*="background"][style*="linear-gradient"] h3,
-    ${sel} .bg-black h1, ${sel} .bg-black h2, ${sel} .bg-black h3 {
+    ${sel} [style*="background"][style*="#"] h1:not([style*="color"]),
+    ${sel} [style*="background"][style*="#"] h2:not([style*="color"]),
+    ${sel} [style*="background"][style*="#"] h3:not([style*="color"]),
+    ${sel} [style*="background"][style*="rgb"] h1:not([style*="color"]),
+    ${sel} [style*="background"][style*="rgb"] h2:not([style*="color"]),
+    ${sel} [style*="background"][style*="rgb"] h3:not([style*="color"]),
+    ${sel} [style*="background"][style*="linear-gradient"] h1:not([style*="color"]),
+    ${sel} [style*="background"][style*="linear-gradient"] h2:not([style*="color"]),
+    ${sel} [style*="background"][style*="linear-gradient"] h3:not([style*="color"]),
+    ${sel} .bg-black h1:not([style*="color"]),
+    ${sel} .bg-black h2:not([style*="color"]),
+    ${sel} .bg-black h3:not([style*="color"]) {
       color: #ffffff !important;
     }` : ''}
   `;

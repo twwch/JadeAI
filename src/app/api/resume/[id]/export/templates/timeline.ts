@@ -1,5 +1,4 @@
 import { esc, getPersonalInfo, visibleSections, buildHighlights, type ResumeWithSections, type Section } from '../utils';
-import { buildClassicSectionContent } from './classic';
 
 function buildTimelineSectionContent(s: Section): string {
   const c = s.content as any;
@@ -17,7 +16,7 @@ function buildTimelineSectionContent(s: Section): string {
         <span class="shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium" style="background:#eff6ff;color:${AC}">${esc(it.startDate)} – ${it.current ? 'Present' : esc(it.endDate || '')}</span>
       </div>
       ${it.description ? `<p class="mt-1 text-sm text-zinc-600">${esc(it.description)}</p>` : ''}
-      ${buildHighlights(it.highlights, 'text-sm text-zinc-600')}
+      ${it.highlights?.length ? `<ul class="mt-1 list-disc pl-4">${buildHighlights(it.highlights, 'text-sm text-zinc-600')}</ul>` : ''}
     </div>`).join('')}</div>`;
   }
 
@@ -35,7 +34,7 @@ function buildTimelineSectionContent(s: Section): string {
 
   if (s.type === 'skills') {
     return `<div class="space-y-1">${(c.categories || []).map((cat: any) =>
-      `<div class="flex text-sm"><span class="w-28 shrink-0 font-medium" style="color:${AC}">${esc(cat.name)}:</span><span class="text-zinc-600">${(cat.skills || []).map(esc).join(', ')}</span></div>`
+      `<div class="flex text-sm"><span class="w-28 shrink-0 font-medium" style="color:${AC}">${esc(cat.name)}:</span><span class="text-zinc-600">${esc((cat.skills || []).join(', '))}</span></div>`
     ).join('')}</div>`;
   }
 
@@ -46,7 +45,7 @@ function buildTimelineSectionContent(s: Section): string {
     </div>`).join('')}</div>`;
   }
 
-  return buildClassicSectionContent(s);
+  return '';
 }
 
 export function buildTimelineHtml(resume: ResumeWithSections): string {
@@ -58,7 +57,7 @@ export function buildTimelineHtml(resume: ResumeWithSections): string {
 
   return `<div class="mx-auto max-w-[210mm] bg-white p-8 shadow-lg" style="font-family:Inter,sans-serif">
     <div class="mb-6 text-center">
-      ${pi.avatar ? `<img src="${esc(pi.avatar)}" alt="" class="mx-auto mb-3 rounded-full border-2 object-cover" style="height:4.5rem;width:4.5rem;border-color:${AC}"/>` : ''}
+      ${pi.avatar ? `<img src="${esc(pi.avatar)}" alt="" class="mx-auto mb-3 h-18 w-18 rounded-full border-2 object-cover" style="border-color:${AC}"/>` : ''}
       <h1 class="text-2xl font-bold" style="color:${BG}">${esc(pi.fullName || 'Your Name')}</h1>
       ${pi.jobTitle ? `<p class="mt-0.5 text-base" style="color:${AC}">${esc(pi.jobTitle)}</p>` : ''}
       ${contacts.length ? `<div class="mt-2 flex flex-wrap items-center justify-center gap-3 text-sm text-zinc-500">${contacts.map(c => `<span>${esc(c)}</span>`).join('')}</div>` : ''}

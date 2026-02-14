@@ -1,0 +1,208 @@
+'use client';
+
+import type { Resume, PersonalInfoContent, SummaryContent, WorkExperienceContent, EducationContent, SkillsContent, ProjectsContent, CertificationsContent, LanguagesContent, CustomContent } from '@/types/resume';
+import { isSectionEmpty } from '../utils';
+
+const SLATE_800 = '#1e293b';
+const GOLD = '#c4a747';
+
+export function FinanceTemplate({ resume }: { resume: Resume }) {
+  const personalInfo = resume.sections.find((s) => s.type === 'personal_info');
+  const pi = (personalInfo?.content || {}) as PersonalInfoContent;
+
+  return (
+    <div className="mx-auto max-w-[210mm] bg-white shadow-lg" style={{ fontFamily: 'Georgia, "Times New Roman", serif' }}>
+      {/* Header - full-bleed dark with gold accent */}
+      <div className="px-8 py-8" style={{ background: SLATE_800 }}>
+        <div className="flex items-center gap-5">
+          {pi.avatar && (
+            <img src={pi.avatar} alt="" className="h-20 w-20 shrink-0 rounded object-cover" style={{ border: `2px solid ${GOLD}` }} />
+          )}
+          <div className="flex-1">
+            <h1 className="text-3xl font-bold tracking-tight text-white">{pi.fullName || 'Your Name'}</h1>
+            {pi.jobTitle && <p className="mt-1 text-base font-light" style={{ color: GOLD }}>{pi.jobTitle}</p>}
+            <div className="mt-2 flex flex-wrap gap-4 text-sm text-slate-400">
+              {pi.email && <span>{pi.email}</span>}
+              {pi.phone && <span>{pi.phone}</span>}
+              {pi.location && <span>{pi.location}</span>}
+              {pi.website && <span>{pi.website}</span>}
+            </div>
+          </div>
+        </div>
+        {/* Gold accent line at bottom */}
+        <div className="mt-6 h-[2px] w-full" style={{ backgroundColor: GOLD }} />
+      </div>
+
+      {/* Sections */}
+      <div className="p-8">
+        {resume.sections
+          .filter((s) => s.visible && s.type !== 'personal_info' && !isSectionEmpty(s))
+          .map((section) => (
+            <div key={section.id} className="mb-6" data-section>
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wider" style={{ color: SLATE_800 }}>
+                {section.title}
+              </h2>
+              {/* Double-line border */}
+              <div className="mb-3 border-t border-b py-px" style={{ borderColor: SLATE_800 }} />
+              <FinanceSectionContent section={section} />
+            </div>
+          ))}
+      </div>
+    </div>
+  );
+}
+
+function FinanceSectionContent({ section }: { section: any }) {
+  const content = section.content;
+
+  if (section.type === 'summary') {
+    return <p className="text-sm leading-relaxed text-slate-600">{(content as SummaryContent).text}</p>;
+  }
+
+  if (section.type === 'work_experience') {
+    return (
+      <div className="space-y-4">
+        {((content as WorkExperienceContent).items || []).map((item: any) => (
+          <div key={item.id}>
+            <div className="flex items-baseline justify-between">
+              <div>
+                <span className="text-sm font-bold" style={{ color: SLATE_800 }}>{item.position}</span>
+                {item.company && <span className="text-sm text-slate-600">, {item.company}</span>}
+              </div>
+              <span className="shrink-0 text-xs italic text-slate-400">{item.startDate} - {item.current ? 'Present' : item.endDate}</span>
+            </div>
+            {item.description && <p className="mt-1 text-sm text-slate-600">{item.description}</p>}
+            {item.highlights?.length > 0 && (
+              <ul className="mt-1 list-disc pl-5">
+                {item.highlights.map((h: string, i: number) => (
+                  <li key={i} className="text-sm text-slate-600">{h}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (section.type === 'education') {
+    return (
+      <div className="space-y-3">
+        {((content as EducationContent).items || []).map((item: any) => (
+          <div key={item.id}>
+            <div className="flex items-baseline justify-between">
+              <div>
+                <span className="text-sm font-bold" style={{ color: SLATE_800 }}>{item.degree}{item.field ? ` in ${item.field}` : ''}</span>
+                {item.institution && <span className="text-sm text-slate-600"> - {item.institution}</span>}
+              </div>
+              <span className="shrink-0 text-xs italic text-slate-400">{item.startDate} - {item.endDate}</span>
+            </div>
+            {item.gpa && <p className="text-sm text-slate-500">GPA: {item.gpa}</p>}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (section.type === 'skills') {
+    return (
+      <div className="space-y-1.5">
+        {((content as SkillsContent).categories || []).map((cat: any) => (
+          <div key={cat.id} className="flex text-sm">
+            <span className="w-32 shrink-0 font-semibold" style={{ color: SLATE_800 }}>{cat.name}:</span>
+            <span className="text-slate-600">{(cat.skills || []).join(', ')}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (section.type === 'projects') {
+    return (
+      <div className="space-y-3">
+        {((content as ProjectsContent).items || []).map((item: any) => (
+          <div key={item.id}>
+            <div className="flex items-baseline justify-between">
+              <span className="text-sm font-bold" style={{ color: SLATE_800 }}>{item.name}</span>
+              {item.startDate && (
+                <span className="shrink-0 text-xs italic text-slate-400">{item.startDate}{item.endDate ? ` - ${item.endDate}` : ''}</span>
+              )}
+            </div>
+            {item.description && <p className="mt-1 text-sm text-slate-600">{item.description}</p>}
+            {item.technologies?.length > 0 && (
+              <p className="mt-0.5 text-xs text-slate-400">Tech: {item.technologies.join(', ')}</p>
+            )}
+            {item.highlights?.length > 0 && (
+              <ul className="mt-1 list-disc pl-5">
+                {item.highlights.map((h: string, i: number) => (
+                  <li key={i} className="text-sm text-slate-600">{h}</li>
+                ))}
+              </ul>
+            )}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (section.type === 'certifications') {
+    return (
+      <div className="space-y-1.5">
+        {((content as CertificationsContent).items || []).map((item: any) => (
+          <div key={item.id}>
+            <span className="text-sm font-bold" style={{ color: SLATE_800 }}>{item.name}</span>
+            <span className="text-sm text-slate-600"> — {item.issuer} ({item.date})</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (section.type === 'languages') {
+    return (
+      <div className="space-y-1.5">
+        {((content as LanguagesContent).items || []).map((item: any) => (
+          <div key={item.id}>
+            <span className="text-sm font-bold" style={{ color: SLATE_800 }}>{item.language}</span>
+            <span className="text-sm text-slate-600"> — {item.proficiency}</span>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  if (section.type === 'custom') {
+    return (
+      <div className="space-y-3">
+        {((content as CustomContent).items || []).map((item: any) => (
+          <div key={item.id}>
+            <div className="flex items-baseline justify-between">
+              <div>
+                <span className="text-sm font-bold" style={{ color: SLATE_800 }}>{item.title}</span>
+                {item.subtitle && <span className="text-sm text-slate-500"> — {item.subtitle}</span>}
+              </div>
+              {item.date && <span className="shrink-0 text-xs italic text-slate-400">{item.date}</span>}
+            </div>
+            {item.description && <p className="mt-0.5 text-sm text-slate-600">{item.description}</p>}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  // Generic items fallback
+  if (content.items) {
+    return (
+      <div className="space-y-2">
+        {content.items.map((item: any) => (
+          <div key={item.id}>
+            <span className="text-sm font-medium" style={{ color: SLATE_800 }}>{item.name || item.title || item.language}</span>
+            {item.description && <p className="text-sm text-slate-600">{item.description}</p>}
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return null;
+}

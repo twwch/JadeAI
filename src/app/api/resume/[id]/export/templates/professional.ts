@@ -6,9 +6,9 @@ import type {
   ProjectsContent,
   CertificationsContent,
   LanguagesContent,
+  CustomContent,
 } from '@/types/resume';
 import { esc, getPersonalInfo, visibleSections, buildHighlights, type ResumeWithSections, type Section } from '../utils';
-import { buildClassicSectionContent } from './classic';
 
 function buildProfessionalSectionContent(section: Section): string {
   const c = section.content as any;
@@ -52,7 +52,16 @@ function buildProfessionalSectionContent(section: Section): string {
       `<span class="text-sm"><span class="font-semibold" style="color:${BLUE}">${esc(it.language)}</span><span class="text-zinc-500"> — ${esc(it.proficiency)}</span></span>`
     ).join('')}</div>`;
   }
-  return buildClassicSectionContent(section);
+  if (section.type === 'custom') {
+    return `<div class="space-y-2">${((c as CustomContent).items || []).map((it: any) => `<div>
+      <div class="flex items-baseline justify-between"><div><span class="text-sm font-semibold" style="color:${BLUE}">${esc(it.title)}</span>${it.subtitle ? `<span class="text-sm text-zinc-500"> — ${esc(it.subtitle)}</span>` : ''}</div>${it.date ? `<span class="shrink-0 text-xs text-zinc-400 italic">${esc(it.date)}</span>` : ''}</div>
+      ${it.description ? `<p class="mt-0.5 text-sm text-zinc-600">${esc(it.description)}</p>` : ''}
+    </div>`).join('')}</div>`;
+  }
+  if (c.items) {
+    return `<div class="space-y-2">${c.items.map((it: any) => `<div><span class="text-sm font-medium" style="color:${BLUE}">${esc(it.name || it.title || it.language)}</span>${it.description ? `<p class="text-sm text-zinc-600">${esc(it.description)}</p>` : ''}</div>`).join('')}</div>`;
+  }
+  return '';
 }
 
 export function buildProfessionalHtml(resume: ResumeWithSections): string {

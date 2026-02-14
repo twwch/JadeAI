@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       system: getSystemPrompt(resumeContext),
       messages: truncatedMessages,
       tools,
-      stopWhen: tools ? stepCountIs(15) : undefined,
+      stopWhen: tools ? stepCountIs(25) : undefined,
       onFinish: async ({ text, steps }) => {
         if (!sessionId) return;
 
