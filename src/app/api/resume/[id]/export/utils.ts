@@ -107,7 +107,7 @@ export function buildExportThemeCSS(theme: typeof DEFAULT_THEME, template: strin
     ${sel} h3:not([style*="color"]) { color: ${theme.primaryColor} !important; font-size: ${fs.h3} !important; }
     ${sel} h3[style*="color"] { font-size: ${fs.h3} !important; }
     ${sel} [class*="border-b-2"], ${sel} [class*="border-b-"] { border-color: ${theme.accentColor} !important; }
-    ${sel} [data-section] { margin-bottom: ${theme.sectionSpacing}px !important; }
+    ${sel} [data-section] { ${needsPadding ? `margin-bottom: ${theme.sectionSpacing}px` : `padding-bottom: ${theme.sectionSpacing}px`} !important; }
     ${primaryIsDark ? `
     ${sel} [style*="background"][style*="#"] h1:not([style*="color"]),
     ${sel} [style*="background"][style*="#"] h2:not([style*="color"]),

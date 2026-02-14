@@ -57,6 +57,12 @@ import { buildZigzagHtml } from './templates/zigzag';
 import { buildRibbonHtml } from './templates/ribbon';
 import { buildMosaicHtml } from './templates/mosaic';
 
+// Templates whose ENTIRE page is dark (not just header/sidebar).
+// Body background must match so the PDF page doesn't show white gaps.
+const FULL_DARK_TEMPLATES: Record<string, string> = {
+  neon: '#111827',
+};
+
 const TEMPLATE_BUILDERS: Record<string, (r: ResumeWithSections) => string> = {
   classic: buildClassicHtml,
   modern: buildModernHtml,
@@ -123,11 +129,17 @@ export function generateHtml(resume: ResumeWithSections, forPdf = false): string
   const themeCSS = buildExportThemeCSS(theme, resume.template);
   const isBackground = BACKGROUND_TEMPLATES.has(resume.template);
 
+  const fullDarkBg = FULL_DARK_TEMPLATES[resume.template];
+  const isFullDark = !!fullDarkBg;
+
   const pdfOverrides = forPdf
-    ? `/* Page margins — let CSS @page handle per-page margins */
-       @page { margin: 12mm 0; }
-       ${isBackground ? '@page :first { margin-top: 0; }' : ''}
-       body { background: white !important; padding: 0 !important; display: block !important; }
+    ? `/* Page margins */
+       ${isFullDark
+         ? `@page { margin: 0; }`
+         : isBackground
+           ? `@page { margin: 12mm 0; } @page :first { margin: 0; }`
+           : `@page { margin: 12mm 0; }`}
+       html, body { background: ${isFullDark ? fullDarkBg : 'white'} !important; padding: 0 !important; margin: 0 !important; display: block !important; min-height: 100%; }
        .resume-export { width: 100%; }
        .resume-export > div { box-shadow: none !important; ${isBackground ? 'max-width: none !important; width: 100% !important;' : 'background: white !important;'} }
        /* Smart pagination */
@@ -136,7 +148,13 @@ export function generateHtml(resume: ResumeWithSections, forPdf = false): string
        .rounded-lg, .border-l-2 { break-inside: avoid; }
        h2, h3 { break-after: avoid; }
        ul, ol { break-inside: avoid; }
-       p { orphans: 3; widows: 3; }`
+       p { orphans: 3; widows: 3; }
+       ${isFullDark ? `/* Full-dark: simulate @page margin via content padding (can't use @page margin — it would be white) */
+       .resume-export > div > *:last-child {
+         padding: 12mm 10mm !important;
+         -webkit-box-decoration-break: clone;
+         box-decoration-break: clone;
+       }` : ''}`
     : '';
 
   return `<!DOCTYPE html>

@@ -199,7 +199,7 @@ function buildThemeCSS(scopeId: string, theme: ThemeConfig, template: string): s
       background-color: ${theme.accentColor} !important;
     }
     ${s} [data-section] {
-      margin-bottom: ${theme.sectionSpacing}px !important;
+      ${needsPadding ? `margin-bottom: ${theme.sectionSpacing}px !important;` : `padding-bottom: ${theme.sectionSpacing}px !important;`}
     }
     ${primaryIsDark ? `
     ${s} [style*="background"][style*="#"] h1:not([style*="color"]),
