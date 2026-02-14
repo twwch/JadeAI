@@ -6,6 +6,7 @@ import { userRepository } from '@/lib/db/repositories/user.repository';
 import { createSampleResume } from '@/lib/db/sample-resume';
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  trustHost: true,
   providers: config.auth.enabled
     ? [
         Google({
