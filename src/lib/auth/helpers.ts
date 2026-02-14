@@ -1,5 +1,6 @@
 import { auth } from './config';
 import { config } from '@/lib/config';
+import { dbReady } from '@/lib/db';
 import { userRepository } from '@/lib/db/repositories/user.repository';
 
 export async function getCurrentUserId(): Promise<string | null> {
@@ -12,20 +13,21 @@ export async function getCurrentUserId(): Promise<string | null> {
 }
 
 export async function resolveUser(fingerprint?: string | null) {
+  // Ensure DB tables exist before any query
+  await dbReady;
+
   if (config.auth.enabled) {
     const session = await auth();
     if (!session?.user?.id) return null;
 
+    // User was created during sign-in (jwt callback), just look up
     let user = await userRepository.findById(session.user.id);
-    if (!user) {
-      user = await userRepository.create({
-        id: session.user.id,
-        email: session.user.email || undefined,
-        name: session.user.name || undefined,
-        avatarUrl: session.user.image || undefined,
-        authType: 'oauth',
-      });
+
+    // Fallback: ID may differ if token was issued before DB creation
+    if (!user && session.user.email) {
+      user = await userRepository.findByEmail(session.user.email);
     }
+
     return user;
   }
 

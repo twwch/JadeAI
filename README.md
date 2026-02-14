@@ -12,6 +12,32 @@ Build professional resumes with drag-and-drop editing, real-time AI optimization
 
 ---
 
+## Screenshots
+
+| Template Gallery | Resume Editor |
+|:---:|:---:|
+| ![Template Gallery](images/template-list.png) | ![Resume Editor](images/resume-edit.png) |
+
+| AI Resume Generation | AI Resume Parsing (Image) |
+|:---:|:---:|
+| ![AI Resume Generation](images/AI%20填充简历.gif) | ![AI Resume Parsing](images/图片简历解析.gif) |
+
+| AI Optimization | Grammar Check |
+|:---:|:---:|
+| ![AI Optimization](images/ai%20优化.png) | ![Grammar Check](images/AI%20语法检查.png) |
+
+| Grammar Auto-Fix | JD Match Analysis |
+|:---:|:---:|
+| ![Grammar Auto-Fix](images/AI%20语法检查一键修复.png) | ![JD Match Analysis](images/JD%20匹配分析.png) |
+
+| Multi-Format Export | Share Link |
+|:---:|:---:|
+| ![Multi-Format Export](images/多项导出.png) | ![Share Link](images/创建分享链接.png) |
+
+| Shared Resume Page |
+|:---:|
+| ![Shared Resume Page](images/简历分享页.png) |
+
 ## Features
 
 ### Resume Editing
@@ -69,26 +95,66 @@ Build professional resumes with drag-and-drop editing, real-time AI optimization
 
 ## Getting Started
 
-### Prerequisites
+### Docker (Recommended)
+
+```bash
+docker run -d -p 3000:3000 \
+  -e AI_API_KEY=sk-... \
+  -e AI_BASE_URL=https://api.openai.com/v1 \
+  -e AI_MODEL=gpt-4o \
+  -v jadeai-data:/app/data \
+  twwch/jadeai:latest
+```
+
+Open [http://localhost:3000](http://localhost:3000). Database auto-migrates and seeds on first start.
+
+<details>
+<summary>With PostgreSQL</summary>
+
+```bash
+docker run -d -p 3000:3000 \
+  -e DB_TYPE=postgresql \
+  -e DATABASE_URL=postgresql://user:pass@host:5432/jadeai \
+  -e AI_API_KEY=sk-... \
+  twwch/jadeai:latest
+```
+
+</details>
+
+<details>
+<summary>With Google OAuth</summary>
+
+```bash
+docker run -d -p 3000:3000 \
+  -e NEXT_PUBLIC_AUTH_ENABLED=true \
+  -e AUTH_SECRET=your-secret \
+  -e GOOGLE_CLIENT_ID=xxx \
+  -e GOOGLE_CLIENT_SECRET=xxx \
+  -e AI_API_KEY=sk-... \
+  -v jadeai-data:/app/data \
+  twwch/jadeai:latest
+```
+
+</details>
+
+### Local Development
+
+#### Prerequisites
 
 - Node.js 18+
 - pnpm 9+
 
-### Installation
+#### Installation
 
 ```bash
-# Clone the repository
-git clone https://github.com/your-username/jadeai.git
-cd jadeai
+git clone https://github.com/twwch/JadeAI.git
+cd JadeAI
 
-# Install dependencies
 pnpm install
-
-# Set up environment variables
 cp .env.example .env.local
 ```
 
-### Configure Environment
+#### Configure Environment
 
 Edit `.env.local`:
 
@@ -107,7 +173,7 @@ NEXT_PUBLIC_AUTH_ENABLED=false
 
 See `.env.example` for all available options (Google OAuth, PostgreSQL, etc.).
 
-### Initialize Database & Run
+#### Initialize Database & Run
 
 ```bash
 # Generate and run migrations
@@ -132,7 +198,8 @@ Open [http://localhost:3000](http://localhost:3000).
 | `pnpm start` | Start production server |
 | `pnpm lint` | Run ESLint |
 | `pnpm type-check` | TypeScript type checking |
-| `pnpm db:generate` | Generate Drizzle migrations from schema |
+| `pnpm db:generate` | Generate Drizzle migrations (SQLite) |
+| `pnpm db:generate:pg` | Generate Drizzle migrations (PostgreSQL) |
 | `pnpm db:migrate` | Execute database migrations |
 | `pnpm db:studio` | Open Drizzle Studio (database GUI) |
 | `pnpm db:seed` | Seed database with sample data |

@@ -16,6 +16,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useResume } from '@/hooks/use-resume';
 import { useUIStore } from '@/stores/ui-store';
 import { useFingerprint } from '@/hooks/use-fingerprint';
+import { config } from '@/lib/config';
 import { ResumeGrid } from '@/components/dashboard/resume-grid';
 import { ResumeListItem } from '@/components/dashboard/resume-list-item';
 import { CreateResumeDialog } from '@/components/dashboard/create-resume-dialog';
@@ -98,7 +99,10 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    if (!fpLoading && fingerprint) {
+    if (fpLoading) return;
+    // OAuth mode: fingerprint is null, but we still need to fetch
+    // Fingerprint mode: wait until fingerprint is resolved
+    if (config.auth.enabled || fingerprint) {
       fetchResumes();
     }
   }, [fpLoading, fingerprint, fetchResumes]);

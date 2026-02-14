@@ -20,7 +20,8 @@
     "logout": "退出登录",
     "loginWithGoogle": "使用 Google 登录",
     "welcomeBack": "欢迎回来",
-    "loginDescription": "登录以管理你的简历"
+    "loginDescription": "登录以管理你的简历",
+    "agreeTerms": "登录即表示你同意我们的服务条款和隐私政策"
   },
   "dashboard": {
     "title": "我的简历",
@@ -454,6 +455,116 @@
         "title": "使用模板",
         "description": "选中喜欢的模板，一键创建简历并进入编辑器"
       }
+    }
+  },
+  "landing": {
+    "header": {
+      "features": "功能特色",
+      "templates": "模板库",
+      "getStarted": "立即开始",
+      "dashboard": "工作台"
+    },
+    "hero": {
+      "title": "用 AI 打造你的完美简历",
+      "subtitle": "几分钟内创建专业、ATS 友好的简历。AI 驱动，助你脱颖而出，拿下理想 Offer。",
+      "cta": "免费开始制作",
+      "secondaryCta": "浏览模板"
+    },
+    "features": {
+      "title": "求职路上，一站搞定",
+      "subtitle": "强大的工具集，让简历制作高效又专业",
+      "aiChat": {
+        "title": "AI 智能写作",
+        "description": "与 AI 对话优化简历内容，润色工作经历描述，精准适配目标岗位要求。"
+      },
+      "templates": {
+        "title": "精美专业模板",
+        "description": "精选多款现代化 ATS 友好模板，由招聘专家参与设计，助你通过筛选。"
+      },
+      "dragDrop": {
+        "title": "拖拽式编辑器",
+        "description": "轻松拖拽调整模块顺序、自定义布局，按你的方式构建简历。"
+      },
+      "export": {
+        "title": "多格式导出",
+        "description": "支持导出为 PDF、Word、HTML、纯文本或 JSON，适配各类招聘平台需求。"
+      },
+      "sharing": {
+        "title": "一键分享",
+        "description": "生成在线分享链接，支持密码保护和访问统计，安全便捷。"
+      },
+      "i18n": {
+        "title": "多语言支持",
+        "description": "支持多语种简历创建，AI 一键翻译，轻松投递海内外岗位。"
+      },
+      "jdMatch": {
+        "title": "JD 匹配",
+        "description": "粘贴职位描述，即刻获取匹配评分和优化建议，精准提升简历竞争力。"
+      },
+      "translate": {
+        "title": "AI 翻译",
+        "description": "一键翻译整份简历，AI 保持专业措辞和排版格式不变。"
+      },
+      "coverLetter": {
+        "title": "求职信生成",
+        "description": "根据简历与目标岗位 JD 自动生成求职信，支持正式、亲切、自信多种风格。"
+      },
+      "grammarCheck": {
+        "title": "语法检查",
+        "description": "检测语法错误、弱动词和模糊描述，给出写作质量评分和修改建议。"
+      }
+    },
+    "templates": {
+      "title": "精选模板，助你快速起步",
+      "subtitle": "专业设计的简历模板，通过 ATS 筛选，打动招聘官",
+      "viewAll": "查看全部模板"
+    },
+    "stats": {
+      "title": "全球求职者的信赖之选",
+      "templates": {
+        "value": "20+",
+        "label": "精选模板"
+      },
+      "exportFormats": {
+        "value": "5",
+        "label": "导出格式"
+      },
+      "languages": {
+        "value": "10+",
+        "label": "支持语言"
+      },
+      "free": {
+        "value": "100%",
+        "label": "完全免费"
+      }
+    },
+    "cta": {
+      "title": "准备好打造你的最佳简历了吗？",
+      "subtitle": "已有数千名求职者通过 JadeAI 收获面试机会。无需注册，即刻开始。",
+      "button": "立即创建简历"
+    },
+    "footer": {
+      "product": {
+        "title": "产品",
+        "features": "功能特色",
+        "templates": "模板库",
+        "pricing": "价格方案",
+        "changelog": "更新日志"
+      },
+      "resources": {
+        "title": "资源",
+        "blog": "博客",
+        "resumeTips": "简历技巧",
+        "careerGuide": "求职指南",
+        "examples": "简历示例"
+      },
+      "legal": {
+        "title": "法律信息",
+        "privacy": "隐私政策",
+        "terms": "服务条款",
+        "cookies": "Cookie 政策"
+      },
+      "copyright": "© {year} JadeAI. 保留所有权利。"
     }
   },
   "publicView": {

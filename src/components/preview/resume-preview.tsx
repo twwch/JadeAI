@@ -67,11 +67,22 @@ const DEFAULT_THEME: ThemeConfig = {
   sectionSpacing: 16,
 };
 
+/** Returns true if a hex colour is dark (luminance < 0.4) */
+function isDark(hex: string): boolean {
+  const c = hex.replace('#', '');
+  const r = parseInt(c.substring(0, 2), 16) / 255;
+  const g = parseInt(c.substring(2, 4), 16) / 255;
+  const b = parseInt(c.substring(4, 6), 16) / 255;
+  const luminance = 0.299 * r + 0.587 * g + 0.114 * b;
+  return luminance < 0.4;
+}
+
 function buildThemeCSS(scopeId: string, theme: ThemeConfig, template: string): string {
   const s = `[data-theme-scope="${scopeId}"]`;
   const fs = FONT_SIZE_SCALE[theme.fontSize] || FONT_SIZE_SCALE.medium;
   const m = theme.margin;
   const needsPadding = !BACKGROUND_TEMPLATES.has(template);
+  const primaryIsDark = isDark(theme.primaryColor);
 
   return `
     ${s} > div {
@@ -108,6 +119,16 @@ function buildThemeCSS(scopeId: string, theme: ThemeConfig, template: string): s
     ${s} [data-section] {
       margin-bottom: ${theme.sectionSpacing}px !important;
     }
+    ${primaryIsDark ? `
+    ${s} [style*="background"][style*="#"] h1,
+    ${s} [style*="background"][style*="#"] h2,
+    ${s} [style*="background"][style*="#"] h3,
+    ${s} [style*="background"][style*="linear-gradient"] h1,
+    ${s} [style*="background"][style*="linear-gradient"] h2,
+    ${s} [style*="background"][style*="linear-gradient"] h3,
+    ${s} .bg-black h1, ${s} .bg-black h2, ${s} .bg-black h3 {
+      color: #ffffff !important;
+    }` : ''}
   `;
 }
 

@@ -76,11 +76,20 @@ export const DEFAULT_THEME = {
   sectionSpacing: 16,
 };
 
+function isDark(hex: string): boolean {
+  const c = hex.replace('#', '');
+  const r = parseInt(c.substring(0, 2), 16) / 255;
+  const g = parseInt(c.substring(2, 4), 16) / 255;
+  const b = parseInt(c.substring(4, 6), 16) / 255;
+  return 0.299 * r + 0.587 * g + 0.114 * b < 0.4;
+}
+
 export function buildExportThemeCSS(theme: typeof DEFAULT_THEME, template: string): string {
   const fs = FONT_SIZE_SCALE[theme.fontSize] || FONT_SIZE_SCALE.medium;
   const m = theme.margin;
   const sel = '.resume-export';
   const needsPadding = !BACKGROUND_TEMPLATES.has(template);
+  const primaryIsDark = isDark(theme.primaryColor);
   return `
     ${sel} > div {
       font-family: ${theme.fontFamily}, sans-serif !important;
@@ -96,5 +105,15 @@ export function buildExportThemeCSS(theme: typeof DEFAULT_THEME, template: strin
     ${sel} h3 { color: ${theme.primaryColor} !important; font-size: ${fs.h3} !important; }
     ${sel} [class*="border-b-2"], ${sel} [class*="border-b-"] { border-color: ${theme.accentColor} !important; }
     ${sel} [data-section] { margin-bottom: ${theme.sectionSpacing}px !important; }
+    ${primaryIsDark ? `
+    ${sel} [style*="background"][style*="#"] h1,
+    ${sel} [style*="background"][style*="#"] h2,
+    ${sel} [style*="background"][style*="#"] h3,
+    ${sel} [style*="background"][style*="linear-gradient"] h1,
+    ${sel} [style*="background"][style*="linear-gradient"] h2,
+    ${sel} [style*="background"][style*="linear-gradient"] h3,
+    ${sel} .bg-black h1, ${sel} .bg-black h2, ${sel} .bg-black h3 {
+      color: #ffffff !important;
+    }` : ''}
   `;
 }

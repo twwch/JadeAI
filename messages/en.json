@@ -20,7 +20,8 @@
     "logout": "Log out",
     "loginWithGoogle": "Sign in with Google",
     "welcomeBack": "Welcome back",
-    "loginDescription": "Sign in to manage your resumes"
+    "loginDescription": "Sign in to manage your resumes",
+    "agreeTerms": "By signing in, you agree to our Terms of Service and Privacy Policy"
   },
   "dashboard": {
     "title": "My Resumes",
@@ -454,6 +455,116 @@
         "title": "Use Template",
         "description": "Pick a template to create a resume and enter the editor"
       }
+    }
+  },
+  "landing": {
+    "header": {
+      "features": "Features",
+      "templates": "Templates",
+      "getStarted": "Get Started",
+      "dashboard": "Dashboard"
+    },
+    "hero": {
+      "title": "Build Your Perfect Resume with AI",
+      "subtitle": "Create professional, ATS-friendly resumes in minutes. Powered by AI to help you stand out and land your dream job.",
+      "cta": "Start Building for Free",
+      "secondaryCta": "View Templates"
+    },
+    "features": {
+      "title": "Everything You Need to Land the Job",
+      "subtitle": "Powerful tools designed to make resume building effortless and effective",
+      "aiChat": {
+        "title": "AI-Powered Writing",
+        "description": "Chat with AI to optimize your resume content, rewrite bullet points, and tailor your experience for any role."
+      },
+      "templates": {
+        "title": "Professional Templates",
+        "description": "Choose from a curated collection of modern, ATS-friendly templates designed by hiring experts."
+      },
+      "dragDrop": {
+        "title": "Drag & Drop Editor",
+        "description": "Easily rearrange sections, customize layouts, and build your resume exactly the way you want."
+      },
+      "export": {
+        "title": "Multi-Format Export",
+        "description": "Export your resume as PDF, Word, HTML, plain text, or JSON — ready for any application platform."
+      },
+      "sharing": {
+        "title": "One-Click Sharing",
+        "description": "Generate a shareable link to your resume with optional password protection and view tracking."
+      },
+      "i18n": {
+        "title": "Multilingual Support",
+        "description": "Create resumes in multiple languages and translate between them instantly with AI assistance."
+      },
+      "jdMatch": {
+        "title": "JD Match Analysis",
+        "description": "Paste a job description and get an instant match score with actionable suggestions to improve your resume."
+      },
+      "translate": {
+        "title": "AI Translation",
+        "description": "Translate your entire resume between languages with one click. AI preserves professional tone and formatting."
+      },
+      "coverLetter": {
+        "title": "Cover Letter Generator",
+        "description": "Generate tailored cover letters based on your resume and the target job description — formal, friendly, or confident."
+      },
+      "grammarCheck": {
+        "title": "Grammar Check",
+        "description": "Detect grammar errors, weak verbs, and vague descriptions. Get a writing quality score with fix suggestions."
+      }
+    },
+    "templates": {
+      "title": "Beautiful Templates to Get You Started",
+      "subtitle": "Professionally designed templates that pass ATS systems and impress recruiters",
+      "viewAll": "View All Templates"
+    },
+    "stats": {
+      "title": "Trusted by Job Seekers Worldwide",
+      "templates": {
+        "value": "20+",
+        "label": "Templates"
+      },
+      "exportFormats": {
+        "value": "5",
+        "label": "Export Formats"
+      },
+      "languages": {
+        "value": "10+",
+        "label": "Languages"
+      },
+      "free": {
+        "value": "100%",
+        "label": "Free"
+      }
+    },
+    "cta": {
+      "title": "Ready to Build Your Best Resume?",
+      "subtitle": "Join thousands of job seekers who have landed interviews with JadeAI. No sign-up required.",
+      "button": "Create Your Resume Now"
+    },
+    "footer": {
+      "product": {
+        "title": "Product",
+        "features": "Features",
+        "templates": "Templates",
+        "pricing": "Pricing",
+        "changelog": "Changelog"
+      },
+      "resources": {
+        "title": "Resources",
+        "blog": "Blog",
+        "resumeTips": "Resume Tips",
+        "careerGuide": "Career Guide",
+        "examples": "Resume Examples"
+      },
+      "legal": {
+        "title": "Legal",
+        "privacy": "Privacy Policy",
+        "terms": "Terms of Service",
+        "cookies": "Cookie Policy"
+      },
+      "copyright": "© {year} JadeAI. All rights reserved."
     }
   },
   "publicView": {

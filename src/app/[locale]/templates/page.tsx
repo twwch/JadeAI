@@ -47,6 +47,9 @@ const TEMPLATES_TOUR_STEPS: TourStepConfig[] = [
   { target: 'tpl-use', placement: 'bottom', i18nKey: 'tplUse' },
 ];
 
+// Stable date to avoid SSR/client hydration mismatch
+const MOCK_DATE = new Date('2025-01-01T00:00:00Z');
+
 function buildMockResume(template: string): Resume {
   return {
     id: 'mock',
@@ -82,8 +85,8 @@ function buildMockResume(template: string): Resume {
           linkedin: 'linkedin.com/in/alexchen',
           github: 'github.com/alexchen',
         },
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: MOCK_DATE,
+        updatedAt: MOCK_DATE,
       },
       {
         id: 's2',
@@ -95,8 +98,8 @@ function buildMockResume(template: string): Resume {
         content: {
           text: 'Full-stack engineer with 8+ years of experience building scalable web applications. Passionate about clean architecture, developer experience, and mentoring teams.',
         },
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: MOCK_DATE,
+        updatedAt: MOCK_DATE,
       },
       {
         id: 's3',
@@ -137,8 +140,8 @@ function buildMockResume(template: string): Resume {
             },
           ],
         },
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: MOCK_DATE,
+        updatedAt: MOCK_DATE,
       },
       {
         id: 's4',
@@ -162,8 +165,8 @@ function buildMockResume(template: string): Resume {
             },
           ],
         },
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: MOCK_DATE,
+        updatedAt: MOCK_DATE,
       },
       {
         id: 's5',
@@ -179,8 +182,8 @@ function buildMockResume(template: string): Resume {
             { id: 'sk3', name: 'DevOps', skills: ['Docker', 'AWS', 'CI/CD', 'Kubernetes'] },
           ],
         },
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: MOCK_DATE,
+        updatedAt: MOCK_DATE,
       },
       {
         id: 's6',
@@ -201,8 +204,8 @@ function buildMockResume(template: string): Resume {
             },
           ],
         },
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: MOCK_DATE,
+        updatedAt: MOCK_DATE,
       },
       {
         id: 's7',
@@ -216,8 +219,8 @@ function buildMockResume(template: string): Resume {
             { id: 'c1', name: 'AWS Solutions Architect', issuer: 'Amazon Web Services', date: '2023-05' },
           ],
         },
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: MOCK_DATE,
+        updatedAt: MOCK_DATE,
       },
       {
         id: 's8',
@@ -232,12 +235,12 @@ function buildMockResume(template: string): Resume {
             { id: 'l2', language: 'Mandarin', proficiency: 'Native' },
           ],
         },
-        createdAt: new Date(),
-        updatedAt: new Date(),
+        createdAt: MOCK_DATE,
+        updatedAt: MOCK_DATE,
       },
     ],
-    createdAt: new Date(),
-    updatedAt: new Date(),
+    createdAt: MOCK_DATE,
+    updatedAt: MOCK_DATE,
   };
 }
 

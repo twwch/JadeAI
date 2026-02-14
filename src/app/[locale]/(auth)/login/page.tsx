@@ -1,23 +1,45 @@
+import { Suspense } from 'react';
+import Image from 'next/image';
 import { useTranslations } from 'next-intl';
-import { FileText } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { LoginButton } from '@/components/auth/login-button';
+import { Separator } from '@/components/ui/separator';
 
 export default function LoginPage() {
-  const t = useTranslations();
+  const t = useTranslations('auth');
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="items-center text-center">
-        <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-pink-50">
-          <FileText className="h-6 w-6 text-pink-500" />
-        </div>
-        <CardTitle className="text-xl">{t('auth.welcomeBack')}</CardTitle>
-        <CardDescription>{t('auth.loginDescription')}</CardDescription>
-      </CardHeader>
-      <CardContent className="flex justify-center">
+    <div className="flex flex-col items-center">
+      {/* Logo */}
+      <div className="mb-6">
+        <Image
+          src="/logo-icon.svg"
+          alt="JadeAI"
+          width={48}
+          height={48}
+          className="drop-shadow-sm"
+        />
+      </div>
+
+      {/* Heading */}
+      <h1 className="text-xl font-semibold tracking-tight text-zinc-900 dark:text-zinc-100">
+        {t('welcomeBack')}
+      </h1>
+      <p className="mt-1.5 text-sm text-zinc-500 dark:text-zinc-400">
+        {t('loginDescription')}
+      </p>
+
+      {/* Divider */}
+      <Separator className="my-6" />
+
+      {/* Login button */}
+      <Suspense fallback={null}>
         <LoginButton />
-      </CardContent>
-    </Card>
+      </Suspense>
+
+      {/* Terms */}
+      <p className="mt-6 text-center text-[11px] leading-relaxed text-zinc-400 dark:text-zinc-500">
+        {t('agreeTerms')}
+      </p>
+    </div>
   );
 }

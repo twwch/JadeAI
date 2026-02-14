@@ -125,6 +125,95 @@
   }
 }
 
+/* Landing page animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes float-delayed {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 5s ease-in-out infinite;
+  animation-delay: 1s;
+}
+
+.landing-cta-bg {
+  background: linear-gradient(135deg, #ec4899, #f472b6, #fb7185);
+}
+
+.dark .landing-cta-bg {
+  background: linear-gradient(135deg, #9d174d, #be185d, #db2777);
+}
+
+/* Landing feature demos */
+@keyframes demo-typing-dot {
+  0%, 20%, 100% { opacity: 0.2; }
+  50% { opacity: 1; }
+}
+
+@keyframes demo-slide-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes demo-drag-item {
+  0%, 10% { transform: translateY(0); box-shadow: none; }
+  20% { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+  40% { transform: translateY(-40px); box-shadow: 0 8px 24px rgba(0,0,0,0.12); }
+  60%, 100% { transform: translateY(-40px); box-shadow: none; }
+}
+
+@keyframes demo-drag-displaced {
+  0%, 40% { transform: translateY(0); }
+  50%, 100% { transform: translateY(40px); }
+}
+
+@keyframes demo-download-arrow {
+  0%, 30% { transform: translateY(0); opacity: 1; }
+  50% { transform: translateY(8px); opacity: 0.6; }
+  70%, 100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes demo-ring-fill {
+  from { stroke-dashoffset: 251; }
+  to { stroke-dashoffset: 50; }
+}
+
+@keyframes demo-check-pop {
+  0% { transform: scale(0); opacity: 0; }
+  60% { transform: scale(1.2); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes demo-swap {
+  0%, 40% { transform: translateX(0); }
+  50%, 90% { transform: translateX(8px); }
+  100% { transform: translateX(0); }
+}
+
+@keyframes demo-line-appear {
+  from { width: 0; opacity: 0; }
+  to { width: 100%; opacity: 1; }
+}
+
+@keyframes demo-underline-fix {
+  0%, 50% { background-color: #fca5a5; }
+  60%, 100% { background-color: #86efac; }
+}
+
+@keyframes demo-progress {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
 /* AI chat markdown */
 .ai-markdown {
   @apply text-[13px] leading-relaxed;

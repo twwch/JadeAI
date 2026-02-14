@@ -9,6 +9,7 @@
     "lint": "eslint",
     "type-check": "tsc --noEmit",
     "db:generate": "drizzle-kit generate",
+    "db:generate:pg": "drizzle-kit generate --config drizzle-pg.config.ts",
     "db:migrate": "drizzle-kit migrate",
     "db:studio": "drizzle-kit studio",
     "db:seed": "tsx src/lib/db/seed.ts"

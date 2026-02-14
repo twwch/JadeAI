@@ -12,6 +12,32 @@
 
 ---
 
+## 截图展示
+
+| 模板画廊 | 简历编辑器 |
+|:---:|:---:|
+| ![模板画廊](images/template-list.png) | ![简历编辑器](images/resume-edit.png) |
+
+| AI 填充简历 | AI 图片简历解析 |
+|:---:|:---:|
+| ![AI 填充简历](images/AI%20填充简历.gif) | ![AI 图片简历解析](images/图片简历解析.gif) |
+
+| AI 优化 | AI 语法检查 |
+|:---:|:---:|
+| ![AI 优化](images/ai%20优化.png) | ![AI 语法检查](images/AI%20语法检查.png) |
+
+| 语法一键修复 | JD 匹配分析 |
+|:---:|:---:|
+| ![语法一键修复](images/AI%20语法检查一键修复.png) | ![JD 匹配分析](images/JD%20匹配分析.png) |
+
+| 多格式导出 | 创建分享链接 |
+|:---:|:---:|
+| ![多格式导出](images/多项导出.png) | ![创建分享链接](images/创建分享链接.png) |
+
+| 简历分享页 |
+|:---:|
+| ![简历分享页](images/简历分享页.png) |
+
 ## 功能特性
 
 ### 简历编辑
@@ -69,26 +95,66 @@
 
 ## 快速开始
 
-### 环境要求
+### Docker 部署（推荐）
+
+```bash
+docker run -d -p 3000:3000 \
+  -e AI_API_KEY=sk-... \
+  -e AI_BASE_URL=https://api.openai.com/v1 \
+  -e AI_MODEL=gpt-4o \
+  -v jadeai-data:/app/data \
+  twwch/jadeai:latest
+```
+
+打开 [http://localhost:3000](http://localhost:3000)。首次启动自动完成数据库迁移和数据初始化。
+
+<details>
+<summary>使用 PostgreSQL</summary>
+
+```bash
+docker run -d -p 3000:3000 \
+  -e DB_TYPE=postgresql \
+  -e DATABASE_URL=postgresql://user:pass@host:5432/jadeai \
+  -e AI_API_KEY=sk-... \
+  twwch/jadeai:latest
+```
+
+</details>
+
+<details>
+<summary>使用 Google OAuth 登录</summary>
+
+```bash
+docker run -d -p 3000:3000 \
+  -e NEXT_PUBLIC_AUTH_ENABLED=true \
+  -e AUTH_SECRET=your-secret \
+  -e GOOGLE_CLIENT_ID=xxx \
+  -e GOOGLE_CLIENT_SECRET=xxx \
+  -e AI_API_KEY=sk-... \
+  -v jadeai-data:/app/data \
+  twwch/jadeai:latest
+```
+
+</details>
+
+### 本地开发
+
+#### 环境要求
 
 - Node.js 18+
 - pnpm 9+
 
-### 安装
+#### 安装
 
 ```bash
-# 克隆仓库
-git clone https://github.com/your-username/jadeai.git
-cd jadeai
+git clone https://github.com/twwch/JadeAI.git
+cd JadeAI
 
-# 安装依赖
 pnpm install
-
-# 配置环境变量
 cp .env.example .env.local
 ```
 
-### 配置环境变量
+#### 配置环境变量
 
 编辑 `.env.local`：
 
@@ -107,7 +173,7 @@ NEXT_PUBLIC_AUTH_ENABLED=false
 
 查看 `.env.example` 了解所有可用选项（Google OAuth、PostgreSQL 等）。
 
-### 初始化数据库并启动
+#### 初始化数据库并启动
 
 ```bash
 # 生成并执行迁移
@@ -132,7 +198,8 @@ pnpm dev
 | `pnpm start` | 启动生产服务器 |
 | `pnpm lint` | 运行 ESLint 检查 |
 | `pnpm type-check` | TypeScript 类型检查 |
-| `pnpm db:generate` | 从 schema 生成 Drizzle 迁移文件 |
+| `pnpm db:generate` | 生成 Drizzle 迁移文件（SQLite） |
+| `pnpm db:generate:pg` | 生成 Drizzle 迁移文件（PostgreSQL） |
 | `pnpm db:migrate` | 执行数据库迁移 |
 | `pnpm db:studio` | 打开 Drizzle Studio（数据库 GUI） |
 | `pnpm db:seed` | 填充示例数据 |

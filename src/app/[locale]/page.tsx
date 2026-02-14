@@ -1,6 +1,5 @@
-import { redirect } from '@/i18n/routing';
+import { LandingPage } from '@/components/landing/landing-page';
 
-export default async function HomePage({ params }: { params: Promise<{ locale: string }> }) {
-  const { locale } = await params;
-  redirect({ href: '/dashboard', locale });
+export default function HomePage() {
+  return <LandingPage />;
 }

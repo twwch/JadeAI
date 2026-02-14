@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm';
 import { db } from '../index';
 import { users, resumes } from '../schema';
 import { resumeRepository } from './resume.repository';
+import { createSampleResume } from '../sample-resume';
 
 export const userRepository = {
   async findById(id: string) {
@@ -31,13 +32,15 @@ export const userRepository = {
       name: 'Anonymous User',
     });
 
-    // Clone demo user's resumes for new users
+    // Clone demo user's resumes, or create a sample if seed hasn't run
     const demoUser = await this.findByFingerprint('demo-fingerprint');
     if (demoUser) {
       const demoResumes = await db.select().from(resumes).where(eq(resumes.userId, demoUser.id));
       for (const r of demoResumes) {
         await resumeRepository.duplicate(r.id, id, r.title);
       }
+    } else {
+      await createSampleResume(id);
     }
 
     return this.findById(id);
